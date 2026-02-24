@@ -17,7 +17,7 @@ A PHP Laravel 11 Wiki Engine with comments.
 clone repository via git and install laravel via composer:
 ```bash
   git clone https://github.com/Antarktidov/MyLaravelWikiEngine.git
-  cd MyLaravelWikiEngine
+  cd MLWE
   composer install
 ```
 Once the project is installed configure it as [any other Laravel app](https://laravel.com/docs/11.x/installation#initial-configuration).
