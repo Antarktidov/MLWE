@@ -62,13 +62,15 @@ class UserProfileController extends Controller
         //dd($user_medals);
 
         foreach ($user_medals as $um) {
-            $medals[] = Medal::where('user_id', $um->id)
+            $medals[] = Medal::where('id', $um->medal_id)
             ->first();
         }
 
+        //dd($medals);
+
         return view('userprofile-global', compact('user_profile', 'user',
                                         'user_group_names', 'can_review_user_profiles',
-                                        'is_my_profile', 'user_medals'));
+                                        'is_my_profile', 'medals'));
     }
 
     public function show_local(string $wikiName, User $user) {

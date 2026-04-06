@@ -16,7 +16,9 @@ class MedalForm
                     ->required(),
                 FileUpload::make('image')
                     ->image()
-                    ->required(),
+                    ->required()
+                    ->disk('public')
+                    ->visibility('public'),
                 TextInput::make('description')
                     ->required(),
                 TextInput::make('wiki_id')

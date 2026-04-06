@@ -144,6 +144,22 @@
           </ul>
         </section>
       @endif
+      @if(!empty($medals))
+        <section>
+          <h5 class="border-bottom pb-1 mb-2">Награды</h5>
+            @foreach($medals as $medal)
+              <div style="border: 1px solid; width: 200px;">
+                  <div>{{ $medal->name }}</div>
+                    <div class="">
+                      <img src="{{asset('storage/public/' . $medal->image) }}">
+                    </div>
+                    <div class="">
+                      {{ $medal->description }}
+                    </div>
+              </div>
+            @endforeach
+        </section>
+      @endif
     @else
       <p class="text-muted mb-0">Профиль пока не заполнен.</p>
     @endif
