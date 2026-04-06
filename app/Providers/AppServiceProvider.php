@@ -110,6 +110,14 @@ public function boot(): void
     Gate::define('review_user_profiles', function ($user, $wikiName) {
         return PermissionChecker::check($user, $wikiName, 'can_review_user_profiles');
     });
+
+    Gate::define('manage_medals', function ($user, $wikiName) {
+        return PermissionChecker::check($user, $wikiName, 'can_manage_medals');
+    });
+
+    Gate::define('manage_global_medals', function ($user, $wikiName) {
+        return PermissionChecker::check($user, $wikiName, 'can_manage_global_medals');
+    });
     
     /*Gate::define('revert_edits_to_old_version', function ($user, $wikiName) {
         return PermissionChecker::check($user, $wikiName, 'can_revert_edits_to_old_version');
