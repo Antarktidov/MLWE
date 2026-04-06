@@ -9,6 +9,8 @@ use App\Models\User;
 use App\Models\UserUserGroupWiki;
 use App\Models\UserGroup;
 use App\Models\Wiki;
+use App\Models\Medal;
+use App\Models\UserMedal;
 
 class UserProfileController extends Controller
 {
@@ -52,9 +54,21 @@ class UserProfileController extends Controller
             ->orderBy('id', 'desc')->first();
         }
 
+        $user_medals = UserMedal::where('user_id', $user->id)
+        ->where('wiki_id', 0)
+        ->get();
+
+        $medals = [];
+        //dd($user_medals);
+
+        foreach ($user_medals as $um) {
+            $medals[] = Medal::where('user_id', $um->id)
+            ->first();
+        }
+
         return view('userprofile-global', compact('user_profile', 'user',
                                         'user_group_names', 'can_review_user_profiles',
-                                        'is_my_profile'));
+                                        'is_my_profile', 'user_medals'));
     }
 
     public function show_local(string $wikiName, User $user) {
