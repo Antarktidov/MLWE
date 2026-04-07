@@ -59,11 +59,13 @@ class UserProfileController extends Controller
         ->get();
 
         $medals = [];
-        //dd($user_medals);
 
         foreach ($user_medals as $um) {
-            $medals[] = Medal::where('id', $um->medal_id)
-            ->first();
+            $medal = Medal::find($um->medal_id);
+            if ($medal) {
+                $medal->giver_name = User::find($um->giver_id)->name ?? null;
+                $medals[] = $medal;
+            }
         }
 
         //dd($medals);

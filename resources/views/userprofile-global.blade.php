@@ -62,6 +62,18 @@
       color: #212529;
     }
   }
+  /*Medals*/
+    .nagrada {
+        padding: 10px;
+        & .nagrada-name {
+            margin-bottom: 10px;
+        }
+        & .nagrada-body {
+            display: flex;
+            gap: 10px;
+        }
+    }
+  }
 </style>
 <div class="border rounded overflow-hidden">
   <div class="profile-banner">
@@ -148,17 +160,20 @@
         <section>
           <h5 class="border-bottom pb-1 mb-2">Награды</h5>
             @foreach($medals as $medal)
-              <div style="border: 1px solid; width: 200px;">
-                  <div>{{ $medal->name }}</div>
+              <div style="border: 1px solid; width: 300px;" class="nagrada">
+                  <div class="nagrada-name"><strong>{{ $medal->name }}</strong></div>
+                  <div class="nagrada-body">  
                     <div class="">
-                      <img
-                      width="100"
-                      height="100"
-                      src="{{asset('storage/' . $medal->image) }}">
+                        <img
+                        width="100"
+                        height="100"
+                        src="{{asset('storage/' . $medal->image) }}">
+                      </div>
+                      <div class="">
+                        {{ $medal->description }}
+                      </div>
                     </div>
-                    <div class="">
-                      {{ $medal->description }}
-                    </div>
+                    <div class="nagrada-giver">Награда от {{$medal->giver_name}}</div>
               </div>
             @endforeach
         </section>
