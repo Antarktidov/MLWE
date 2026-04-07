@@ -20,58 +20,14 @@
   var upRevId = @json($profile_id);
 </script>
 <script src="{{ asset('js/user-profile-util.js') }}" defer></script>
+<link rel="stylesheet" href="{{asset('css/profile.css')}}">
 <style>
-  .profile-header {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 0.5rem 1rem;
-  }
-  .profile-header > * {
-    margin: 0;
-  }
-  .user-group-name.theme-aware {
-    background-color: #6c757d;
-  }
   .profile-banner {
-    min-height: 200px;
-    background: @if($banner) {{ $banner }} @else linear-gradient(135deg, var(--bs-secondary) 0%, var(--bs-dark) 100%)@endif;
-    position: relative;
+    background: @if($user_profile && $user_profile->banner) {{ $user_profile->banner }} @else linear-gradient(135deg, var(--bs-secondary) 0%, var(--bs-dark) 100%)@endif;
   }
   /* Placeholder для аватара/баннера — загрузка будет на бэкенде */
   .profile-avatar {
-    width: 120px;
-    height: 120px;
-    border-radius: 50%;
-    background: @if($avatar) {{ $avatar }} @else var(--bs-secondary) @endif;
-    border: 4px solid var(--bs-body-bg);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--bs-secondary-color);
-    font-size: 2rem;
-  }
-  .profile-social-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.35rem;
-    text-decoration: none;
-    color: inherit;
-  }
-  .profile-social-link:hover {
-    opacity: 0.8;
-  }
-  @media (prefers-color-scheme: light) {
-    .user-group-name.theme-aware {
-      background-color: rgba(var(--bs-dark-rgb), 1) !important;
-      color: rgba(var(--bs-white-rgb), 1) !important;
-    }
-  }
-  @media (prefers-color-scheme: dark) {
-    .user-group-name.theme-aware {
-      background-color: rgba(var(--bs-light-rgb), 1) !important;
-      color: #212529;
-    }
+    background: @if($user_profile && $user_profile->avatar) {{ $user_profile->avatar }} @else var(--bs-secondary) @endif;
   }
 </style>
 <div class="border rounded overflow-hidden">
