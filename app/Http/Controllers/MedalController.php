@@ -6,5 +6,7 @@ use Illuminate\Http\Request;
 
 class MedalController extends Controller
 {
-    //
+    public function give() {
+        dd("Hello!");
+    }
 }

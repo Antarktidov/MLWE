@@ -32,8 +32,10 @@ class UserProfileController extends Controller
         if ($user2 != null) {
             if ($wiki) {
                 $can_review_user_profiles = $user2->can('review_user_profiles', $wiki->url);
+                $can_manage_global_medals = $user2->can('manage_global_medals', $wiki->url);
             } else {
                 $can_review_user_profiles = false;
+                $can_manage_global_medals = false;
             }
             $is_my_profile = $user2->id === $user->id;
         } else {
@@ -70,11 +72,12 @@ class UserProfileController extends Controller
             }
         }
 
-        //dd($medals);
+        $all_medals = Medal::all();
 
         return view('userprofile-global', compact('user_profile', 'user',
                                         'user_group_names', 'can_review_user_profiles',
-                                        'is_my_profile', 'medals'));
+                                        'is_my_profile', 'medals', 'can_manage_global_medals',
+                                        'wiki', 'all_medals'));
     }
 
     public function show_local(string $wikiName, User $user) {

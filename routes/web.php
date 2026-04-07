@@ -185,9 +185,9 @@ Route::middleware([ProtectionLevel3Middleware::class])->group(function () {
     Route::post('/wiki/{wikiName}/userprofile/{user}/store', [UserProfileController::class, 'store_local'])->name('userprofile.local.store');
 
     //Medals
-    Route::post('/give-medal/{user}', [MedalController::class, 'give'])->name('medals->give')
+    Route::post('/give-medal/{user}/', [MedalController::class, 'give'])->name('medals.give')
     ->middleware(ManageGlobalMedalsMiddleware::class);
-    Route::delete('/take-medal-away/{user}', [MedalController::class, 'take_away'])->name('medals->give')
+    Route::delete('/take-medal-away/{user}', [MedalController::class, 'take_away'])->name('medals.take-away')
     ->middleware(ManageGlobalMedalsMiddleware::class);
     });
 

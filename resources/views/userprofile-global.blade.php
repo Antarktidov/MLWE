@@ -156,9 +156,13 @@
           </ul>
         </section>
       @endif
-      @if(!empty($medals))
+    @else
+      <p class="text-muted mb-0">Профиль пока не заполнен.</p>
+    @endif
+    @if(!empty($medals) || $can_manage_global_medals)
         <section>
           <h5 class="border-bottom pb-1 mb-2">Награды</h5>
+            @if(!empty($medals))
             @foreach($medals as $medal)
               <div style="border: 1px solid; width: 300px;" class="nagrada">
                   <div class="nagrada-name"><strong>{{ $medal->name }}</strong></div>
@@ -176,11 +180,22 @@
                     <div class="nagrada-giver">Награда от <a href="{{ route('userprofile.global.show', $medal->giver_id) }}">{{$medal->giver_name}}</a></div>
               </div>
             @endforeach
+            @endif
+            @can('manage_global_medals', $wiki->url)
+              <h6 class="border-bottom pb-1 mb-2">Выдать медаль</h6>
+              <form action="{{ route('medals.give', $user) }}" method="post">
+                @csrf
+                <select class="form-select mb-2" aria-label="Default select example">
+                  <option selected>Выберете медаль</option>
+                    @foreach ($all_medals as $medal )
+                    <option value="{{$medal->id}}">{{$medal->name}}</option>
+                  @endforeach
+                </select>
+                <button class="btn btn-primary" type="submit">Выдать</button>
+              </form>
+            @endcan
         </section>
       @endif
-    @else
-      <p class="text-muted mb-0">Профиль пока не заполнен.</p>
-    @endif
   </div>
 </div>
 @endsection
