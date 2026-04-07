@@ -25,8 +25,8 @@ class ManageMedalsPanelProvider extends PanelProvider
     {
         return $panel
             ->default()
-            ->id('manage_medals')
-            ->path('manage_medals')
+            ->id('stewards_dashboard')
+            ->path('stewards_dashboard')
             ->login()
             ->colors([
                 'primary' => Color::Amber,
