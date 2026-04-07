@@ -173,7 +173,7 @@
                         {{ $medal->description }}
                       </div>
                     </div>
-                    <div class="nagrada-giver">Награда от {{$medal->giver_name}}</div>
+                    <div class="nagrada-giver">Награда от <a href="{{ route('userprofile.global.show', $medal->giver_id) }}">{{$medal->giver_name}}</a></div>
               </div>
             @endforeach
         </section>

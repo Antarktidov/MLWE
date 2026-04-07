@@ -63,7 +63,9 @@ class UserProfileController extends Controller
         foreach ($user_medals as $um) {
             $medal = Medal::find($um->medal_id);
             if ($medal) {
-                $medal->giver_name = User::find($um->giver_id)->name ?? null;
+                $giver = User::find($um->giver_id);
+                $medal->giver_name = $giver->name;
+                $medal->giver_id = $giver->id;
                 $medals[] = $medal;
             }
         }
