@@ -20,7 +20,8 @@ class MedalsTable
             ->columns([
                 TextColumn::make('name')
                     ->searchable(),
-                ImageColumn::make('image'),
+                ImageColumn::make('image')
+                    ->disk('public'),
                 TextColumn::make('description')
                     ->searchable(),
                 TextColumn::make('wiki_id')

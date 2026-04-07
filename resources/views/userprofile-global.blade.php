@@ -151,7 +151,10 @@
               <div style="border: 1px solid; width: 200px;">
                   <div>{{ $medal->name }}</div>
                     <div class="">
-                      <img src="{{asset('storage/public/' . $medal->image) }}">
+                      <img
+                      width="100"
+                      height="100"
+                      src="{{asset('storage/' . $medal->image) }}">
                     </div>
                     <div class="">
                       {{ $medal->description }}
