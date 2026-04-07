@@ -73,7 +73,14 @@
             gap: 10px;
         }
     }
-  }
+  
+  .all-medals {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, auto));
+    gap: 10px;
+    grid-auto-rows: minmax(100px, auto);
+    margin-bottom: 50px;
+}
 </style>
 <div class="border rounded overflow-hidden">
   <div class="profile-banner">
@@ -163,7 +170,9 @@
         <section>
           <h5 class="border-bottom pb-1 mb-2">Награды</h5>
             @if(!empty($medals))
+            <div class="all-medals">
             @foreach($medals as $medal)
+            <div class="medal-wrapper">
               <div style="border: 1px solid; width: 300px;" class="nagrada mb-2">
                   <div class="nagrada-name"><strong>{{ $medal->name }}</strong></div>
                   <div class="nagrada-body">  
@@ -186,7 +195,9 @@
                 <button class="btn btn-danger" type="submit">Отобрать медаль</button>
               </form>
               @endcan
+              </div>
             @endforeach
+            </div>
             @endif
             @can('manage_global_medals', $wiki->url)
               <h6 class="border-bottom pb-1 mb-2">Выдать медаль</h6>

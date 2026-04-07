@@ -17,6 +17,11 @@ class MedalController extends Controller
         $medal_id = $data['medal'];
         $giver = auth()->user();
 
+        $db_medal = Medal::find($medal_id);
+        if ($db_medal->wiki_id !== 0) {
+            return 'Это не глобальная медаль';
+        }
+
         $user_medal = [
             'medal_id' => $medal_id,
             'giver_id' => $giver->id,
