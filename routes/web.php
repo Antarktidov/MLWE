@@ -187,7 +187,7 @@ Route::middleware([ProtectionLevel3Middleware::class])->group(function () {
     //Medals
     Route::post('/give-medal/{user}/', [MedalController::class, 'give'])->name('medals.give')
     ->middleware(ManageGlobalMedalsMiddleware::class);
-    Route::delete('/take-medal-away/{user}', [MedalController::class, 'take_away'])->name('medals.take-away')
+    Route::delete('/take-medal-away/{user}/{medal}', [MedalController::class, 'take_away'])->name('medals.take-away')
     ->middleware(ManageGlobalMedalsMiddleware::class);
     });
 

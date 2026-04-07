@@ -164,7 +164,7 @@
           <h5 class="border-bottom pb-1 mb-2">Награды</h5>
             @if(!empty($medals))
             @foreach($medals as $medal)
-              <div style="border: 1px solid; width: 300px;" class="nagrada">
+              <div style="border: 1px solid; width: 300px;" class="nagrada mb-2">
                   <div class="nagrada-name"><strong>{{ $medal->name }}</strong></div>
                   <div class="nagrada-body">  
                     <div class="">
@@ -179,6 +179,13 @@
                     </div>
                     <div class="nagrada-giver">Награда от <a href="{{ route('userprofile.global.show', $medal->giver_id) }}">{{$medal->giver_name}}</a></div>
               </div>
+              @can('manage_global_medals', $wiki->url)
+              <form action="{{ route('medals.take-away', [$user, $medal->id]) }}" method="post">
+                @csrf
+                @method('delete')
+                <button class="btn btn-danger" type="submit">Отобрать медаль</button>
+              </form>
+              @endcan
             @endforeach
             @endif
             @can('manage_global_medals', $wiki->url)
