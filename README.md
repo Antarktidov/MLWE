@@ -3,7 +3,7 @@
 > [!WARNING]  
 > This README is outdated. Some instructions given in this document will not work. Some features are not documented.
 
-A PHP Laravel 13 Wiki Engine with comments and user profiles.
+A PHP Laravel 13 Wiki Engine with comment, user profiles and medals.
 
 ![Article Screenshot](https://github.com/Antarktidov/MyLaravelWikiEngine/blob/master/images/article%20screenshot%20with%20comments.png?raw=true)
 
