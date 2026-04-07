@@ -189,6 +189,11 @@ Route::middleware([ProtectionLevel3Middleware::class])->group(function () {
     ->middleware(ManageGlobalMedalsMiddleware::class);
     Route::delete('/take-medal-away/{user}/{medal}', [MedalController::class, 'take_away'])->name('medals.take-away')
     ->middleware(ManageGlobalMedalsMiddleware::class);
+
+    Route::post('/wiki/{wikiName}/give-medal/{user}', [MedalController::class, 'give_local'])->name('medals.local.give')
+        ->middleware('auth');
+    Route::delete('/wiki/{wikiName}/take-medal-away/{user}/{medal}', [MedalController::class, 'take_away_local'])->name('medals.local.take-away')
+        ->middleware('auth');
     });
 
 //Логин, регистрация

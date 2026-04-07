@@ -114,6 +114,87 @@
     @else
       <p class="text-muted mb-0">Профиль пока не заполнен.</p>
     @endif
+
+    @if(!empty($medals)
+        || ($can_manage_global_medals && $all_medals_global->isNotEmpty())
+        || ($can_manage_medals && $all_medals_local->isNotEmpty()))
+        <section class="mt-4">
+          <h5 class="border-bottom pb-1 mb-2">Награды</h5>
+            @if(!empty($medals))
+            <div class="all-medals">
+            @foreach($medals as $medal)
+            <div class="medal-wrapper">
+              <div style="border: 1px solid; width: 300px;" class="nagrada mb-2">
+                  <div class="nagrada-name"><strong>{{ $medal->name }}</strong></div>
+                  <div class="nagrada-body">
+                    <div class="">
+                        <img
+                        width="100"
+                        height="100"
+                        alt=""
+                        src="{{ asset('storage/' . $medal->image) }}">
+                      </div>
+                      <div class="">
+                        {{ $medal->description }}
+                      </div>
+                    </div>
+                    @if((int) $medal->award_wiki_id === 0)
+                      <div class="nagrada-giver small text-muted">Глобальная награда</div>
+                    @else
+                      <div class="nagrada-giver small text-muted">Локальная награда ({{ $wiki->url }})</div>
+                    @endif
+                    <div class="nagrada-giver">Награда от
+                      @if($medal->giver_id)
+                        <a href="{{ route('userprofile.global.show', $medal->giver_id) }}">{{ $medal->giver_name }}</a>
+                      @else
+                        {{ $medal->giver_name }}
+                      @endif
+                    </div>
+              </div>
+              @php
+                $can_take = auth()->user() && (
+                  ((int) $medal->award_wiki_id === 0 && auth()->user()->can('manage_global_medals', $wiki->url))
+                  || ((int) $medal->award_wiki_id !== 0 && auth()->user()->can('manage_medals', $wiki->url))
+                );
+              @endphp
+              @if($can_take)
+              <form action="{{ route('medals.local.take-away', [$wiki->url, $user, $medal->id]) }}" method="post">
+                @csrf
+                @method('delete')
+                <input type="hidden" name="award_wiki_id" value="{{ (int) $medal->award_wiki_id }}">
+                <button class="btn btn-danger" type="submit">Отобрать медаль</button>
+              </form>
+              @endif
+              </div>
+            @endforeach
+            </div>
+            @endif
+            @if(($can_manage_global_medals && $all_medals_global->isNotEmpty()) || ($can_manage_medals && $all_medals_local->isNotEmpty()))
+              <h6 class="border-bottom pb-1 mb-2 mt-3">Выдать медаль</h6>
+              <form action="{{ route('medals.local.give', [$wiki->url, $user]) }}" method="post">
+                @csrf
+                <select name="medal" id="medal-local-profile" class="form-select mb-2" required aria-label="Медаль">
+                  <option value="" disabled selected>Выберите медаль</option>
+                  @if($can_manage_global_medals && $all_medals_global->isNotEmpty())
+                    <optgroup label="Глобальные">
+                      @foreach ($all_medals_global as $m)
+                        <option value="{{ $m->id }}">{{ $m->name }}</option>
+                      @endforeach
+                    </optgroup>
+                  @endif
+                  @if($can_manage_medals && $all_medals_local->isNotEmpty())
+                    <optgroup label="Локальные">
+                      @foreach ($all_medals_local as $m)
+                        <option value="{{ $m->id }}">{{ $m->name }}</option>
+                      @endforeach
+                    </optgroup>
+                  @endif
+                </select>
+                <button class="btn btn-primary" type="submit">Выдать</button>
+              </form>
+            @endif
+        </section>
+      @endif
   </div>
 </div>
 @endsection
