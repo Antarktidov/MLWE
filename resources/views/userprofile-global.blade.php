@@ -185,7 +185,7 @@
               <h6 class="border-bottom pb-1 mb-2">Выдать медаль</h6>
               <form action="{{ route('medals.give', $user) }}" method="post">
                 @csrf
-                <select class="form-select mb-2" aria-label="Default select example">
+                <select name="medal" id="medal" class="form-select mb-2" aria-label="Default select example">
                   <option selected>Выберете медаль</option>
                     @foreach ($all_medals as $medal )
                     <option value="{{$medal->id}}">{{$medal->name}}</option>
