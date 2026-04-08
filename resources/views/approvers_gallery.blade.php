@@ -61,6 +61,6 @@
 <div>{{$images->links()}}</div>
 @endif
 @if(count($images) === 0)
-    <p>Нет непроверенных изображений. Проверять нечего.</p>
+    <p>{{__('No not approved images. Nothing to check.')}}</p>
 @endif
 @endsection

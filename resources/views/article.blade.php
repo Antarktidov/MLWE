@@ -54,7 +54,7 @@
     </div>
     @if (!$revision->is_patrolled)
     <div class="alert alert-warning mt-3" role="alert">
-        {{ __('This revision hasn\'t been patrolled yet and can contain disinformation') }}
+        {{ __("This revision hasn't been patrolled yet and can contain disinformation") }}
     </div>
     @endif
     <p class="mt-3">{!!Str::of($revision->content)->markdown([

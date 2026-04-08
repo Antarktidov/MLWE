@@ -99,5 +99,12 @@
     "Wiki was opened": "Wiki was opened",
     "The user's usergroups was changed": "The user's usergroups was changed",
 
-    "(Page) of": "of"
+    "(Page) of": "of",
+    "Is global": "Global/Local",
+    "Open wiki1": "Open",
+    "Semi-closed1": "Semi-closed, comments only",
+    "Semi-closed2": "Semi-closed, reading only",
+    "Closed wiki": "Closed",
+    "Edit approved": "Approved",
+    "Take away medal": "Take away"
 }

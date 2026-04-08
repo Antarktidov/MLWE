@@ -174,8 +174,7 @@ Route::middleware([ProtectionLevel3Middleware::class])->group(function () {
     Route::get('/userprofile-global/{user}', [UserProfileController::class, 'show_global'])->name('userprofile.global.show');
     Route::post('/userprofile-global/{up_rev}/approve', [UserProfileController::class, 'approve'])->name('userprofile.global.approve')
     ->middleware(ReviewUserProfilesMiddleware::class);
-    Route::delete('/userprofile-global/{user}/delete', [UserProfileController::class, 'delete'])->name('userprofile.global.delete')
-    ->middleware(ReviewUserProfilesMiddleware::class);
+    Route::delete('/userprofile-global/{user}/delete', [UserProfileController::class, 'delete'])->name('userprofile.global.delete');
     Route::get('/userprofile-global/{user}/edit', [UserProfileController::class, 'edit_global'])->name('userprofile.global.edit');
     Route::post('/userprofile-global/{user}/store', [UserProfileController::class, 'store_global'])->name('userprofile.global.store');
 

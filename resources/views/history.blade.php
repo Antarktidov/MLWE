@@ -57,18 +57,18 @@
               <form action="{{route('revision.delete', [$wiki->url, $article->url_title, $revision->id])}}" method="post">
                 @csrf
                 @method('delete')
-                <button class="btn btn-danger" type="submit">{{__('Delete edit')}}</button>
+                <button class="btn btn-danger" type="submit">{{__('Delete')}}</button>
             </form>
             </th>
             @endcan
             @can('check_revisions', $wiki->url)
             <th scope="row">
               @if ($revision->is_approved)
-                <div class="btn btn-outline-success">Правка одобрена</button>
+                <div class="btn btn-outline-success">{{ __('Edit approved') }}</button>
               @else
               <form action="{{ route('revision.approve', [$wiki->url, $article->url_title, $revision->id]) }}" method="post">
                 @csrf
-                <button class="btn btn-success" type="submit">Одобрить правку</button>
+                <button class="btn btn-success" type="submit">{{ __('Approve') }}</button>
               </form>
               @endif
             </th>
@@ -78,12 +78,12 @@
               @if ($revision->is_patrolled)
               <form action="{{ route('revision.depatrol', [$wiki->url, $article->url_title, $revision->id]) }}" method="post">
                 @csrf
-                <button class="btn btn-info" type="submit">Распатрулировать правку</button>
+                <button class="btn btn-info" type="submit">{{__("Depatroll")}}</button>
               </form>
               @else
               <form action="{{ route('revision.patrol', [$wiki->url, $article->url_title, $revision->id]) }}" method="post">
                 @csrf
-                <button class="btn btn-info" type="submit">Отпратрулировать правку</button>
+                <button class="btn btn-info" type="submit">{{__("Patroll")}}</button>
               </form>
               @endif
             </th>
