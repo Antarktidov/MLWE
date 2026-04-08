@@ -87,15 +87,15 @@
       @php
         $links = array_filter([
           'Discord' => $discord,
-          'Discord (бот)' => $discord_if_bot,
-          'VK' => $vk,
-          'Telegram' => $telegram,
+          __('Discord bot') => $discord_if_bot,
+          __('VK') => $vk,
+          __('Telegram') => $telegram,
           'GitHub' => $github,
         ]);
       @endphp
       @if(!empty($links))
         <section>
-          <h5 class="border-bottom pb-1 mb-2">Ссылки</h5>
+          <h5 class="border-bottom pb-1 mb-2">{{__('Links')}}</h5>
           <ul class="list-unstyled d-flex flex-wrap gap-3 mb-0">
             @foreach($links as $label => $url)
               <li>
