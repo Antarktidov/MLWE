@@ -111,5 +111,12 @@
 
     "Approve": "Одобрить",
 
-    "No not approved images. Nothing to check.":"Нет непроверенных изображений. Проверять нечего."
+    "No not approved images. Nothing to check.": "Нет непроверенных изображений. Проверять нечего.",
+    "Permissions manager/Create usergroup": "Менеджер разрешений/Создать группу участника",
+    "Permissions manager": "Менеджер разрешений",
+    "Is global": "Глобальная/Локальная",
+    "Global": "Глобальная",
+    "Local": "Локальная",
+    "User group": "Группа участника",
+    "User group id": "Id"
 }
