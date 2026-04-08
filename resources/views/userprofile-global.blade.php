@@ -9,58 +9,14 @@
   @endif
 </script>
 <script src="{{ asset('js/user-profile-util.js') }}" defer></script>
+<link rel="stylesheet" href="{{asset('css/profile.css')}}">
 <style>
-  .profile-header {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 0.5rem 1rem;
-  }
-  .profile-header > * {
-    margin: 0;
-  }
-  .user-group-name.theme-aware {
-    background-color: #6c757d;
-  }
   .profile-banner {
-    min-height: 200px;
     background: @if($user_profile && $user_profile->banner) {{ $user_profile->banner }} @else linear-gradient(135deg, var(--bs-secondary) 0%, var(--bs-dark) 100%)@endif;
-    position: relative;
   }
   /* Placeholder для аватара/баннера — загрузка будет на бэкенде */
   .profile-avatar {
-    width: 120px;
-    height: 120px;
-    border-radius: 50%;
     background: @if($user_profile && $user_profile->avatar) {{ $user_profile->avatar }} @else var(--bs-secondary) @endif;
-    border: 4px solid var(--bs-body-bg);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--bs-secondary-color);
-    font-size: 2rem;
-  }
-  .profile-social-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.35rem;
-    text-decoration: none;
-    color: inherit;
-  }
-  .profile-social-link:hover {
-    opacity: 0.8;
-  }
-  @media (prefers-color-scheme: light) {
-    .user-group-name.theme-aware {
-      background-color: rgba(var(--bs-dark-rgb), 1) !important;
-      color: rgba(var(--bs-white-rgb), 1) !important;
-    }
-  }
-  @media (prefers-color-scheme: dark) {
-    .user-group-name.theme-aware {
-      background-color: rgba(var(--bs-light-rgb), 1) !important;
-      color: #212529;
-    }
   }
 </style>
 <div class="border rounded overflow-hidden">
@@ -147,6 +103,54 @@
     @else
       <p class="text-muted mb-0">Профиль пока не заполнен.</p>
     @endif
+    @if(!empty($medals) || $can_manage_global_medals)
+        <section>
+          <h5 class="border-bottom pb-1 mb-2">Награды</h5>
+            @if(!empty($medals))
+            <div class="all-medals">
+            @foreach($medals as $medal)
+            <div class="medal-wrapper">
+              <div style="border: 1px solid; width: 300px;" class="nagrada mb-2">
+                  <div class="nagrada-name"><strong>{{ $medal->name }}</strong></div>
+                  <div class="nagrada-body">  
+                    <div class="">
+                        <img
+                        width="100"
+                        height="100"
+                        src="{{asset('storage/' . $medal->image) }}">
+                      </div>
+                      <div class="">
+                        {{ $medal->description }}
+                      </div>
+                    </div>
+                    <div class="nagrada-giver">Награда от <a href="{{ route('userprofile.global.show', $medal->giver_id) }}">{{$medal->giver_name}}</a></div>
+              </div>
+              @can('manage_global_medals', $wiki->url)
+              <form action="{{ route('medals.take-away', [$user, $medal->id]) }}" method="post">
+                @csrf
+                @method('delete')
+                <button class="btn btn-danger" type="submit">Отобрать медаль</button>
+              </form>
+              @endcan
+              </div>
+            @endforeach
+            </div>
+            @endif
+            @can('manage_global_medals', $wiki->url)
+              <h6 class="border-bottom pb-1 mb-2">Выдать медаль</h6>
+              <form action="{{ route('medals.give', $user) }}" method="post">
+                @csrf
+                <select name="medal" id="medal" class="form-select mb-2" aria-label="Default select example">
+                  <option selected>Выберете медаль</option>
+                    @foreach ($all_medals as $medal )
+                    <option value="{{$medal->id}}">{{$medal->name}}</option>
+                  @endforeach
+                </select>
+                <button class="btn btn-primary" type="submit">Выдать</button>
+              </form>
+            @endcan
+        </section>
+      @endif
   </div>
 </div>
 @endsection

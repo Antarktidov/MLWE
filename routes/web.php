@@ -10,6 +10,7 @@ use App\Http\Controllers\CommentsController;
 use App\Http\Controllers\PermissionsManagerController;
 use App\Http\Controllers\OptionsController;
 use App\Http\Controllers\UserProfileController;
+use App\Http\Controllers\MedalController;
 
 use App\Http\Middleware\DeleteMiddleware;
 use App\Http\Middleware\DeleteRevisionMiddleware;
@@ -47,6 +48,9 @@ use App\Http\Middleware\ProtectionLevel3Middleware;
 use App\Http\Middleware\ReviewUserProfilesMiddleware;
 
 use App\Models\Option;//волшебный код, который может положить всё приложение
+
+use App\Http\Middleware\ManageMedalsMiddleware;
+use App\Http\Middleware\ManageGlobalMedalsMiddleware;
 
 Route::middleware([ProtectionLevel3Middleware::class])->group(function () {
 
@@ -179,7 +183,18 @@ Route::middleware([ProtectionLevel3Middleware::class])->group(function () {
     Route::get('/wiki/{wikiName}/userprofile/{user}', [UserProfileController::class, 'show_local'])->name('userprofile.local.show');
     Route::get('/wiki/{wikiName}/userprofile/{user}/edit', [UserProfileController::class, 'edit_local'])->name('userprofile.local.edit');
     Route::post('/wiki/{wikiName}/userprofile/{user}/store', [UserProfileController::class, 'store_local'])->name('userprofile.local.store');
-});
+
+    //Medals
+    Route::post('/give-medal/{user}/', [MedalController::class, 'give'])->name('medals.give')
+    ->middleware(ManageGlobalMedalsMiddleware::class);
+    Route::delete('/take-medal-away/{user}/{medal}', [MedalController::class, 'take_away'])->name('medals.take-away')
+    ->middleware(ManageGlobalMedalsMiddleware::class);
+
+    Route::post('/wiki/{wikiName}/give-medal/{user}', [MedalController::class, 'give_local'])->name('medals.local.give')
+        ->middleware('auth');
+    Route::delete('/wiki/{wikiName}/take-medal-away/{user}/{medal}', [MedalController::class, 'take_away_local'])->name('medals.local.take-away')
+        ->middleware('auth');
+    });
 
 //Логин, регистрация
 $options = Option::getOptions();//волшебный код, который может положить всё приложение

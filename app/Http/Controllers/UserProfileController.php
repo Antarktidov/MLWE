@@ -9,6 +9,8 @@ use App\Models\User;
 use App\Models\UserUserGroupWiki;
 use App\Models\UserGroup;
 use App\Models\Wiki;
+use App\Models\Medal;
+use App\Models\UserMedal;
 
 class UserProfileController extends Controller
 {
@@ -30,8 +32,10 @@ class UserProfileController extends Controller
         if ($user2 != null) {
             if ($wiki) {
                 $can_review_user_profiles = $user2->can('review_user_profiles', $wiki->url);
+                $can_manage_global_medals = $user2->can('manage_global_medals', $wiki->url);
             } else {
                 $can_review_user_profiles = false;
+                $can_manage_global_medals = false;
             }
             $is_my_profile = $user2->id === $user->id;
         } else {
@@ -52,9 +56,28 @@ class UserProfileController extends Controller
             ->orderBy('id', 'desc')->first();
         }
 
+        $user_medals = UserMedal::where('user_id', $user->id)
+        ->where('wiki_id', 0)
+        ->get();
+
+        $medals = [];
+
+        foreach ($user_medals as $um) {
+            $medal = Medal::find($um->medal_id);
+            if ($medal) {
+                $giver = User::find($um->giver_id);
+                $medal->giver_name = $giver->name;
+                $medal->giver_id = $giver->id;
+                $medals[] = $medal;
+            }
+        }
+
+        $all_medals = Medal::where('wiki_id', 0)->orderBy('name')->get();
+
         return view('userprofile-global', compact('user_profile', 'user',
                                         'user_group_names', 'can_review_user_profiles',
-                                        'is_my_profile'));
+                                        'is_my_profile', 'medals', 'can_manage_global_medals',
+                                        'wiki', 'all_medals'));
     }
 
     public function show_local(string $wikiName, User $user) {
@@ -112,9 +135,49 @@ class UserProfileController extends Controller
             ->orderBy('id', 'desc')->first();
         }
 
+        if ($user2 != null) {
+            $can_manage_global_medals = $user2->can('manage_global_medals', $wiki->url);
+            $can_manage_medals = $user2->can('manage_medals', $wiki->url);
+        } else {
+            $can_manage_global_medals = false;
+            $can_manage_medals = false;
+        }
+
+        $user_medals = UserMedal::where('user_id', $user->id)
+            ->where(function ($query) use ($wiki) {
+                $query->where('wiki_id', 0)
+                    ->orWhere('wiki_id', $wiki->id);
+            })
+            ->orderByRaw('CASE WHEN wiki_id = 0 THEN 0 ELSE 1 END')
+            ->orderBy('id')
+            ->get();
+
+        $medals = [];
+
+        foreach ($user_medals as $um) {
+            $medal = Medal::find($um->medal_id);
+            if ($medal) {
+                $giver = User::find($um->giver_id);
+                if ($giver) {
+                    $medal->giver_name = $giver->name;
+                    $medal->giver_id = $giver->id;
+                } else {
+                    $medal->giver_name = '?';
+                    $medal->giver_id = null;
+                }
+                $medal->award_wiki_id = $um->wiki_id;
+                $medals[] = $medal;
+            }
+        }
+
+        $all_medals_global = Medal::where('wiki_id', 0)->orderBy('name')->get();
+        $all_medals_local = Medal::where('wiki_id', $wiki->id)->orderBy('name')->get();
+        //dd($all_medals_local);
+
         return view('userprofile', compact('user_profile', 'user_profile_local', 'user',
                                         'user_group_names', 'can_review_user_profiles',
-                                        'is_my_profile', 'wiki'));
+                                        'is_my_profile', 'wiki', 'medals', 'can_manage_global_medals',
+                                        'can_manage_medals', 'all_medals_global', 'all_medals_local'));
     }
 
     public function approve(UserProfileRevision $up_rev) {
