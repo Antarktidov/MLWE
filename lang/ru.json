@@ -118,5 +118,13 @@
     "Global": "Глобальная",
     "Local": "Локальная",
     "User group": "Группа участника",
-    "User group id": "Id"
+    "User group id": "Id",
+    "Manage wikifarm": "Управление вики-фермой",
+    "Wikifarm asses level": "Уровень доступа к вики-ферме",
+    "Open wiki1": "Открытая",
+    "Semi-closed1": "Полузакрытая, участники без прав могут только комментировать",
+    "Semi-closed2": "Полузакрытая, участники без прав могут читать",
+    "Closed wiki": "Закрытая",
+    "Is comments enabled": "Комментарии включены",
+    "Is registration enabled": "Регистрация включена"
 }

@@ -3,33 +3,33 @@
 <h1>{{__('Manage wikifarm')}}</h1>
 <form action="{{ route('manage_wikifarm.update') }}" method="post">
   @csrf
-  <strong>Уровень доступа к вики-ферме</strong>
+  <strong>{{__('Wikifarm asses level')}}</strong>
   <div class="form-check">
       <input class="form-check-input" type="radio" name="protection_level" id="public" value="public"
        {{ $options->protection_level === 'public' ? 'checked' : '' }}>
       <label class="form-check-label" for="public">
-        Открытая
+        {{ __("Open wiki1") }}
       </label>
     </div>
     <div class="form-check">
       <input class="form-check-input" type="radio" name="protection_level" id="comments_only" value="comments_only"
       {{ $options->protection_level === 'comments_only' ? 'checked' : '' }}>
       <label class="form-check-label" for="comments_only">
-        Полузакрытая, участники без прав могут только комментировать
+        {{ __("Semi-closed1") }}
       </label>
     </div>
     <div class="form-check">
       <input class="form-check-input" type="radio" name="protection_level" id="semi_public" value="semi_public"
       {{ $options->protection_level === 'semi_public' ? 'checked' : '' }}>
       <label class="form-check-label" for="semi_public">
-        Полузакрытая, участники без прав могут читать
+        {{ __("Semi-closed2") }}
       </label>
     </div>
     <div class="form-check">
       <input class="form-check-input" type="radio" name="protection_level" id="private" value="private"
       {{ $options->protection_level === 'private' ? 'checked' : '' }}>
       <label class="form-check-label" for="private">
-        Для доступа к вики требуются технические права
+        {{ __("Closed wiki") }}
       </label>
     </div>
   <br>
