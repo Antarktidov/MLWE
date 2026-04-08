@@ -126,5 +126,9 @@
     "Semi-closed2": "Полузакрытая, участники без прав могут читать",
     "Closed wiki": "Закрытая",
     "Is comments enabled": "Комментарии включены",
-    "Is registration enabled": "Регистрация включена"
+    "Is registration enabled": "Регистрация включена",
+    "This revision hasn't been patrolled yet and can contain disinformation": "Данная версия статьи ещё не была отпатрулирована и может содержать ложную информацию",
+    "Edit approved": "Одобрено",
+    "Patroll": "Отпратрулировать",
+    "Depatroll": "Распратрулировать"
 }
