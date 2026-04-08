@@ -68,7 +68,7 @@
     @if($user_profile)
       @if($user_profile->about)
         <section class="mb-4">
-          <h5 class="border-bottom pb-1 mb-2">О себе</h5>
+          <h5 class="border-bottom pb-1 mb-2">{{__('About')}}</h5>
           <div class="text-break">{{ nl2br(e($user_profile->about)) }}</div>
         </section>
       @endif
@@ -76,15 +76,15 @@
       @php
         $links = array_filter([
           'Discord' => $user_profile->discord ?? null,
-          'Discord (бот)' => $user_profile->discord_if_bot ?? null,
-          'VK' => $user_profile->vk ?? null,
-          'Telegram' => $user_profile->telegram ?? null,
+          __('Discord bot') => $user_profile->discord_if_bot ?? null,
+          __('VK') => $user_profile->vk ?? null,
+          __('Telegram') => $user_profile->telegram ?? null,
           'GitHub' => $user_profile->github ?? null,
         ]);
       @endphp
       @if(!empty($links))
         <section>
-          <h5 class="border-bottom pb-1 mb-2">Ссылки</h5>
+          <h5 class="border-bottom pb-1 mb-2">{{__('Links')}}</h5>
           <ul class="list-unstyled d-flex flex-wrap gap-3 mb-0">
             @foreach($links as $label => $url)
               <li>
