@@ -189,6 +189,14 @@ class UserProfileController extends Controller
     }
 
     public function delete(User $user) {
+        $wiki = Wiki::withTrashed()->first();
+        $user2 = auth()->user();
+        if (!($user2 != null && $user2->id === $user->id) ||
+            !($user2->can('review_user_profiles', $wiki->url))) {
+            abort(403);
+        }
+
+
         $up_revs = UserProfileRevision::where('user_id', $user->id)
             ->whereNull('deleted_at')
             ->orderBy('id', 'desc')->get();
