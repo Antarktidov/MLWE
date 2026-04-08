@@ -101,11 +101,11 @@
         </section>
       @endif
     @else
-      <p class="text-muted mb-0">Профиль пока не заполнен.</p>
+      <p class="text-muted mb-0">{{ __("The profile has not been filled out yet.") }}</p>
     @endif
     @if(!empty($medals) || $can_manage_global_medals)
         <section>
-          <h5 class="border-bottom pb-1 mb-2">Награды</h5>
+          <h5 class="border-bottom pb-1 mb-2">{{__("Rewards")}}</h5>
             @if(!empty($medals))
             <div class="all-medals">
             @foreach($medals as $medal)
@@ -129,7 +129,7 @@
               <form action="{{ route('medals.take-away', [$user, $medal->id]) }}" method="post">
                 @csrf
                 @method('delete')
-                <button class="btn btn-danger" type="submit">Отобрать медаль</button>
+                <button class="btn btn-danger" type="submit">{{__("Take away medal")}}</button>
               </form>
               @endcan
               </div>
@@ -137,16 +137,16 @@
             </div>
             @endif
             @can('manage_global_medals', $wiki->url)
-              <h6 class="border-bottom pb-1 mb-2">Выдать медаль</h6>
+              <h6 class="border-bottom pb-1 mb-2">{{__("Give medal")}}</h6>
               <form action="{{ route('medals.give', $user) }}" method="post">
                 @csrf
                 <select name="medal" id="medal" class="form-select mb-2" aria-label="Default select example">
-                  <option selected>Выберете медаль</option>
+                  <option selected>{{ __("Choose a medal") }}</option>
                     @foreach ($all_medals as $medal )
                     <option value="{{$medal->id}}">{{$medal->name}}</option>
                   @endforeach
                 </select>
-                <button class="btn btn-primary" type="submit">Выдать</button>
+                <button class="btn btn-primary" type="submit">{{__("Give")}}</button>
               </form>
             @endcan
         </section>

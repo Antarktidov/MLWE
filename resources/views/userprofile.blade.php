@@ -112,14 +112,14 @@
         </section>
       @endif
     @else
-      <p class="text-muted mb-0">Профиль пока не заполнен.</p>
+      <p class="text-muted mb-0">{{ __("The profile has not been filled out yet.") }}</p>
     @endif
 
     @if(!empty($medals)
         || ($can_manage_global_medals && $all_medals_global->isNotEmpty())
         || ($can_manage_medals && $all_medals_local->isNotEmpty()))
         <section class="mt-4">
-          <h5 class="border-bottom pb-1 mb-2">Награды</h5>
+          <h5 class="border-bottom pb-1 mb-2">{{__("Rewards")}}</h5>
             @if(!empty($medals))
             <div class="all-medals">
             @foreach($medals as $medal)
@@ -139,11 +139,11 @@
                       </div>
                     </div>
                     @if((int) $medal->award_wiki_id === 0)
-                      <div class="nagrada-giver small text-muted">Глобальная награда</div>
+                      <div class="nagrada-giver small text-muted">{{ __("Global reward") }}</div>
                     @else
-                      <div class="nagrada-giver small text-muted">Локальная награда ({{ $wiki->url }})</div>
+                      <div class="nagrada-giver small text-muted">{{ __("Local reward") }} ({{ $wiki->url }})</div>
                     @endif
-                    <div class="nagrada-giver">Награда от
+                    <div class="nagrada-giver">{{ __("Reward by") }}
                       @if($medal->giver_id)
                         <a href="{{ route('userprofile.global.show', $medal->giver_id) }}">{{ $medal->giver_name }}</a>
                       @else
@@ -162,7 +162,7 @@
                 @csrf
                 @method('delete')
                 <input type="hidden" name="award_wiki_id" value="{{ (int) $medal->award_wiki_id }}">
-                <button class="btn btn-danger" type="submit">Отобрать медаль</button>
+                <button class="btn btn-danger" type="submit">{{__("Take away medal")}}</button>
               </form>
               @endif
               </div>
@@ -170,27 +170,27 @@
             </div>
             @endif
             @if(($can_manage_global_medals && $all_medals_global->isNotEmpty()) || ($can_manage_medals && $all_medals_local->isNotEmpty()))
-              <h6 class="border-bottom pb-1 mb-2 mt-3">Выдать медаль</h6>
+              <h6 class="border-bottom pb-1 mb-2 mt-3">{{__("Give medal")}}</h6>
               <form action="{{ route('medals.local.give', [$wiki->url, $user]) }}" method="post">
                 @csrf
                 <select name="medal" id="medal-local-profile" class="form-select mb-2" required aria-label="Медаль">
-                  <option value="" disabled selected>Выберите медаль</option>
+                  <option value="" disabled selected>{{ __("Choose a medal") }}</option>
                   @if($can_manage_global_medals && $all_medals_global->isNotEmpty())
-                    <optgroup label="Глобальные">
+                    <optgroup label="{{ __("Global medals") }}">
                       @foreach ($all_medals_global as $m)
                         <option value="{{ $m->id }}">{{ $m->name }}</option>
                       @endforeach
                     </optgroup>
                   @endif
                   @if($can_manage_medals && $all_medals_local->isNotEmpty())
-                    <optgroup label="Локальные">
+                    <optgroup label="{{ __("Local medals") }}">
                       @foreach ($all_medals_local as $m)
                         <option value="{{ $m->id }}">{{ $m->name }}</option>
                       @endforeach
                     </optgroup>
                   @endif
                 </select>
-                <button class="btn btn-primary" type="submit">Выдать</button>
+                <button class="btn btn-primary" type="submit">{{__("Give")}}</button>
               </form>
             @endif
         </section>

@@ -141,5 +141,16 @@
     "Discord bot": "Discord-бот",
     "VK": "ВК",
     "Telegram": "Телеграм",
-    "Links": "Ссылки"
+    "Links": "Ссылки",
+    "Rewards": "Награды",
+    "Take away medal": "Отобрать медаль",
+    "Give medal": "Выдать медаль",
+    "Give": "Выдать",
+    "Reward by": "Награда от",
+    "Global medals": "Глобальные",
+    "Local medals": "Локальные",
+    "Global reward": "Глобальная награда",
+    "Local reward": "Локальная награда",
+    "Choose a medal": "Выберите медаль",
+    "The profile has not been filled out yet.": "Профиль пока не заполнен."
 }
