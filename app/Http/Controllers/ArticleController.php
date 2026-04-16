@@ -33,20 +33,28 @@ class ArticleController extends Controller
             } else {
                 if ($user != null) {
                     $articles = DB::table('articles')
-                    ->join('revisions', 'articles.id', '=', 'revisions.article_id')
                     ->select('articles.*')
                     ->where('articles.wiki_id', $wiki->id)
                     ->whereNull('articles.deleted_at')
-                    ->where('revisions.is_approved', true)
+                    ->whereExists(function ($query) {
+                        $query->select(DB::raw(1))
+                            ->from('revisions')
+                            ->whereColumn('revisions.article_id', 'articles.id')
+                            ->where('revisions.is_approved', true);
+                    })
                     ->get();
                 } else {
                     $articles = DB::table('articles')
-                    ->join('revisions', 'articles.id', '=', 'revisions.article_id')
                     ->select('articles.*')
                     ->where('articles.wiki_id', $wiki->id)
                     ->whereNull('articles.deleted_at')
-                    ->where('revisions.is_approved', true)
-                    ->where('revisions.is_patrolled', true)
+                    ->whereExists(function ($query) {
+                        $query->select(DB::raw(1))
+                            ->from('revisions')
+                            ->whereColumn('revisions.article_id', 'articles.id')
+                            ->where('revisions.is_approved', true)
+                            ->where('revisions.is_patrolled', true);
+                    })
                     ->get();
                 }
             }
@@ -73,12 +81,12 @@ class ArticleController extends Controller
 
             //dd($can_check_revisions);
 
-            $articles = Article::where('wiki_id', $wiki->id)->whereNull('deleted_at')->get();
+            $article = Article::where('wiki_id', $wiki->id)
+                ->whereNull('deleted_at')
+                ->where('url_title', $articleName)
+                ->first();
 
-            if($articles) {
-                $article = $articles->where('url_title', $articleName)->first();
-
-                if($article) {
+            if($article) {
 
                     if ($can_check_revisions) {
                         $revision = Revision::where('article_id', $article->id)
@@ -132,13 +140,8 @@ class ArticleController extends Controller
                         return response(__('Article does not exist'), 404)
                             ->header('Content-Type', 'text/plain');
                     }
-                }
-                 else {
-                    return response(__('Article does not exist'), 404)
-                        ->header('Content-Type', 'text/plain');
-                 }
             } else {
-                return response(__('No articles'), 404)
+                return response(__('Article does not exist'), 404)
                     ->header('Content-Type', 'text/plain');
             }
         } else {
@@ -206,45 +209,41 @@ class ArticleController extends Controller
     public function edit(string $wikiName, string $articleName) {
         $wiki = Wiki::where('url', $wikiName)->whereNull('deleted_at')->first();
         if ($wiki) {
-            $articles = Article::where('wiki_id', $wiki->id)->whereNull('deleted_at')->get();
-            if ($articles) {
-                $article = $articles->where('url_title', $articleName)->first();
-                if ($article) {
+            $article = Article::where('wiki_id', $wiki->id)
+                ->whereNull('deleted_at')
+                ->where('url_title', $articleName)
+                ->first();
+            if ($article) {
 
-                    $user = auth()->user();
+                $user = auth()->user();
 
-                    if ($user != null) {
-                        $can_check_revisions = $user->can('check_revisions', $wiki->url);
-                    } else {
-                        $can_check_revisions = false;
-                    }
+                if ($user != null) {
+                    $can_check_revisions = $user->can('check_revisions', $wiki->url);
+                } else {
+                    $can_check_revisions = false;
+                }
 
-                    if ($can_check_revisions) {
-                        $revision = Revision::where('article_id', $article->id)
-                        ->whereNull('deleted_at')
-                        ->orderBy('id', 'desc')
-                        ->first();
-                    } else {
-                        $revision = Revision::where('article_id', $article->id)
-                        ->whereNull('deleted_at')
-                        ->where('is_approved', true)
-                        ->orderBy('id', 'desc')
-                        ->first();
-                    }
+                if ($can_check_revisions) {
+                    $revision = Revision::where('article_id', $article->id)
+                    ->whereNull('deleted_at')
+                    ->orderBy('id', 'desc')
+                    ->first();
+                } else {
+                    $revision = Revision::where('article_id', $article->id)
+                    ->whereNull('deleted_at')
+                    ->where('is_approved', true)
+                    ->orderBy('id', 'desc')
+                    ->first();
+                }
 
-                    if ($revision) {
-                        return view('edit', compact('article', 'revision', 'wiki'));
-                    } else {
-                        return response(__('Article does not exist'), 404)
-                        ->header('Content-Type', 'text/plain');
-                    }
+                if ($revision) {
+                    return view('edit', compact('article', 'revision', 'wiki'));
                 } else {
                     return response(__('Article does not exist'), 404)
                         ->header('Content-Type', 'text/plain');
                 }
-
             } else {
-                return response(__('No articles'), 404)
+                return response(__('Article does not exist'), 404)
                     ->header('Content-Type', 'text/plain');
             }
         } else {
@@ -269,39 +268,35 @@ class ArticleController extends Controller
                 'url_title' => $data['url_title'],
                 'title' => $data['title'],
             ];
-            $articles = Article::where('wiki_id', $wiki->id)->whereNull('deleted_at')->get();
-            if ($articles) {
+            $my_article2 = Article::where('wiki_id', $wiki->id)
+                ->whereNull('deleted_at')
+                ->where('url_title', $articleName)
+                ->first();
 
-                $my_article2 = $articles->where('url_title', $articleName)->first();
+            if ($my_article2) {
 
-                if ($my_article2) {
+                $my_article2->update($my_article);
 
-                    $my_article2->update($my_article);
-
-                    if (auth()->user() != null) {
-                        $user_id = auth()->user()->id;
-                    } else {
-                        $user_id = 0;
-                    }
-
-                    $user_ip = $request->ip();
-
-                    $my_revision = [
-                        'article_id' => $my_article2->id,
-                        'title' =>  $data['title'],
-                        'url_title' => $data['url_title'],
-                        'content' => $data['content'],
-                        'user_id' => $user_id,
-                        'user_ip' => $user_ip,
-                    ];
-
-                    Revision::create($my_revision);
-
-                    return redirect()->route('articles.show', [$wiki->url, $my_article2->url_title]);
-                }   else {
-                        return response(__('Error'), 500)
-                            ->header('Content-Type', 'text/plain');
+                if (auth()->user() != null) {
+                    $user_id = auth()->user()->id;
+                } else {
+                    $user_id = 0;
                 }
+
+                $user_ip = $request->ip();
+
+                $my_revision = [
+                    'article_id' => $my_article2->id,
+                    'title' =>  $data['title'],
+                    'url_title' => $data['url_title'],
+                    'content' => $data['content'],
+                    'user_id' => $user_id,
+                    'user_ip' => $user_ip,
+                ];
+
+                Revision::create($my_revision);
+
+                return redirect()->route('articles.show', [$wiki->url, $my_article2->url_title]);
             } else {
                 return response(__('Error'), 500)
                     ->header('Content-Type', 'text/plain');
@@ -319,20 +314,16 @@ class ArticleController extends Controller
     {
         $wiki = Wiki::where('url', $wikiName)->whereNull('deleted_at')->first();
         if ($wiki) {
-            $articles = Article::where('wiki_id', $wiki->id)->whereNull('deleted_at')->get();
-            if ($articles) {
+            $my_article2 = Article::where('wiki_id', $wiki->id)
+                ->whereNull('deleted_at')
+                ->where('url_title', $articleName)
+                ->first();
 
-                $my_article2 = $articles->where('url_title', $articleName)->first();
+            if ($my_article2) {
 
-                if ($my_article2) {
-
-                    $my_article2->delete();
-                    return response(__('Article was deleted'), 200)
-                        ->header('Content-Type', 'text/plain');
-                }   else {
-                        return response(__('Error'), 500)
-                            ->header('Content-Type', 'text/plain');
-                }
+                $my_article2->delete();
+                return response(__('Article was deleted'), 200)
+                    ->header('Content-Type', 'text/plain');
             } else {
                 return response(__('Error'), 500)
                     ->header('Content-Type', 'text/plain');
@@ -360,11 +351,15 @@ class ArticleController extends Controller
                 $articles = Article::onlyTrashed()->where('wiki_id', $wiki->id)->get();
             } else {
                 $articles = DB::table('articles')
-                ->join('revisions', 'articles.id', '=', 'revisions.article_id')
                 ->select('articles.*')
                 ->where('articles.wiki_id', $wiki->id)
                 ->whereNotNull('articles.deleted_at')
-                ->where('revisions.is_approved', true)
+                ->whereExists(function ($query) {
+                    $query->select(DB::raw(1))
+                        ->from('revisions')
+                        ->whereColumn('revisions.article_id', 'articles.id')
+                        ->where('revisions.is_approved', true);
+                })
                 ->get();
             }
 
@@ -386,12 +381,12 @@ class ArticleController extends Controller
             } else {
                 $can_check_revisions = false;
             }
-            $articles = Article::onlyTrashed()->where('wiki_id', $wiki->id)->get();
+            $article = Article::onlyTrashed()
+                ->where('wiki_id', $wiki->id)
+                ->where('url_title', $articleName)
+                ->first();
 
-            if($articles) {
-                $article = $articles->where('url_title', $articleName)->first();
-
-                if($article) {
+            if($article) {
 
                     if ($can_check_revisions) {
                         $revision = Revision::where('article_id', $article->id)
@@ -414,13 +409,8 @@ class ArticleController extends Controller
                         return response(__('Article does not exist'), 404)
                         ->header('Content-Type', 'text/plain');
                     }
-                }
-                 else {
-                    return response(__('Article does not exist'), 404)
-                        ->header('Content-Type', 'text/plain');
-                 }
             } else {
-                return response(__('No articles'), 404)
+                return response(__('Article does not exist'), 404)
                     ->header('Content-Type', 'text/plain');
             }
         } else {
@@ -434,19 +424,15 @@ class ArticleController extends Controller
     public function restore(string $wikiName, string $articleName): Response {
         $wiki = Wiki::where('url', $wikiName)->first();
         if ($wiki) {
-            $articles = Article::onlyTrashed()->where('wiki_id', $wiki->id)->get();
-            if ($articles) {
+            $my_article2 = Article::onlyTrashed()
+                ->where('wiki_id', $wiki->id)
+                ->where('url_title', $articleName)
+                ->first();
+            if ($my_article2) {
 
-                $my_article2 = $articles->where('url_title', $articleName)->first();
-                if ($my_article2) {
-
-                    $my_article2->restore();
-                    return response(__('Article was restored'), 200)
-                        ->header('Content-Type', 'text/plain');
-                }   else {
-                        return response(__('Error'), 500)
-                            ->header('Content-Type', 'text/plain');
-                }
+                $my_article2->restore();
+                return response(__('Article was restored'), 200)
+                    ->header('Content-Type', 'text/plain');
             } else {
                 return response(__('Error'), 500)
                     ->header('Content-Type', 'text/plain');
