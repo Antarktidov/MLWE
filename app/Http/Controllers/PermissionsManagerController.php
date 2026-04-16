@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\UserGroup;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class PermissionsManagerController extends Controller
 {
@@ -20,9 +20,6 @@ class PermissionsManagerController extends Controller
             'user-group-is-global' => 'array',
             'user-group-permissions' => 'array',
         ]);
-        $parsed_perms = self::parsePermissions($data['user-group-permissions']);
-        $usergroup = [];
-        
         $userGroupNames = $data['user-group-names'];
         $userGroupIsGlobal = $data['user-group-is-global'];
 
@@ -30,27 +27,37 @@ class PermissionsManagerController extends Controller
             abort(500);
         }
 
-        $user_group_attr_magic = UserGroup::first();
+        $parsedPerms = self::parsePermissions($data['user-group-permissions']);
+        $parsedPermsSet = [];
+        foreach ($parsedPerms as $perm) {
+            $parsedPermsSet[$perm['user_group_id'] . '_' . $perm['permission']] = true;
+        }
 
-        // Получаем все атрибуты, которые начинаются с 'can_'
-        $attributes = collect($user_group_attr_magic->getAttributes())
+        // Получаем все permission-атрибуты по именам колонок таблицы.
+        $attributes = collect(Schema::getColumnListing((new UserGroup())->getTable()))
         ->filter(function ($value, $key) {
-            return str_starts_with($key, 'can_');
+            return str_starts_with($value, 'can_');
         });
 
-        // Получаем все группы из базы данных для получения ID
-        $userGroupsFromDb = UserGroup::all();
+        // Получаем только ID групп, этого достаточно для построения итогового payload.
+        $userGroupIds = UserGroup::query()
+            ->orderBy('id')
+            ->pluck('id')
+            ->all();
+
+        if (count($userGroupNames) !== count($userGroupIds)) {
+            abort(500);
+        }
+
+        $usergroup = [];
 
         for ($i = 0; $i < count($userGroupNames); $i++) {
-            $userGroupId = $userGroupsFromDb[$i]->id;
+            $userGroupId = $userGroupIds[$i];
             $permissions = [];
             
-            foreach($attributes as $key => $value) {
-                // Проверяем, есть ли в $parsed_perms запись для этой группы и этого разрешения
-                $hasPermission = collect($parsed_perms)->contains(function ($item) use ($userGroupId, $key) {
-                    return $item['user_group_id'] === $userGroupId && $item['permission'] === $key;
-                });
-                $permissions[$key] = $hasPermission;
+            foreach ($attributes as $attribute) {
+                $hasPermission = isset($parsedPermsSet[$userGroupId . '_' . $attribute]);
+                $permissions[$attribute] = $hasPermission;
             }
             
             $usergroup[] = array_merge([
