@@ -14,37 +14,29 @@ class RevisionController extends Controller
     {
         $wiki = Wiki::where('url', $wikiName)->whereNull('deleted_at')->first();
         if ($wiki) {
-            $articles = Article::where('wiki_id', $wiki->id)->whereNull('deleted_at')->get();
-            if ($articles) {
+            $my_article = Article::where('wiki_id', $wiki->id)
+                ->where('url_title', $articleName)
+                ->whereNull('deleted_at')
+                ->first();
 
-                $my_article = $articles->where('url_title', $articleName)->first();
+            if ($my_article) {
+                $my_revision = Revision::where('article_id', $my_article->id)
+                    ->where('id', $revisionId)
+                    ->whereNull('deleted_at')
+                    ->first();
 
-                if ($my_article) {
-                    $revisions = Revision::where('article_id', $my_article->id)->whereNull('deleted_at')->get();
-
-                    if ($revisions) {
-                        $my_revision = $revisions->where('id', $revisionId)->first();
-                        if ($my_revision) {
-                            $my_revision->delete();
-                            return response(__('The edit was hidden'), 200)
-                            ->header('Content-Type', 'text/plain');
-                        } else {
-                            return response(__('No such revision'), 404)
-                            ->header('Content-Type', 'text/plain');
-                        }
-
-                    } else {
-                        return response(__('No article revisions'), 404)
-                            ->header('Content-Type', 'text/plain');
-                    }
-
-                }   else {
-                        return response(__('No such article'), 404)
-                            ->header('Content-Type', 'text/plain');
-                }
-            } else {
-                return response(__('Error'), 500)
+                if ($my_revision) {
+                    $my_revision->delete();
+                    return response(__('The edit was hidden'), 200)
                     ->header('Content-Type', 'text/plain');
+                } else {
+                    return response(__('No such revision'), 404)
+                    ->header('Content-Type', 'text/plain');
+                }
+
+            }   else {
+                    return response(__('No such article'), 404)
+                        ->header('Content-Type', 'text/plain');
             }
 
         } else {
@@ -57,23 +49,22 @@ class RevisionController extends Controller
     public function restore(string $wikiName, string $articleName, int $revisionId) {
         $wiki = Wiki::where('url', $wikiName)->whereNull('deleted_at')->first();
         if ($wiki) {
-            $articles = Article::where('wiki_id', $wiki->id)->whereNull('deleted_at')->get();
-            if ($articles) {
-                $my_article = $articles->where('url_title', $articleName)->first();
-                if ($my_article) {
-                    $revisions = Revision::onlyTrashed()->where('article_id', $my_article->id)->get();
-                    if ($revisions) {
-                        $my_revision = $revisions->where('id', $revisionId)->first();
-                        $my_revision->restore();
-                        return response(__('The edit has been restored'), 200)
-                            ->header('Content-Type', 'text/plain');
-                    } else {
-                        return response(__('Error'), 500)
-                            ->header('Content-Type', 'text/plain');
-                    }
-                }   else {
-                        return response(__('Error'), 500)
-                            ->header('Content-Type', 'text/plain');
+            $my_article = Article::where('wiki_id', $wiki->id)
+                ->where('url_title', $articleName)
+                ->whereNull('deleted_at')
+                ->first();
+            if ($my_article) {
+                $my_revision = Revision::onlyTrashed()
+                    ->where('article_id', $my_article->id)
+                    ->where('id', $revisionId)
+                    ->first();
+                if ($my_revision) {
+                    $my_revision->restore();
+                    return response(__('The edit has been restored'), 200)
+                        ->header('Content-Type', 'text/plain');
+                } else {
+                    return response(__('Error'), 500)
+                        ->header('Content-Type', 'text/plain');
                 }
             } else {
                 return response(__('Error'), 500)
@@ -91,50 +82,37 @@ class RevisionController extends Controller
     {
         $wiki = Wiki::where('url', $wikiName)->whereNull('deleted_at')->first();
         if ($wiki) {
-            $articles = Article::where('wiki_id', $wiki->id)->whereNull('deleted_at')->get();
-            if ($articles) {
+            $article = Article::where('wiki_id', $wiki->id)
+                ->where('url_title', $articleName)
+                ->whereNull('deleted_at')
+                ->first();
 
-                $article = $articles->where('url_title', $articleName)->first();
-
-                if ($article) {
-                    $user = auth()->user();
-                    if ($user != null) {
-                        $can_check_revisions = $user->can('check_revisions', $wiki->url);
-                    } else {
-                        $can_check_revisions = false;
-                    }
-
-                    if ($can_check_revisions) {
-                        $revisions = Revision::where('article_id', $article->id)
-                        ->whereNull('deleted_at')
-                        ->get();
-                    } else {
-                        $revisions = Revision::where('article_id', $article->id)
-                        ->whereNull('deleted_at')
-                        ->where('is_approved', true)
-                        ->get();
-                    }
-
-                    if ($revisions) {
-                        $revision = $revisions->where('id', $revisionId)->first();
-
-                        if($revision) {
-                            return view('revision', compact('revision', 'wiki', 'article'));
-                        }
-                        else {
-                            return response(__('404. Invalid edit id entered.'), 404)
-                                ->header('Content-Type', 'text/plain');
-                        }
-                    } else {
-                        return response(__('Error'), 500)
-                            ->header('Content-Type', 'text/plain');
-                    }
-
-                }   else {
-                        return response(__('Error'), 500)
-                            ->header('Content-Type', 'text/plain');
+            if ($article) {
+                $user = auth()->user();
+                if ($user != null) {
+                    $can_check_revisions = $user->can('check_revisions', $wiki->url);
+                } else {
+                    $can_check_revisions = false;
                 }
-            } else {
+
+                $revisionQuery = Revision::where('article_id', $article->id)
+                    ->where('id', $revisionId)
+                    ->whereNull('deleted_at');
+
+                if (!$can_check_revisions) {
+                    $revisionQuery->where('is_approved', true);
+                }
+
+                $revision = $revisionQuery->first();
+                if($revision) {
+                    return view('revision', compact('revision', 'wiki', 'article'));
+                }
+                else {
+                    return response(__('404. Invalid edit id entered.'), 404)
+                        ->header('Content-Type', 'text/plain');
+                }
+
+            }   else {
                 return response(__('Error'), 500)
                     ->header('Content-Type', 'text/plain');
             }
@@ -149,38 +127,36 @@ class RevisionController extends Controller
     public function index(string $wikiName, string $articleName) {
         $wiki = Wiki::where('url', $wikiName)->whereNull('deleted_at')->first();
         if ($wiki) {
-            $articles = Article::where('wiki_id', $wiki->id)->whereNull('deleted_at')->get();
-            if($articles) {
-                $article = $articles->where('url_title', $articleName)->first();
-                if($article) {
-                    $user = auth()->user();
-                    if ($user != null) {
-                        $can_check_revisions = $user->can('check_revisions', $wiki->url);
-                    } else {
-                        $can_check_revisions = false;
-                    }
-                    if ($can_check_revisions) {
-                        $revisions = Revision::whereNull('deleted_at')
-                        ->get();
-                    } else {
-                        $revisions = Revision::whereNull('deleted_at')
-                        ->where('is_approved', true)
-                        ->get();
-                    }
-                    if (count($revisions) > 0) {
-                        $users = User::all();
-                        return view('history', compact('article', 'revisions',
-                        'users', 'wiki'));
-                    } else {
-                        return response(__('Article does not exist'), 404)
-                        ->header('Content-Type', 'text/plain');
-                    }
+            $article = Article::where('wiki_id', $wiki->id)
+                ->where('url_title', $articleName)
+                ->whereNull('deleted_at')
+                ->first();
+            if($article) {
+                $user = auth()->user();
+                if ($user != null) {
+                    $can_check_revisions = $user->can('check_revisions', $wiki->url);
+                } else {
+                    $can_check_revisions = false;
+                }
+
+                $revisionsQuery = Revision::where('article_id', $article->id)
+                    ->whereNull('deleted_at');
+
+                if (!$can_check_revisions) {
+                    $revisionsQuery->where('is_approved', true);
+                }
+
+                $revisions = $revisionsQuery->get();
+                if ($revisions->isNotEmpty()) {
+                    $users = User::all();
+                    return view('history', compact('article', 'revisions',
+                    'users', 'wiki'));
                 } else {
                     return response(__('Article does not exist'), 404)
-                        ->header('Content-Type', 'text/plain');
+                    ->header('Content-Type', 'text/plain');
                 }
             } else {
-                return response(__('No articles'), 404)
+                return response(__('Article does not exist'), 404)
                     ->header('Content-Type', 'text/plain');
             }
         } else {
@@ -194,39 +170,39 @@ class RevisionController extends Controller
     public function show_deleted_hist(string $wikiName, string $articleName) {
         $wiki = Wiki::where('url', $wikiName)->whereNull('deleted_at')->first();
         if ($wiki) {
-            $articles = Article::onlyTrashed()->where('wiki_id', $wiki->id)->get();
-            if($articles) {
-                $article = $articles->where('url_title', $articleName)->first();
-                if($article) {
-                    $user = auth()->user();
-                    if ($user != null) {
-                        $can_check_revisions = $user->can('check_revisions', $wiki->url);
-                    } else {
-                        $can_check_revisions = false;
-                    }
-                    if ($can_check_revisions) {
-                        $revisions = Revision::all();
-                    }
-                    else {
-                        $revisions = Revision::whereNull('deleted_at')
-                        ->where('is_approved', true)
-                        ->get();
-                    }
-                    if (count($revisions) > 0) {
-                        $users = User::all();
-                        return view('show_deleted_article_history', compact('article', 'revisions',
-                            'users', 'wiki'));
-                    }
-                    else {
-                        return response(__('Article does not exist'), 404)
-                        ->header('Content-Type', 'text/plain');
-                    }
+            $article = Article::onlyTrashed()
+                ->where('wiki_id', $wiki->id)
+                ->where('url_title', $articleName)
+                ->first();
+            if($article) {
+                $user = auth()->user();
+                if ($user != null) {
+                    $can_check_revisions = $user->can('check_revisions', $wiki->url);
                 } else {
+                    $can_check_revisions = false;
+                }
+
+                $revisionsQuery = Revision::where('article_id', $article->id);
+                if ($can_check_revisions) {
+                    $revisionsQuery->withTrashed();
+                } else {
+                    $revisionsQuery
+                        ->whereNull('deleted_at')
+                        ->where('is_approved', true);
+                }
+
+                $revisions = $revisionsQuery->get();
+                if ($revisions->isNotEmpty()) {
+                    $users = User::all();
+                    return view('show_deleted_article_history', compact('article', 'revisions',
+                        'users', 'wiki'));
+                }
+                else {
                     return response(__('Article does not exist'), 404)
-                        ->header('Content-Type', 'text/plain');
+                    ->header('Content-Type', 'text/plain');
                 }
             } else {
-                return response(__('No articles'), 404)
+                return response(__('Article does not exist'), 404)
                     ->header('Content-Type', 'text/plain');
             }
         } else {
@@ -259,27 +235,24 @@ class RevisionController extends Controller
     public function approve(string $wikiName, string $articleName, int $revisionId) {
         $wiki = Wiki::where('url', $wikiName)->whereNull('deleted_at')->first();
         if ($wiki) {
-            $articles = Article::where('wiki_id', $wiki->id)->whereNull('deleted_at')->get();
-            if ($articles) {
-                $my_article = $articles->where('url_title', $articleName)->first();
-                if ($my_article) {
-                    $revisions = Revision::where('article_id', $my_article->id)
+            $my_article = Article::where('wiki_id', $wiki->id)
+                ->where('url_title', $articleName)
+                ->whereNull('deleted_at')
+                ->first();
+            if ($my_article) {
+                $my_revision = Revision::where('article_id', $my_article->id)
+                    ->where('id', $revisionId)
                     ->whereNull('deleted_at')
-                    ->get();
-                    if ($revisions) {
-                        $my_revision = $revisions->where('id', $revisionId)->first();
-                        $my_revision->update([
-                            'is_approved' => true,
-                        ]);
-                        return response(__('The edit has been approved'), 200)
-                            ->header('Content-Type', 'text/plain');
-                    } else {
-                        return response(__('Error'), 500)
-                            ->header('Content-Type', 'text/plain');
-                    }
-                }   else {
-                        return response(__('Error'), 500)
-                            ->header('Content-Type', 'text/plain');
+                    ->first();
+                if ($my_revision) {
+                    $my_revision->update([
+                        'is_approved' => true,
+                    ]);
+                    return response(__('The edit has been approved'), 200)
+                        ->header('Content-Type', 'text/plain');
+                } else {
+                    return response(__('Error'), 500)
+                        ->header('Content-Type', 'text/plain');
                 }
             } else {
                 return response(__('Error'), 500)
@@ -296,27 +269,24 @@ class RevisionController extends Controller
     public function patrol(string $wikiName, string $articleName, int $revisionId) {
         $wiki = Wiki::where('url', $wikiName)->whereNull('deleted_at')->first();
         if ($wiki) {
-            $articles = Article::where('wiki_id', $wiki->id)->whereNull('deleted_at')->get();
-            if ($articles) {
-                $my_article = $articles->where('url_title', $articleName)->first();
-                if ($my_article) {
-                    $revisions = Revision::where('article_id', $my_article->id)
+            $my_article = Article::where('wiki_id', $wiki->id)
+                ->where('url_title', $articleName)
+                ->whereNull('deleted_at')
+                ->first();
+            if ($my_article) {
+                $my_revision = Revision::where('article_id', $my_article->id)
+                    ->where('id', $revisionId)
                     ->whereNull('deleted_at')
-                    ->get();
-                    if ($revisions) {
-                        $my_revision = $revisions->where('id', $revisionId)->first();
-                        $my_revision->update([
-                            'is_patrolled' => true,
-                        ]);
-                        return response(__('The edit has been patrolled'), 200)
-                            ->header('Content-Type', 'text/plain');
-                    } else {
-                        return response(__('Error'), 500)
-                            ->header('Content-Type', 'text/plain');
-                    }
-                }   else {
-                        return response(__('Error'), 500)
-                            ->header('Content-Type', 'text/plain');
+                    ->first();
+                if ($my_revision) {
+                    $my_revision->update([
+                        'is_patrolled' => true,
+                    ]);
+                    return response(__('The edit has been patrolled'), 200)
+                        ->header('Content-Type', 'text/plain');
+                } else {
+                    return response(__('Error'), 500)
+                        ->header('Content-Type', 'text/plain');
                 }
             } else {
                 return response(__('Error'), 500)
@@ -333,27 +303,24 @@ class RevisionController extends Controller
     public function depatrol(string $wikiName, string $articleName, int $revisionId) {
         $wiki = Wiki::where('url', $wikiName)->whereNull('deleted_at')->first();
         if ($wiki) {
-            $articles = Article::where('wiki_id', $wiki->id)->whereNull('deleted_at')->get();
-            if ($articles) {
-                $my_article = $articles->where('url_title', $articleName)->first();
-                if ($my_article) {
-                    $revisions = Revision::where('article_id', $my_article->id)
+            $my_article = Article::where('wiki_id', $wiki->id)
+                ->where('url_title', $articleName)
+                ->whereNull('deleted_at')
+                ->first();
+            if ($my_article) {
+                $my_revision = Revision::where('article_id', $my_article->id)
+                    ->where('id', $revisionId)
                     ->whereNull('deleted_at')
-                    ->get();
-                    if ($revisions) {
-                        $my_revision = $revisions->where('id', $revisionId)->first();
-                        $my_revision->update([
-                            'is_patrolled' => false,
-                        ]);
-                        return response(__('The edit has been depatrolled'), 200)
-                            ->header('Content-Type', 'text/plain');
-                    } else {
-                        return response(__('Error'), 500)
-                            ->header('Content-Type', 'text/plain');
-                    }
-                }   else {
-                        return response(__('Error'), 500)
-                            ->header('Content-Type', 'text/plain');
+                    ->first();
+                if ($my_revision) {
+                    $my_revision->update([
+                        'is_patrolled' => false,
+                    ]);
+                    return response(__('The edit has been depatrolled'), 200)
+                        ->header('Content-Type', 'text/plain');
+                } else {
+                    return response(__('Error'), 500)
+                        ->header('Content-Type', 'text/plain');
                 }
             } else {
                 return response(__('Error'), 500)
