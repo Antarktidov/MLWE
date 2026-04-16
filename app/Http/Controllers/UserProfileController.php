@@ -16,16 +16,15 @@ class UserProfileController extends Controller
 {
     public function show_global(User $user) {
 
-        $user_usergroups_wiki = UserUserGroupWiki::where('user_id', $user->id)
-        ->where('wiki_id', 0)
-        ->select('user_group_id')
-        ->get();
+        $user_group_ids = UserUserGroupWiki::where('user_id', $user->id)
+            ->where('wiki_id', 0)
+            ->pluck('user_group_id')
+            ->unique();
 
-        $user_group_names = [];
-
-        foreach($user_usergroups_wiki as $item) {
-            $user_group_names[] = UserGroup::find($item->user_group_id)->name;
-        }
+        $user_group_names = UserGroup::whereIn('id', $user_group_ids)
+            ->pluck('name')
+            ->values()
+            ->all();
 
         $wiki = Wiki::withTrashed()->first();
         $user2 = auth()->user();
@@ -44,16 +43,9 @@ class UserProfileController extends Controller
         }
 
         if ($can_review_user_profiles || $is_my_profile) {
-            $user_profile = UserProfileRevision::where('user_id', $user->id)
-            ->where('wiki_id', 0)
-            ->whereNull('deleted_at')
-            ->orderBy('id', 'desc')->first();
+            $user_profile = $this->latestProfileRevision($user->id, 0);
         } else {
-            $user_profile= UserProfileRevision::where('user_id', $user->id)
-            ->where('wiki_id', 0)
-            ->where('is_approved', true)
-            ->whereNull('deleted_at')
-            ->orderBy('id', 'desc')->first();
+            $user_profile = $this->latestProfileRevision($user->id, 0, true);
         }
 
         $user_medals = UserMedal::where('user_id', $user->id)
@@ -61,14 +53,21 @@ class UserProfileController extends Controller
         ->get();
 
         $medals = [];
+        $medal_by_id = Medal::whereIn('id', $user_medals->pluck('medal_id')->unique())
+            ->get()
+            ->keyBy('id');
+        $giver_by_id = User::whereIn('id', $user_medals->pluck('giver_id')->filter()->unique())
+            ->get()
+            ->keyBy('id');
 
         foreach ($user_medals as $um) {
-            $medal = Medal::find($um->medal_id);
+            $medal = $medal_by_id->get($um->medal_id);
             if ($medal) {
-                $giver = User::find($um->giver_id);
-                $medal->giver_name = $giver->name;
-                $medal->giver_id = $giver->id;
-                $medals[] = $medal;
+                $medal_with_meta = clone $medal;
+                $giver = $giver_by_id->get($um->giver_id);
+                $medal_with_meta->giver_name = $giver ? $giver->name : '?';
+                $medal_with_meta->giver_id = $giver ? $giver->id : null;
+                $medals[] = $medal_with_meta;
             }
         }
 
@@ -88,19 +87,15 @@ class UserProfileController extends Controller
                 ->header('Content-Type', 'text/plain');
         }
 
-        $user_usergroups_wiki = UserUserGroupWiki::where('user_id', $user->id)
-        ->where(function ($query) use ($wiki) {
-            $query->where('wiki_id', 0)
-                  ->orWhere('wiki_id', $wiki->id);
-        })
-        ->select('user_group_id')
-        ->get();
+        $user_group_ids = UserUserGroupWiki::where('user_id', $user->id)
+            ->whereIn('wiki_id', [0, $wiki->id])
+            ->pluck('user_group_id')
+            ->unique();
 
-        $user_group_names = [];
-
-        foreach($user_usergroups_wiki as $item) {
-            $user_group_names[] = UserGroup::find($item->user_group_id)->name;
-        }
+        $user_group_names = UserGroup::whereIn('id', $user_group_ids)
+            ->pluck('name')
+            ->values()
+            ->all();
 
         $user2 = auth()->user();
         if ($user2 != null) {
@@ -112,27 +107,11 @@ class UserProfileController extends Controller
         }
 
         if ($can_review_user_profiles || $is_my_profile) {
-            $user_profile = UserProfileRevision::where('user_id', $user->id)
-            ->where('wiki_id', 0)
-            ->whereNull('deleted_at')
-            ->orderBy('id', 'desc')->first();
-
-            $user_profile_local = UserProfileRevision::where('user_id', $user->id)
-            ->where('wiki_id', $wiki->id)
-            ->whereNull('deleted_at')
-            ->orderBy('id', 'desc')->first();
+            $user_profile = $this->latestProfileRevision($user->id, 0);
+            $user_profile_local = $this->latestProfileRevision($user->id, $wiki->id);
         } else {
-            $user_profile = UserProfileRevision::where('user_id', $user->id)
-            ->where('wiki_id', 0)
-            ->where('is_approved', true)
-            ->whereNull('deleted_at')
-            ->orderBy('id', 'desc')->first();
-
-            $user_profile_local = UserProfileRevision::where('user_id', $user->id)
-            ->where('wiki_id', $wiki->id)
-            ->where('is_approved', true)
-            ->whereNull('deleted_at')
-            ->orderBy('id', 'desc')->first();
+            $user_profile = $this->latestProfileRevision($user->id, 0, true);
+            $user_profile_local = $this->latestProfileRevision($user->id, $wiki->id, true);
         }
 
         if ($user2 != null) {
@@ -153,20 +132,27 @@ class UserProfileController extends Controller
             ->get();
 
         $medals = [];
+        $medal_by_id = Medal::whereIn('id', $user_medals->pluck('medal_id')->unique())
+            ->get()
+            ->keyBy('id');
+        $giver_by_id = User::whereIn('id', $user_medals->pluck('giver_id')->filter()->unique())
+            ->get()
+            ->keyBy('id');
 
         foreach ($user_medals as $um) {
-            $medal = Medal::find($um->medal_id);
+            $medal = $medal_by_id->get($um->medal_id);
             if ($medal) {
-                $giver = User::find($um->giver_id);
+                $medal_with_meta = clone $medal;
+                $giver = $giver_by_id->get($um->giver_id);
                 if ($giver) {
-                    $medal->giver_name = $giver->name;
-                    $medal->giver_id = $giver->id;
+                    $medal_with_meta->giver_name = $giver->name;
+                    $medal_with_meta->giver_id = $giver->id;
                 } else {
-                    $medal->giver_name = '?';
-                    $medal->giver_id = null;
+                    $medal_with_meta->giver_name = '?';
+                    $medal_with_meta->giver_id = null;
                 }
-                $medal->award_wiki_id = $um->wiki_id;
-                $medals[] = $medal;
+                $medal_with_meta->award_wiki_id = $um->wiki_id;
+                $medals[] = $medal_with_meta;
             }
         }
 
@@ -336,5 +322,18 @@ class UserProfileController extends Controller
 
         return response(__('The user profile has been successfully updated'), 200)
             ->header('Content-Type', 'text/plain');
+    }
+
+    private function latestProfileRevision(int $userId, int $wikiId, bool $onlyApproved = false): ?UserProfileRevision
+    {
+        $query = UserProfileRevision::where('user_id', $userId)
+            ->where('wiki_id', $wikiId)
+            ->whereNull('deleted_at');
+
+        if ($onlyApproved) {
+            $query->where('is_approved', true);
+        }
+
+        return $query->latest('id')->first();
     }
 }
