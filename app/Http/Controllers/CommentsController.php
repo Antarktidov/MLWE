@@ -16,91 +16,86 @@ class CommentsController extends Controller
     public function show_comments_under_article(string $wikiName, string $articleName)
     {
         $wiki = Wiki::where('url', $wikiName)->whereNull('deleted_at')->first();
-        if ($wiki) {
-            $articles = Article::where('wiki_id', $wiki->id)->whereNull('deleted_at')->get();
-
-            if($articles) {
-                $article = $articles->where('url_title', $articleName)->first();
-
-                if($article) {
-                    $comments = Comment::whereNull('deleted_at')
-                        ->where('article_id', $article->id)
-                        ->orderBy('created_at', 'desc')
-                        ->paginate(10);
-
-                    $output_comments = [];
-
-                    $user = auth()->user();
-                    if ($wiki) {
-                        if ($user != null) {
-                            $check_comments = $user->can('check_comments', $wiki->url);
-                        } else {
-                            $check_comments = false;
-                        }
-                    }
-
-                    foreach ($comments as $comment) {
-                        $user = User::find($comment->user_id);
-                        $user_name = $user ? $user->name : __('Anonymous user');
-
-
-                        if ($check_comments) {
-                            $comment_revision = CommentRevision::where('comment_id', $comment->id)
-                            ->whereNull('deleted_at')
-                            ->orderBy('id', 'desc')
-                            ->first();
-                        } else {
-                            $comment_revision = CommentRevision::where('comment_id', $comment->id)
-                            ->whereNull('deleted_at')
-                            ->orderBy('id', 'desc')
-                            ->where('is_approved', true)
-                            ->first();
-                        }
-
-                        $content = $comment_revision ? $comment_revision->content : null;
-
-                        $is_approved = $comment_revision ? $comment_revision->is_approved : null;
-
-                        if ($content == null) {
-                            continue;
-                        }
-
-                        $output_comments[] = [
-                            'id' => $comment->id,
-                            'user_id' => $comment->user_id,
-                            'user_name' => $user_name,
-                            'created_at' => $comment->created_at ? $comment->created_at->format('Y-m-d H:i:s') : null,
-                            'content' => Str::of($content)->markdown([
-                                'html_input' => 'strip',
-                            ]),
-                            'markdown_content' => $content,
-                            'is_approved' => $is_approved,
-                        ];
-                    }
-
-                    //dd($comments);
-
-                    return response()->json([
-                        'data' => $output_comments,
-                        'meta' => [
-                            'current_page' => $comments->currentPage(),
-                            'per_page' => $comments->perPage(),
-                            'total' => $comments->total(),
-                            'last_page' => $comments->lastPage(),
-                        ],
-                    ]);
-                } else {
-                    return response(__('Article does not exist'), 404)
-                        ->header('Content-Type', 'text/plain');
-                }
-            } else {
-                return response(__('No articles'), 404)
-                    ->header('Content-Type', 'text/plain');
-            }
-        } else {
+        if (!$wiki) {
             return response(__('Wiki does not exist'), 404)
                 ->header('Content-Type', 'text/plain');
         }
+
+        $article = Article::where('wiki_id', $wiki->id)
+            ->where('url_title', $articleName)
+            ->whereNull('deleted_at')
+            ->first();
+
+        if (!$article) {
+            return response(__('Article does not exist'), 404)
+                ->header('Content-Type', 'text/plain');
+        }
+
+        $comments = Comment::whereNull('deleted_at')
+            ->where('article_id', $article->id)
+            ->orderBy('created_at', 'desc')
+            ->select(['id', 'user_id', 'created_at'])
+            ->paginate(10);
+
+        $output_comments = [];
+
+        $user = auth()->user();
+        $check_comments = $user != null && $user->can('check_comments', $wiki->url);
+
+        $commentIds = $comments->pluck('id');
+        $userIds = $comments->pluck('user_id')->filter()->unique()->values();
+
+        $usersById = User::whereIn('id', $userIds)
+            ->select(['id', 'name'])
+            ->get()
+            ->keyBy('id');
+
+        $revisionsQuery = CommentRevision::whereIn('comment_id', $commentIds)
+            ->whereNull('deleted_at')
+            ->orderBy('id', 'desc')
+            ->select(['id', 'comment_id', 'content', 'is_approved']);
+
+        if (!$check_comments) {
+            $revisionsQuery->where('is_approved', true);
+        }
+
+        $revisionsByCommentId = $revisionsQuery->get()
+            ->unique('comment_id')
+            ->keyBy('comment_id');
+
+        foreach ($comments as $comment) {
+            $comment_revision = $revisionsByCommentId->get($comment->id);
+            $content = $comment_revision ? $comment_revision->content : null;
+
+            if ($content == null) {
+                continue;
+            }
+
+            $author = $usersById->get($comment->user_id);
+            $user_name = $author ? $author->name : __('Anonymous user');
+
+            $output_comments[] = [
+                'id' => $comment->id,
+                'user_id' => $comment->user_id,
+                'user_name' => $user_name,
+                'created_at' => $comment->created_at ? $comment->created_at->format('Y-m-d H:i:s') : null,
+                'content' => Str::of($content)->markdown([
+                    'html_input' => 'strip',
+                ]),
+                'markdown_content' => $content,
+                'is_approved' => $comment_revision->is_approved,
+            ];
+        }
+
+        return response()->json([
+            'data' => $output_comments,
+            'meta' => [
+                'current_page' => $comments->currentPage(),
+                'per_page' => $comments->perPage(),
+                'total' => $comments->total(),
+                'last_page' => $comments->lastPage(),
+            ],
+        ]);
     }
 
     public function store(string $wikiName, string $articleName, Request $request) {
