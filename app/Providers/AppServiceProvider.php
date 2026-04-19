@@ -122,6 +122,10 @@ public function boot(): void
     Gate::define('be_filament_admin', function ($user, $wikiName) {
         return PermissionChecker::check($user, $wikiName, 'can_be_filament_admin');
     });
+
+    Gate::define('manage_trivia', function ($user, $wikiName) {
+        return PermissionChecker::check($user, $wikiName, 'can_manage_trivia');
+    });
     
     /*Gate::define('revert_edits_to_old_version', function ($user, $wikiName) {
         return PermissionChecker::check($user, $wikiName, 'can_revert_edits_to_old_version');
