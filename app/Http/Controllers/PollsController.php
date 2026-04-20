@@ -35,6 +35,6 @@ class PollsController extends Controller
                                             }, $variantsArray)) . '}'
                                             ]);
 
-        return __('Poll create successfully');
+        return __('Poll created successfully');
     }
 }
