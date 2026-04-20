@@ -131,7 +131,7 @@
                 console.log(questions[idx]);
 
                 if (idx > questions.length - 1) {
-                    //finishQuiz();
+                    finishQuiz();
                     return;
                 }
 
@@ -178,6 +178,9 @@
         function right() {
             correctAnswersCount++;
             showQuestion(questionIdx);
+        }
+        function finishQuiz() {
+            quizBody.innerHTML = `Вы окончили квиз. Количество правильных ответов: ${correctAnswersCount}.`;
         }
         </script>
     @endif
