@@ -44,6 +44,12 @@
             padding: 10px;
             border-radius: 12px;
         }
+        .answer {
+            border: 1px solid;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 12px;
+        }
     </style>
     @if ( $trivia != null )
         <script>
@@ -142,7 +148,8 @@
                 }
                 shuffle(answersHTMLArr);
 
-                quizBody.innerHTML = answersHTMLArr.join("");
+                quizBody.innerHTML = '<h5>' + question.question + '</h5>';
+                quizBody.innerHTML += answersHTMLArr.join("");
                 questionIdx++;
             }
         // Source - https://stackoverflow.com/a/2450976
