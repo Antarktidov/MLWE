@@ -1,0 +1,49 @@
+main {
+            display: grid;
+            grid-template-columns: 20vw 1fr 20vw;
+            margin-right: auto;
+            margin-left: auto;
+        }
+
+        main .right-column {
+            overflow-x: auto;
+            width: 18vw;
+        }
+
+        .recent-images {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: nowrap;
+            gap: 10px;
+            overflow-x: auto;
+        }
+
+        .recent-img-item {
+            object-fit: cover;
+                
+            height: 150px;
+            width: calc(18vw * 0.9);
+            background-size: cover;
+            background-position: center;
+            flex: 0 0 calc(18vw * 0.9);
+        }
+        .recent-img-item-wrapper {
+            & .time {
+                margin-top: 0.5rem;
+                margin-bottom: 0.5rem;
+            }
+        }
+        .ri-header {
+            margin-bottom: 0.5rem;
+        }
+        .trivia {
+            border: 1px solid;
+            padding: 10px;
+            border-radius: 12px;
+        }
+        .answer {
+            border: 1px solid;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 12px;
+        }
