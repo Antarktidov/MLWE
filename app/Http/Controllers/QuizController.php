@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Quiz;
 use App\Models\QuizQuestion;
+use Illuminate\Support\Facades\DB;
 
 class QuizController extends Controller
 {
@@ -32,11 +33,27 @@ class QuizController extends Controller
         $questions = $data['questions'];
 
         foreach ($questions as $q) {
-            $q['quiz_id'] = $created_quiz->id;
-        }
+            // Вариант A: Если $q->wrong_answers уже массив PHP
+            //dd($q['wrong_answers']);
+            $wrongAnswersArray = is_array($q['wrong_answers']) 
+                ? $q['wrong_answers']
+                : json_decode($q['wrong_answers'], true);
 
-        QuizQuestion::insert($questions);
+            $sql = <<<SQL
+                    INSERT INTO quiz_questions (question, answer, quiz_id, wrong_answers) VALUES 
+                    (?, ?, ?, ?::text[])
+                    SQL;
 
-        dd($data);
+                        DB::statement($sql, [
+                            $q['question'], 
+                            $q['answer'], 
+                            $created_quiz->id, 
+                            '{' . implode(',', array_map(function($item) {
+                                return '"' . addslashes($item) . '"';
+                            }, $wrongAnswersArray)) . '}'
+                        ]);
+                    }
+
+        return __('Quiz created');
     }
 }
