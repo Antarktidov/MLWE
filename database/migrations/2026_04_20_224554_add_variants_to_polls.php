@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        DB::statement('ALTER TABLE quiz_questions ADD COLUMN variants varchar(255)[]');
+        DB::statement('ALTER TABLE polls ADD COLUMN variants varchar(255)[]');
     }
 
     /**
@@ -19,6 +19,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        DB::statement('ALTER TABLE quiz_questions DROP COLUMN variants');
+        DB::statement('ALTER TABLE polls DROP COLUMN variants');
     }
 };
