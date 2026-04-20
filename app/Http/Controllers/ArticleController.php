@@ -255,19 +255,51 @@ class ArticleController extends Controller
     //POST-ручка для формы правки статьи
     public function update($wikiName, $articleName, Request $request)
     {
-        $data = request()->validate([
-            'title' => 'string',
-            'url_title' => 'string',
-            'content' => 'string',
-        ]);
 
         $wiki = Wiki::where('url', $wikiName)->whereNull('deleted_at')->first();
+
+        $user = auth()->user();
+
+        if ($user != null) {
+            $can_manage_trivia = $user->can('manage_trivia', $wiki->url);
+        } else {
+            $can_manage_trivia = false;
+        }
+
+        $data;
+
+        if (!$can_manage_trivia) {
+            $data = request()->validate([
+                'title' => 'string',
+                'url_title' => 'string',
+                'content' => 'string',
+            ]);
+        } else {
+            $data = request()->validate([
+                'title' => 'string',
+                'url_title' => 'string',
+                'content' => 'string',
+                'trivia_id' => 'integer',
+            ]);
+        }
+
         if ($wiki) {
-            $my_article = [
-                'wiki_id' => $wiki->id,
-                'url_title' => $data['url_title'],
-                'title' => $data['title'],
-            ];
+
+            if ($can_manage_trivia) {
+                $my_article = [
+                    'wiki_id' => $wiki->id,
+                    'url_title' => $data['url_title'],
+                    'title' => $data['title'],
+                    'trivia_id' => $data['trivia_id'],
+                ];
+            } else {
+                $my_article = [
+                    'wiki_id' => $wiki->id,
+                    'url_title' => $data['url_title'],
+                    'title' => $data['title'],
+                ];
+            }
+
             $my_article2 = Article::where('wiki_id', $wiki->id)
                 ->whereNull('deleted_at')
                 ->where('url_title', $articleName)
