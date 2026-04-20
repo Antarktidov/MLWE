@@ -203,6 +203,7 @@ Route::middleware([ProtectionLevel3Middleware::class])->group(function () {
     ->middleware(ManageTriviaMiddleware::class);
     Route::post('/quizes/store', [QuizController::class, 'store'])->name('quiz.store')
     ->middleware(ManageTriviaMiddleware::class);
+    Route::get('/api/quizes/show/{quiz}', [QuizController::class, 'show'])->name('quiz.api.show');
     
 
 //Логин, регистрация

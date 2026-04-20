@@ -56,4 +56,13 @@ class QuizController extends Controller
 
         return __('Quiz created');
     }
+
+    public function show(Quiz $quiz) {
+        $questions = QuizQuestion::where('quiz_id', $quiz->id)
+        ->get();
+        return [
+            'quiz' => $quiz,
+            'questions' => $questions,
+        ];
+    }
 }
