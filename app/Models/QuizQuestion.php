@@ -11,8 +11,4 @@ class QuizQuestion extends Model
     use HasFactory;
     use SoftDeletes;
     protected $guarded = false;
-    
-    protected $casts = [
-        'wrong_answers' => 'array',
-    ];
 }

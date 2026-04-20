@@ -200,9 +200,9 @@ Route::middleware([ProtectionLevel3Middleware::class])->group(function () {
 
     //квизы
     Route::get('/quizes/create', [QuizController::class, 'create'])->name('quiz.create')
-    ->middleware(['auth', ManageTriviaMiddleware::class]);
+    ->middleware(ManageTriviaMiddleware::class);
     Route::post('/quizes/store', [QuizController::class, 'store'])->name('quiz.store')
-    ->middleware(['auth', ManageTriviaMiddleware::class]);
+    ->middleware(ManageTriviaMiddleware::class);
     
 
 //Логин, регистрация

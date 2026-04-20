@@ -13,7 +13,7 @@ class QuizController extends Controller
     }
 
     public function store(Request $request) {
-        $data = $request->validate([
+        $data = request()->validate([
             'title' => 'required|string',
             'questions' => 'required|array|min:1',
             'questions.*.question' => 'required|string|min:3',
@@ -29,16 +29,14 @@ class QuizController extends Controller
         ];
 
         $created_quiz = Quiz::create($quiz);
+        $questions = $data['questions'];
 
-        foreach ($data['questions'] as $q) {
-            $quiz = [
-                'quiz_id' => $created_quiz->id,
-                'question' => $q['question'],
-                'answer' => $q['answer'],
-                'wrong_answers' => $q['wrong_answers'],
-            ];
+        foreach ($questions as $q) {
+            $q['quiz_id'] = $created_quiz->id;
         }
 
-        return redirect()->route('index')->with('success', 'Викторина успешно создана!');
+        QuizQuestion::insert($questions);
+
+        dd($data);
     }
 }
