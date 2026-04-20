@@ -3,13 +3,15 @@
 > [!WARNING]  
 > This README is outdated. Some instructions given in this document will not work. Some features are not documented.
 
-A PHP Laravel 13 Wiki Engine with comment, user profiles and medals.
+> [!WARNING]  
+> MLWE now works only with Postgres. Other databases will not work/
+A PHP Laravel 13 Wiki Engine with comments, user profiles, medals and trivia quizzes.
 
 ![Article Screenshot](https://github.com/Antarktidov/MyLaravelWikiEngine/blob/master/images/article%20screenshot%20with%20comments.png?raw=true)
 
 ## Requirements
 * PHP 8.5
-* database
+* postgres
 * git
 * composer
 
