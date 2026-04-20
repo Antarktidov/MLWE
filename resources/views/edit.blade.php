@@ -16,6 +16,12 @@
         <label  class="form-label" for="content">{{__('Article text')}}</label>
         <textarea name="content" class="form-control" id="content">{{$revision->content}}</textarea>
     </div>
+    @can('manage_trivia', $wiki->url)
+    <div class="mb-3">
+        <label  class="form-label" for="trivia_id">{{__('Trivia id')}}</label>
+        <input type="number" min="0" step="1" name="trivia_id" class="form-control" id="trivia_id" value="{{$article->trivia_id}}">
+    </div>
+    @endcan
     <button type="submit" class="btn btn-primary">{{__('Save')}}</button>
   </form>
 @endsection

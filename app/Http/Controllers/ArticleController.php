@@ -7,6 +7,7 @@ use App\Models\Revision;
 use App\Models\Wiki;
 use App\Models\Option;
 use App\Models\Image;
+use App\Models\Quiz;
 
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
@@ -88,6 +89,12 @@ class ArticleController extends Controller
 
             if($article) {
 
+                    if ($article->trivia_id !== 0) {
+                        $trivia = Quiz::find($article->trivia_id);
+                    } else {
+                        $trivia = null;
+                    }
+
                     if ($can_check_revisions) {
                         $revision = Revision::where('article_id', $article->id)
                         //->where('deleted_at', '')
@@ -135,7 +142,7 @@ class ArticleController extends Controller
                         return view('article', compact('revision', 'wiki', 'article',
                         'userId', 'userName', 'userCanDeleteComments',
                         'userCanApproveComments', 'is_comments_enabled',
-                        'images'));
+                        'images', 'trivia'));
                     } else {
                         return response(__('Article does not exist'), 404)
                             ->header('Content-Type', 'text/plain');
@@ -255,19 +262,51 @@ class ArticleController extends Controller
     //POST-ручка для формы правки статьи
     public function update($wikiName, $articleName, Request $request)
     {
-        $data = request()->validate([
-            'title' => 'string',
-            'url_title' => 'string',
-            'content' => 'string',
-        ]);
 
         $wiki = Wiki::where('url', $wikiName)->whereNull('deleted_at')->first();
+
+        $user = auth()->user();
+
+        if ($user != null) {
+            $can_manage_trivia = $user->can('manage_trivia', $wiki->url);
+        } else {
+            $can_manage_trivia = false;
+        }
+
+        $data;
+
+        if (!$can_manage_trivia) {
+            $data = request()->validate([
+                'title' => 'string',
+                'url_title' => 'string',
+                'content' => 'string',
+            ]);
+        } else {
+            $data = request()->validate([
+                'title' => 'string',
+                'url_title' => 'string',
+                'content' => 'string',
+                'trivia_id' => 'integer',
+            ]);
+        }
+
         if ($wiki) {
-            $my_article = [
-                'wiki_id' => $wiki->id,
-                'url_title' => $data['url_title'],
-                'title' => $data['title'],
-            ];
+
+            if ($can_manage_trivia) {
+                $my_article = [
+                    'wiki_id' => $wiki->id,
+                    'url_title' => $data['url_title'],
+                    'title' => $data['title'],
+                    'trivia_id' => $data['trivia_id'],
+                ];
+            } else {
+                $my_article = [
+                    'wiki_id' => $wiki->id,
+                    'url_title' => $data['url_title'],
+                    'title' => $data['title'],
+                ];
+            }
+
             $my_article2 = Article::where('wiki_id', $wiki->id)
                 ->whereNull('deleted_at')
                 ->where('url_title', $articleName)

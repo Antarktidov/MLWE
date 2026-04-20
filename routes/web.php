@@ -11,6 +11,7 @@ use App\Http\Controllers\PermissionsManagerController;
 use App\Http\Controllers\OptionsController;
 use App\Http\Controllers\UserProfileController;
 use App\Http\Controllers\MedalController;
+use App\Http\Controllers\QuizController;
 
 use App\Http\Middleware\DeleteMiddleware;
 use App\Http\Middleware\DeleteRevisionMiddleware;
@@ -28,6 +29,8 @@ use App\Http\Middleware\ManageLocalUserrightsMiddleware;
 use App\Http\Middleware\DeleteImagesMiddleware;
 
 use App\Http\Middleware\DeleteCommentsMiddleware;
+
+use App\Http\Middleware\ManageTriviaMiddleware;
 
 
 //Approve and patrol feature middlewares
@@ -190,10 +193,18 @@ Route::middleware([ProtectionLevel3Middleware::class])->group(function () {
     ->middleware(ManageGlobalMedalsMiddleware::class);
 
     Route::post('/wiki/{wikiName}/give-medal/{user}', [MedalController::class, 'give_local'])->name('medals.local.give')
-        ->middleware('auth');
+        ->middleware(ManageGlobalMedalsMiddleware::class);
     Route::delete('/wiki/{wikiName}/take-medal-away/{user}/{medal}', [MedalController::class, 'take_away_local'])->name('medals.local.take-away')
-        ->middleware('auth');
+        ->middleware(ManageGlobalMedalsMiddleware::class);
     });
+
+    //квизы
+    Route::get('/quizes/create', [QuizController::class, 'create'])->name('quiz.create')
+    ->middleware(ManageTriviaMiddleware::class);
+    Route::post('/quizes/store', [QuizController::class, 'store'])->name('quiz.store')
+    ->middleware(ManageTriviaMiddleware::class);
+    Route::get('/api/quizes/show/{quiz}', [QuizController::class, 'show'])->name('quiz.api.show');
+    
 
 //Логин, регистрация
 $options = Option::getOptions();//волшебный код, который может положить всё приложение

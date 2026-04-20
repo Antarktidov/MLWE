@@ -1,45 +1,12 @@
 @extends('layouts.app')
 @section('content')
-    <style>
-        main {
-            display: grid;
-            grid-template-columns: 20vw 1fr 20vw;
-            margin-right: auto;
-            margin-left: auto;
-        }
-
-        main .right-column {
-            overflow-x: auto;
-            width: 18vw;
-        }
-
-        .recent-images {
-            display: flex;
-            flex-direction: row;
-            flex-wrap: nowrap;
-            gap: 10px;
-            overflow-x: auto;
-        }
-
-        .recent-img-item {
-            object-fit: cover;
-                
-            height: 150px;
-            width: calc(18vw * 0.9);
-            background-size: cover;
-            background-position: center;
-            flex: 0 0 calc(18vw * 0.9);
-        }
-        .recent-img-item-wrapper {
-            & .time {
-                margin-top: 0.5rem;
-                margin-bottom: 0.5rem;
-            }
-        }
-        .ri-header {
-            margin-bottom: 0.5rem;
-        }
-    </style>
+    <link rel="stylesheet" href="{{ asset('css/article.css') }}">
+    @if ( $trivia != null )
+        <script>
+                var quizId = {{$trivia->id}};
+        </script>
+    @endif
+    <script src="{{ asset('js/utils.js') }}" defer></script>
     <h1>{{$revision->title}}</h1>
     <div class="links">
     <a href="{{route('articles.edit', [$wiki->url, $article->url_title])}}" class="btn btn-primary">{{__('Edit')}}</a>
@@ -84,4 +51,14 @@
     </div>
     @endforeach
 </div>
+    @if ( $trivia != null )
+        <div class="trivia">
+            <h4>{{$trivia->title}}</h4>
+            <div class="trivia-body m-3">
+                <center><button onclick="showQuestion(0)" class="btn btn-outline-warning">{{__('Start')}}</button></center>
+            </div>
+        </div>
+        <script src="{{ asset('js/article-trivia.js') }}" defer>
+        </script>
+    @endif
 @endsection
