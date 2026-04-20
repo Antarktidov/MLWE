@@ -217,8 +217,8 @@
             quizBody.innerHTML += '<center><button class="btn btn-outline-warning mt-3" onclick="restart()">Заново</button></center>'
         }
         function restart() {
-            var questionIdx = 0;
-            var correctAnswersCount = 0;
+            questionIdx = 0;
+            correctAnswersCount = 0;
             showQuestion(questionIdx);
         }
         function escapeHTML(str) {
