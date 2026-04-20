@@ -12,6 +12,7 @@ use App\Http\Controllers\OptionsController;
 use App\Http\Controllers\UserProfileController;
 use App\Http\Controllers\MedalController;
 use App\Http\Controllers\QuizController;
+use App\Http\Controllers\PollsController;
 
 use App\Http\Middleware\DeleteMiddleware;
 use App\Http\Middleware\DeleteRevisionMiddleware;
@@ -31,7 +32,7 @@ use App\Http\Middleware\DeleteImagesMiddleware;
 use App\Http\Middleware\DeleteCommentsMiddleware;
 
 use App\Http\Middleware\ManageTriviaMiddleware;
-
+use App\Http\Middleware\ManagePollsMiddleware;
 
 //Approve and patrol feature middlewares
 use App\Http\Middleware\ApproveRevisionMiddleware;
@@ -204,6 +205,10 @@ Route::middleware([ProtectionLevel3Middleware::class])->group(function () {
     Route::post('/quizes/store', [QuizController::class, 'store'])->name('quiz.store')
     ->middleware(ManageTriviaMiddleware::class);
     Route::get('/api/quizes/show/{quiz}', [QuizController::class, 'show'])->name('quiz.api.show');
+
+    //опросы (polls)
+    Route::get('/polls/create', [PollsController::class, 'create'])->name('poll.create')
+    ->middleware(ManagePollsMiddleware::class);
     
 
 //Логин, регистрация
