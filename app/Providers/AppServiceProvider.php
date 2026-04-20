@@ -126,6 +126,10 @@ public function boot(): void
     Gate::define('manage_trivia', function ($user, $wikiName) {
         return PermissionChecker::check($user, $wikiName, 'can_manage_trivia');
     });
+
+    Gate::define('manage_polls', function ($user, $wikiName) {
+        return PermissionChecker::check($user, $wikiName, 'can_manage_polls');
+    });
     
     /*Gate::define('revert_edits_to_old_version', function ($user, $wikiName) {
         return PermissionChecker::check($user, $wikiName, 'can_revert_edits_to_old_version');
