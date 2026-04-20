@@ -135,21 +135,54 @@
                     return;
                 }
 
+
                 var question = questions[idx];
-                var question_title = question.title;
-                var answerHTML = `<div onclick="right()" class="answer" id="answer">${question['answer']}</div>`;
+                var question_title = escapeHTML(question.title);
+
+                var safeAnswer = escapeHTML(question['answer']);
                 var wrongAnswers = question.wrong_answers;
-                var wrongAnswersArr = wrongAnswers.slice(1, -1).split(',');
+                var wrongAnswersArr = [];
+
+                if (Array.isArray(wrongAnswers)) {
+                    wrongAnswersArr = wrongAnswers.map(escapeHTML);
+                } else if (typeof wrongAnswers === 'string') {
+                    try {
+                        var parsed = JSON.parse(wrongAnswers.replace(/'/g, '"'));
+                        wrongAnswersArr = Array.isArray(parsed) ? parsed.map(escapeHTML) : [];
+                    } catch(e) {
+                        wrongAnswersArr = wrongAnswers.slice(1, -1).split(',').map(s => 
+                            escapeHTML(s.trim().replace(/^['"]|['"]$/g, ''))
+                        );
+                    }
+                }
+
                 console.log(wrongAnswersArr);
+
+                var answerHTML = `<div class="answer" id="answer"></div>`;
                 var answersHTMLArr = [answerHTML];
+
                 for (var i = 0; i < wrongAnswersArr.length; i++) {
-                    var el = `<div onclick="wrong()" class="answer" id="wrong-answer-${i}">${wrongAnswersArr[i]}</div>`;
+                    var el = `<div class="answer" id="wrong-answer-${i}"></div>`;
                     answersHTMLArr.push(el);
                 }
+
                 shuffle(answersHTMLArr);
 
-                quizBody.innerHTML = '<h5>' + question.question + '</h5>';
+                quizBody.innerHTML = '<h5>' + escapeHTML(question.question) + '</h5>';
                 quizBody.innerHTML += answersHTMLArr.join("");
+
+                document.querySelectorAll('#answer').forEach(el => {
+                    el.textContent = safeAnswer;
+                    el.addEventListener('click', right);
+                });
+
+                document.querySelectorAll('[id^="wrong-answer-"]').forEach((el, idx) => {
+                    if (wrongAnswersArr[idx]) {
+                        el.textContent = wrongAnswersArr[idx];
+                        el.addEventListener('click', wrong);
+                    }
+                });
+
                 questionIdx++;
             }
         // Source - https://stackoverflow.com/a/2450976
@@ -180,7 +213,16 @@
             showQuestion(questionIdx);
         }
         function finishQuiz() {
-            quizBody.innerHTML = `Вы окончили квиз. Количество правильных ответов: ${correctAnswersCount}.`;
+            quizBody.innerText = `Вы окончили квиз. Количество правильных ответов: ${correctAnswersCount}.`;
+        }
+        function escapeHTML(str) {
+            if (!str) return '';
+            return str
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
         }
         </script>
     @endif
