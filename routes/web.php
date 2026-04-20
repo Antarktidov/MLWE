@@ -209,6 +209,8 @@ Route::middleware([ProtectionLevel3Middleware::class])->group(function () {
     //опросы (polls)
     Route::get('/polls/create', [PollsController::class, 'create'])->name('poll.create')
     ->middleware(ManagePollsMiddleware::class);
+    Route::post('/polls/store', [PollsController::class, 'store'])->name('poll.store')
+    ->middleware(ManagePollsMiddleware::class);
     
 
 //Логин, регистрация
