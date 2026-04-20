@@ -24,7 +24,7 @@ class ManageTriviaMiddleware
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
     
-     public function handle(Request $request, Closure $next): Response
+     public function handle(Request $request, Closure $next)
      {
          return PermissionChecker::check_for_middleware($request, $next, 'can_manage_trivia');
      }

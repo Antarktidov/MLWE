@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('question');
             $table->string('answer');
 
-            $table->unsignedBigInteger('question_id');
+            $table->unsignedBigInteger('quiz_id');
             $table->softDeletes();
             $table->timestamps();
         });
