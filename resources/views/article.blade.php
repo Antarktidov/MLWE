@@ -39,6 +39,11 @@
         .ri-header {
             margin-bottom: 0.5rem;
         }
+        .trivia {
+            border: 1px solid;
+            padding: 10px;
+            border-radius: 12px;
+        }
     </style>
     <h1>{{$revision->title}}</h1>
     <div class="links">
@@ -84,4 +89,15 @@
     </div>
     @endforeach
 </div>
+    @if ( $trvia != null )
+        <div class="trivia">
+            <h4>{{$trvia->title}}</h4>
+            <div class="trivia-body m-3">
+                <center><button class="btn btn-outline-warning">{{__('Start')}}</button></center>
+            </div>
+        </div>
+        <script defer>
+
+        </script>
+    @endif
 @endsection

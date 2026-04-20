@@ -7,6 +7,7 @@ use App\Models\Revision;
 use App\Models\Wiki;
 use App\Models\Option;
 use App\Models\Image;
+use App\Models\Quiz;
 
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
@@ -88,6 +89,12 @@ class ArticleController extends Controller
 
             if($article) {
 
+                    if ($article->trivia_id !== 0) {
+                        $trvia = Quiz::find($article->trivia_id);
+                    } else {
+                        $trivia = null;
+                    }
+
                     if ($can_check_revisions) {
                         $revision = Revision::where('article_id', $article->id)
                         //->where('deleted_at', '')
@@ -135,7 +142,7 @@ class ArticleController extends Controller
                         return view('article', compact('revision', 'wiki', 'article',
                         'userId', 'userName', 'userCanDeleteComments',
                         'userCanApproveComments', 'is_comments_enabled',
-                        'images'));
+                        'images', 'trvia'));
                     } else {
                         return response(__('Article does not exist'), 404)
                             ->header('Content-Type', 'text/plain');
