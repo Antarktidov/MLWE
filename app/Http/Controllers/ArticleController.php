@@ -90,7 +90,7 @@ class ArticleController extends Controller
             if($article) {
 
                     if ($article->trivia_id !== 0) {
-                        $trvia = Quiz::find($article->trivia_id);
+                        $trivia = Quiz::find($article->trivia_id);
                     } else {
                         $trivia = null;
                     }
@@ -142,7 +142,7 @@ class ArticleController extends Controller
                         return view('article', compact('revision', 'wiki', 'article',
                         'userId', 'userName', 'userCanDeleteComments',
                         'userCanApproveComments', 'is_comments_enabled',
-                        'images', 'trvia'));
+                        'images', 'trivia'));
                     } else {
                         return response(__('Article does not exist'), 404)
                             ->header('Content-Type', 'text/plain');

@@ -45,6 +45,11 @@
             border-radius: 12px;
         }
     </style>
+    @if ( $trivia != null )
+        <script>
+                var quizId = {{$trivia->id}};
+        </script>
+    @endif
     <h1>{{$revision->title}}</h1>
     <div class="links">
     <a href="{{route('articles.edit', [$wiki->url, $article->url_title])}}" class="btn btn-primary">{{__('Edit')}}</a>
@@ -89,15 +94,84 @@
     </div>
     @endforeach
 </div>
-    @if ( $trvia != null )
+    @if ( $trivia != null )
         <div class="trivia">
-            <h4>{{$trvia->title}}</h4>
+            <h4>{{$trivia->title}}</h4>
             <div class="trivia-body m-3">
-                <center><button class="btn btn-outline-warning">{{__('Start')}}</button></center>
+                <center><button onclick="showQuestion(0)" class="btn btn-outline-warning">{{__('Start')}}</button></center>
             </div>
         </div>
         <script defer>
+            var questionIdx = 0;
+            var correctAnswersCount = 0;
+            var questions;
+            var quizBody = document.querySelector('.trivia-body');
+        
+            var url = `/api/quizes/show/${quizId}`;
 
+            fetch(url, { method: 'GET' })
+            .then(Result => Result.json())
+            .then(data => {
+                //console.log(data);
+                questions = data.questions;
+                if (questions && questions.length > 0) {
+                    //showQuestion(0);
+                    //console.log(questions);
+                }
+            })
+            .catch(errorMsg => { console.log(errorMsg); });
+
+            function showQuestion(idx) {
+                console.log(questions[idx]);
+
+                if (idx > questions.length - 1) {
+                    //finishQuiz();
+                    return;
+                }
+
+                var question = questions[idx];
+                var question_title = question.title;
+                var answerHTML = `<div onclick="right()" class="answer" id="answer">${question['answer']}</div>`;
+                var wrongAnswers = question.wrong_answers;
+                var wrongAnswersArr = wrongAnswers.slice(1, -1).split(',');
+                console.log(wrongAnswersArr);
+                var answersHTMLArr = [answerHTML];
+                for (var i = 0; i < wrongAnswersArr.length; i++) {
+                    var el = `<div onclick="wrong()" class="answer" id="wrong-answer-${i}">${wrongAnswersArr[i]}</div>`;
+                    answersHTMLArr.push(el);
+                }
+                shuffle(answersHTMLArr);
+
+                quizBody.innerHTML = answersHTMLArr.join("");
+                questionIdx++;
+            }
+        // Source - https://stackoverflow.com/a/2450976
+        // Posted by ChristopheD, modified by community. See post 'Timeline' for change history
+        // Retrieved 2026-04-17, License - CC BY-SA 4.0
+
+        function shuffle(array) {
+        let currentIndex = array.length;
+
+        // While there remain elements to shuffle...
+        while (currentIndex != 0) {
+
+            // Pick a remaining element...
+            let randomIndex = Math.floor(Math.random() * currentIndex);
+            currentIndex--;
+
+            // And swap it with the current element.
+            [array[currentIndex], array[randomIndex]] = [
+            array[randomIndex], array[currentIndex]];
+            }
+        }
+
+        function wrong() {
+            showQuestion(questionIdx);
+        }
+        function right() {
+            correctAnswersCount++;
+            showQuestion(questionIdx);
+        }
         </script>
     @endif
 @endsection
