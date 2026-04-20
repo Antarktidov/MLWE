@@ -213,7 +213,13 @@
             showQuestion(questionIdx);
         }
         function finishQuiz() {
-            quizBody.innerText = `Вы окончили квиз. Количество правильных ответов: ${correctAnswersCount}.`;
+            quizBody.innerHTML = `<div>${escapeHTML('Вы окончили квиз. Количество правильных ответов: '+ correctAnswersCount + '.')}</div>`;
+            quizBody.innerHTML += '<center><button class="btn btn-outline-warning mt-3" onclick="restart()">Заново</button></center>'
+        }
+        function restart() {
+            var questionIdx = 0;
+            var correctAnswersCount = 0;
+            showQuestion(questionIdx);
         }
         function escapeHTML(str) {
             if (!str) return '';
