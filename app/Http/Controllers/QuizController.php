@@ -32,7 +32,7 @@ class QuizController extends Controller
         $questions = $data['questions'];
 
         foreach ($questions as $q) {
-            $q['question_id'] = $created_quiz->id;
+            $q['quiz_id'] = $created_quiz->id;
         }
 
         QuizQuestion::insert($questions);
