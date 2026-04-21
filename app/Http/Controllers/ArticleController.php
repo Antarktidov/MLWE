@@ -8,6 +8,7 @@ use App\Models\Wiki;
 use App\Models\Option;
 use App\Models\Image;
 use App\Models\Quiz;
+use App\Models\Poll;
 
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
@@ -95,6 +96,13 @@ class ArticleController extends Controller
                         $trivia = null;
                     }
 
+                    if ($article->poll_id !== 0) {
+                        $poll = Poll::find($article->poll_id);
+                        $poll['variants']= explode(',', substr($poll->variants, 1, -1));
+                    } else {
+                        $poll = null;
+                    }
+
                     if ($can_check_revisions) {
                         $revision = Revision::where('article_id', $article->id)
                         //->where('deleted_at', '')
@@ -142,7 +150,7 @@ class ArticleController extends Controller
                         return view('article', compact('revision', 'wiki', 'article',
                         'userId', 'userName', 'userCanDeleteComments',
                         'userCanApproveComments', 'is_comments_enabled',
-                        'images', 'trivia'));
+                        'images', 'trivia', 'poll'));
                     } else {
                         return response(__('Article does not exist'), 404)
                             ->header('Content-Type', 'text/plain');

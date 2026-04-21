@@ -61,4 +61,16 @@
         <script src="{{ asset('js/article-trivia.js') }}" defer>
         </script>
     @endif
+    @if ( $poll != null )
+        <div class="poll">
+            <h4>{{$poll->title}}</h4>
+            <div class="trivia-body m-3">
+                @foreach ($poll['variants'] as $var )
+                    <div class="varinat answer">{{ $var }}</div>
+                @endforeach
+            </div>
+        </div>
+        <script defer>
+        </script>
+    @endif
 @endsection
