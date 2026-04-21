@@ -269,41 +269,73 @@ class ArticleController extends Controller
 
         if ($user != null) {
             $can_manage_trivia = $user->can('manage_trivia', $wiki->url);
+            $can_manage_polls = $user->can('manage_polls', $wiki->url);
         } else {
             $can_manage_trivia = false;
+            $can_manage_polls = false;
         }
 
         $data;
 
-        if (!$can_manage_trivia) {
+        if (!$can_manage_trivia && !$can_manage_polls) {
             $data = request()->validate([
                 'title' => 'string',
                 'url_title' => 'string',
                 'content' => 'string',
             ]);
-        } else {
+        } else if ($can_manage_trivia && !$can_manage_polls) {
             $data = request()->validate([
                 'title' => 'string',
                 'url_title' => 'string',
                 'content' => 'string',
                 'trivia_id' => 'integer',
             ]);
+        } else if (!$can_manage_trivia && $can_manage_polls) {
+            $data = request()->validate([
+                'title' => 'string',
+                'url_title' => 'string',
+                'content' => 'string',
+                'poll_id' => 'integer',
+            ]);
+        } else if ($can_manage_trivia && $can_manage_polls) {
+            $data = request()->validate([
+                'title' => 'string',
+                'url_title' => 'string',
+                'content' => 'string',
+                'trivia_id' => 'integer',
+                'poll_id' => 'integer',
+            ]);
         }
 
         if ($wiki) {
 
-            if ($can_manage_trivia) {
+            if ($can_manage_trivia && !$can_manage_polls) {
                 $my_article = [
                     'wiki_id' => $wiki->id,
                     'url_title' => $data['url_title'],
                     'title' => $data['title'],
                     'trivia_id' => $data['trivia_id'],
                 ];
-            } else {
+            } else if (!$can_manage_trivia && !$can_manage_polls) {
                 $my_article = [
                     'wiki_id' => $wiki->id,
                     'url_title' => $data['url_title'],
                     'title' => $data['title'],
+                ];
+            } else if (!$can_manage_trivia && $can_manage_polls) {
+                $my_article = [
+                    'wiki_id' => $wiki->id,
+                    'url_title' => $data['url_title'],
+                    'title' => $data['title'],
+                    'poll_id' => $data['poll_id'],
+                ];
+            } else if ($can_manage_trivia && $can_manage_polls) {
+                $my_article = [
+                    'wiki_id' => $wiki->id,
+                    'url_title' => $data['url_title'],
+                    'title' => $data['title'],
+                    'poll_id' => $data['poll_id'],
+                    'trivia_id' => $data['trivia_id'],
                 ];
             }
 
