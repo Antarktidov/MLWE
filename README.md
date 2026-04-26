@@ -4,10 +4,22 @@
 > This README is outdated. Some instructions given in this document will not work. Some features are not documented.
 
 > [!WARNING]  
-> MLWE now works only with Postgres. Other databases will not work/
-A PHP Laravel 13 Wiki Engine with comments, user profiles, medals and trivia quizzes.
+> MLWE now works only with Postgres. Other databases will not work.
+> 
+A PHP Laravel 13 Wiki Engine with comments and more.
 
 ![Article Screenshot](https://github.com/Antarktidov/MyLaravelWikiEngine/blob/master/images/article%20screenshot%20with%20comments.png?raw=true)
+
+## Key features.
+* multi-tenant architecture
+* comments
+* user profiles
+* medals
+* trivia quizzes
+* polls
+* permission manager
+* manage wikifarm
+* approve and patroll feature
 
 ## Requirements
 * PHP 8.5
