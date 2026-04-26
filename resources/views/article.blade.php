@@ -65,8 +65,8 @@
         <div class="poll">
             <h4>{{$poll->title}}</h4>
             <div class="trivia-body m-3">
-                @foreach ($poll['variants'] as $var )
-                    <div class="varinat answer">{{ $var }}</div>
+                @foreach ($poll['variants'] as $i =>$var )
+                    <div data-poll-answer_idx="{{ $i + 1 }}" class="varinat answer">{{ $var }}</div>
                 @endforeach
             </div>
         </div>
