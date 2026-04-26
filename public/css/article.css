@@ -47,3 +47,28 @@ main {
             margin-bottom: 10px;
             border-radius: 12px;
         }
+/*Poll*/
+.variant {
+    height: 50px;
+    box-sizing: border-box;
+}
+
+.sub-variant {
+    box-sizing: border-box;
+    background-color: rgb(0,229,251);
+    height: 170%;
+    
+    position: relative;
+    bottom: 33px;
+    opacity: 0.2;
+    border-radius: 12px;
+    margin-left: -10px;
+}
+
+.my-sub-variant {
+    opacity: 0.4;
+}
+/*Rig column gap*/
+.right-column > * {
+    margin-bottom: 20px;
+}

@@ -22,6 +22,12 @@
         <input type="number" min="0" step="1" name="trivia_id" class="form-control" id="trivia_id" value="{{$article->trivia_id}}">
     </div>
     @endcan
+    @can('manage_polls', $wiki->url)
+    <div class="mb-3">
+        <label  class="form-label" for="trivia_id">{{__('Poll id')}}</label>
+        <input type="number" min="0" step="1" name="poll_id" class="form-control" id="poll_id" value="{{$article->poll_id}}">
+    </div>
+    @endcan
     <button type="submit" class="btn btn-primary">{{__('Save')}}</button>
   </form>
 @endsection

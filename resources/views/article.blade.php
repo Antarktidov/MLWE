@@ -6,6 +6,13 @@
                 var quizId = {{$trivia->id}};
         </script>
     @endif
+    @if ( $poll != null )
+        <script>
+                var pollId = {{$poll->id}};
+                var userCanVoteInPoll = {{$userCanVoteInPoll ? 'true': 'false'}};
+                var userAlreadyVotedInPull = {{ $userAlreadyVotedInPull ? 'true': 'false' }};
+        </script>
+    @endif
     <script src="{{ asset('js/utils.js') }}" defer></script>
     <h1>{{$revision->title}}</h1>
     <div class="links">
@@ -59,6 +66,18 @@
             </div>
         </div>
         <script src="{{ asset('js/article-trivia.js') }}" defer>
+        </script>
+    @endif
+    @if ( $poll != null )
+        <div class="poll">
+            <h4>{{$poll->title}}</h4>
+            <div class="trivia-body m-3">
+                @foreach ($poll['variants'] as $i => $var )
+                    <div {{$userCanVoteInPoll ? 'onclick=votePoll(' . ($i + 1) . ')': ''}} data-poll-answer_idx="{{ $i + 1 }}" class="variant answer">{{ $var }}</div>
+                @endforeach
+            </div>
+        </div>
+        <script src="{{ asset('js/poll.js') }}" defer>
         </script>
     @endif
 @endsection

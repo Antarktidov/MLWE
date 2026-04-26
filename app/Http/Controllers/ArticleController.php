@@ -8,6 +8,8 @@ use App\Models\Wiki;
 use App\Models\Option;
 use App\Models\Image;
 use App\Models\Quiz;
+use App\Models\Poll;
+use App\Models\PollVote;
 
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
@@ -72,27 +74,50 @@ class ArticleController extends Controller
         $wiki = Wiki::where('url', $wikiName)->whereNull('deleted_at')->first();
         $user = auth()->user();
         if ($wiki) {
-            if ($user != null) {
-                $can_check_revisions = $user->can('check_revisions', $wiki->url);
-                $userCanApproveComments = $user->can('check_comments', $wiki->url);
-            } else {
-                $can_check_revisions = false;
-                $userCanApproveComments = false;
-            }
-
-            //dd($can_check_revisions);
-
             $article = Article::where('wiki_id', $wiki->id)
                 ->whereNull('deleted_at')
                 ->where('url_title', $articleName)
                 ->first();
-
             if($article) {
+
+                $userAlreadyVotedInPull = false;
+
+                if ($user != null) {
+                    $can_check_revisions = $user->can('check_revisions', $wiki->url);
+                    $userCanApproveComments = $user->can('check_comments', $wiki->url);
+
+                    if ($article->poll_id !== 0) {
+                        $pv = PollVote::where('user_id', $user->id)
+                        ->where('poll_id', $article->poll_id)
+                        ->first();
+
+                        if ($pv != null) {
+                            $userCanVoteInPoll = false;
+                            $userAlreadyVotedInPull = true;
+                        } else {
+                            $userCanVoteInPoll = true;
+                        }
+                    } else {
+                        $userCanVoteInPoll = false;
+                    }
+
+                } else {
+                    $can_check_revisions = false;
+                    $userCanApproveComments = false;
+                    $userCanVoteInPoll = false;
+                }
 
                     if ($article->trivia_id !== 0) {
                         $trivia = Quiz::find($article->trivia_id);
                     } else {
                         $trivia = null;
+                    }
+
+                    if ($article->poll_id !== 0) {
+                        $poll = Poll::find($article->poll_id);
+                        $poll['variants']= explode(',', substr($poll->variants, 1, -1));
+                    } else {
+                        $poll = null;
                     }
 
                     if ($can_check_revisions) {
@@ -142,7 +167,8 @@ class ArticleController extends Controller
                         return view('article', compact('revision', 'wiki', 'article',
                         'userId', 'userName', 'userCanDeleteComments',
                         'userCanApproveComments', 'is_comments_enabled',
-                        'images', 'trivia'));
+                        'images', 'trivia', 'poll', 'userCanVoteInPoll',
+                        'userAlreadyVotedInPull'));
                     } else {
                         return response(__('Article does not exist'), 404)
                             ->header('Content-Type', 'text/plain');
@@ -269,41 +295,73 @@ class ArticleController extends Controller
 
         if ($user != null) {
             $can_manage_trivia = $user->can('manage_trivia', $wiki->url);
+            $can_manage_polls = $user->can('manage_polls', $wiki->url);
         } else {
             $can_manage_trivia = false;
+            $can_manage_polls = false;
         }
 
         $data;
 
-        if (!$can_manage_trivia) {
+        if (!$can_manage_trivia && !$can_manage_polls) {
             $data = request()->validate([
                 'title' => 'string',
                 'url_title' => 'string',
                 'content' => 'string',
             ]);
-        } else {
+        } else if ($can_manage_trivia && !$can_manage_polls) {
             $data = request()->validate([
                 'title' => 'string',
                 'url_title' => 'string',
                 'content' => 'string',
                 'trivia_id' => 'integer',
             ]);
+        } else if (!$can_manage_trivia && $can_manage_polls) {
+            $data = request()->validate([
+                'title' => 'string',
+                'url_title' => 'string',
+                'content' => 'string',
+                'poll_id' => 'integer',
+            ]);
+        } else if ($can_manage_trivia && $can_manage_polls) {
+            $data = request()->validate([
+                'title' => 'string',
+                'url_title' => 'string',
+                'content' => 'string',
+                'trivia_id' => 'integer',
+                'poll_id' => 'integer',
+            ]);
         }
 
         if ($wiki) {
 
-            if ($can_manage_trivia) {
+            if ($can_manage_trivia && !$can_manage_polls) {
                 $my_article = [
                     'wiki_id' => $wiki->id,
                     'url_title' => $data['url_title'],
                     'title' => $data['title'],
                     'trivia_id' => $data['trivia_id'],
                 ];
-            } else {
+            } else if (!$can_manage_trivia && !$can_manage_polls) {
                 $my_article = [
                     'wiki_id' => $wiki->id,
                     'url_title' => $data['url_title'],
                     'title' => $data['title'],
+                ];
+            } else if (!$can_manage_trivia && $can_manage_polls) {
+                $my_article = [
+                    'wiki_id' => $wiki->id,
+                    'url_title' => $data['url_title'],
+                    'title' => $data['title'],
+                    'poll_id' => $data['poll_id'],
+                ];
+            } else if ($can_manage_trivia && $can_manage_polls) {
+                $my_article = [
+                    'wiki_id' => $wiki->id,
+                    'url_title' => $data['url_title'],
+                    'title' => $data['title'],
+                    'poll_id' => $data['poll_id'],
+                    'trivia_id' => $data['trivia_id'],
                 ];
             }
 
