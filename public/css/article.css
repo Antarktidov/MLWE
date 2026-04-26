@@ -68,3 +68,7 @@ main {
 .my-sub-variant {
     opacity: 0.4;
 }
+/*Rig column gap*/
+.right-column > * {
+    margin-bottom: 20px;
+}
