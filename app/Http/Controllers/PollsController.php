@@ -56,11 +56,10 @@ class PollsController extends Controller
         ];
 
         $poll_vote2 = PollVote::where('user_id', $poll_vote['user_id'])
-        ->where('variant_idx', $poll_vote['variant_idx'])
         ->where('poll_id', $poll_vote['poll_id'])
         ->first();
 
-        if ($poll_vote != null) {
+        if ($poll_vote2 != null) {
             return response('Вы уже проголосовали', 422)
                 ->header('Content-Type', 'text/plain; charset=UTF-8');
         }

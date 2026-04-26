@@ -6,6 +6,11 @@
                 var quizId = {{$trivia->id}};
         </script>
     @endif
+    @if ( $poll != null )
+        <script>
+                var pollId = {{$poll->id}};
+        </script>
+    @endif
     <script src="{{ asset('js/utils.js') }}" defer></script>
     <h1>{{$revision->title}}</h1>
     <div class="links">
@@ -66,11 +71,27 @@
             <h4>{{$poll->title}}</h4>
             <div class="trivia-body m-3">
                 @foreach ($poll['variants'] as $i => $var )
-                    <div data-poll-answer_idx="{{ $i + 1 }}" class="varinat answer">{{ $var }}</div>
+                    <div onclick="votePoll({{ $i + 1 }})" data-poll-answer_idx="{{ $i + 1 }}" class="varinat answer">{{ $var }}</div>
                 @endforeach
             </div>
         </div>
         <script defer>
+            const csrf_token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+            async function votePoll(variantIdx) {
+                var vote = {
+                    'variant_idx': variantIdx
+                };
+                var response = await fetch(`/api/polls/accept_vote/${pollId}`, {
+                    method: 'POST',
+                    headers: {
+                    'Content-Type': 'application/json;charset=utf-8',
+                    'X-CSRF-TOKEN': csrf_token,
+                    },
+                    body: JSON.stringify(vote)
+                    });
+                console.log(response);
+                }
         </script>
     @endif
 @endsection
