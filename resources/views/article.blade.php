@@ -113,14 +113,14 @@
             .then(data => {
                 console.log("Данные опроса", data);
                 var poll_data = data[0];
-                var poll_total = data[1];
+                var poll_total = data[1][0];
                 poll_data.forEach((pollElem) => {
                     console.log('pollElem', pollElem);
                     var percent = pollElem.count / poll_total.count;
                     var pollHtmlEl = document.querySelector(`[data-poll-answer_idx="${pollElem.variant_idx}"]`);
                     var pollHtmlElChild = document.createElement('div');
-                    pollHtmlElChild.style.width = percent + '%';
-                    pollHtmlElChild.style.color = 'gray';
+                    pollHtmlElChild.style.width = (percent * 110) +  '%';
+                    pollHtmlElChild.classList.add('sub-variant');
                     pollHtmlEl.append(pollHtmlElChild);
                 })
             })
