@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('poll_votes', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id');
+            $table->unsignedBigInteger('poll_id');
             $table->unsignedBigInteger('variant_idx');
             $table->timestamps();
         });

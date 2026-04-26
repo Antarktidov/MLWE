@@ -211,6 +211,8 @@ Route::middleware([ProtectionLevel3Middleware::class])->group(function () {
     ->middleware(ManagePollsMiddleware::class);
     Route::post('/polls/store', [PollsController::class, 'store'])->name('poll.store')
     ->middleware(ManagePollsMiddleware::class);
+    Route::post('/api/polls/accept_vote/{poll}', [PollsController::class, 'accept_vote'])->name('poll.accept_vote')
+    ->middleware('auth');
     
 
 //Логин, регистрация

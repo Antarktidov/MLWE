@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 
 use App\Models\Poll;
+use App\Models\PollVote;
 use Illuminate\Support\Facades\DB;
 
 class PollsController extends Controller
@@ -36,5 +37,36 @@ class PollsController extends Controller
                                             ]);
 
         return __('Poll created successfully');
+    }
+
+    public function accept_vote(Request $request, Poll $poll) {
+        $data = $request->validate([
+            'variant_idx' => 'required|integer',
+        ]);
+
+        $user = auth()->user();
+        if ($user == null) {
+            abort(401);
+        }
+
+        $poll_vote = [
+            'user_id' => $user->id,
+            'variant_idx' => $data['variant_idx'],
+            'poll_id' => $poll->id,
+        ];
+
+        $poll_vote2 = PollVote::where('user_id', $poll_vote['user_id'])
+        ->where('variant_idx', $poll_vote['variant_idx'])
+        ->where('poll_id', $poll_vote['poll_id'])
+        ->first();
+
+        if ($poll_vote != null) {
+            return response('Вы уже проголосовали', 422)
+                ->header('Content-Type', 'text/plain; charset=UTF-8');
+        }
+
+        PollVote::create($poll_vote);
+
+        return 'Голос сохранён';
     }
 }
