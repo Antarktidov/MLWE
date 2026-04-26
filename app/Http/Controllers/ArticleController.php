@@ -9,6 +9,7 @@ use App\Models\Option;
 use App\Models\Image;
 use App\Models\Quiz;
 use App\Models\Poll;
+use App\Models\PollVote;
 
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
@@ -73,22 +74,35 @@ class ArticleController extends Controller
         $wiki = Wiki::where('url', $wikiName)->whereNull('deleted_at')->first();
         $user = auth()->user();
         if ($wiki) {
-            if ($user != null) {
-                $can_check_revisions = $user->can('check_revisions', $wiki->url);
-                $userCanApproveComments = $user->can('check_comments', $wiki->url);
-            } else {
-                $can_check_revisions = false;
-                $userCanApproveComments = false;
-            }
-
-            //dd($can_check_revisions);
-
             $article = Article::where('wiki_id', $wiki->id)
                 ->whereNull('deleted_at')
                 ->where('url_title', $articleName)
                 ->first();
-
             if($article) {
+
+                if ($user != null) {
+                    $can_check_revisions = $user->can('check_revisions', $wiki->url);
+                    $userCanApproveComments = $user->can('check_comments', $wiki->url);
+
+                    if ($article->poll_id !== 0) {
+                        $pv = PollVote::where('user_id', $user->id)
+                        ->where('poll_id', $article->poll_id)
+                        ->first();
+
+                        if ($pv != null) {
+                            $userCanVoteInPoll = false;
+                        } else {
+                            $userCanVoteInPoll = true;
+                        }
+                    } else {
+                        $userCanVoteInPoll = false;
+                    }
+
+                } else {
+                    $can_check_revisions = false;
+                    $userCanApproveComments = false;
+                    $userCanVoteInPoll = false;
+                }
 
                     if ($article->trivia_id !== 0) {
                         $trivia = Quiz::find($article->trivia_id);
@@ -150,7 +164,7 @@ class ArticleController extends Controller
                         return view('article', compact('revision', 'wiki', 'article',
                         'userId', 'userName', 'userCanDeleteComments',
                         'userCanApproveComments', 'is_comments_enabled',
-                        'images', 'trivia', 'poll'));
+                        'images', 'trivia', 'poll', 'userCanVoteInPoll'));
                     } else {
                         return response(__('Article does not exist'), 404)
                             ->header('Content-Type', 'text/plain');

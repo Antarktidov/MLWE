@@ -9,6 +9,7 @@
     @if ( $poll != null )
         <script>
                 var pollId = {{$poll->id}};
+                var userCanVoteInPoll = {{$userCanVoteInPoll ? 'true': 'false'}};
         </script>
     @endif
     <script src="{{ asset('js/utils.js') }}" defer></script>
@@ -71,7 +72,7 @@
             <h4>{{$poll->title}}</h4>
             <div class="trivia-body m-3">
                 @foreach ($poll['variants'] as $i => $var )
-                    <div onclick="votePoll({{ $i + 1 }})" data-poll-answer_idx="{{ $i + 1 }}" class="varinat answer">{{ $var }}</div>
+                    <div {{$userCanVoteInPoll ? 'onclick=votePoll(' . ($i + 1) . ')': ''}} data-poll-answer_idx="{{ $i + 1 }}" class="variant answer">{{ $var }}</div>
                 @endforeach
             </div>
         </div>
@@ -91,6 +92,11 @@
                     body: JSON.stringify(vote)
                     });
                 console.log(response);
+                if (response.ok === true) {
+                    document.querySelectorAll('.variant').forEach((el) => {
+                        el.setAttribute('onclick', '');
+                    })
+                }
                 }
         </script>
     @endif
