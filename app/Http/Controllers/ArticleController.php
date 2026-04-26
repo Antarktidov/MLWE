@@ -89,8 +89,11 @@ class ArticleController extends Controller
                         ->where('poll_id', $article->poll_id)
                         ->first();
 
+                        $userAlreadyVotedInPull = false;
+
                         if ($pv != null) {
                             $userCanVoteInPoll = false;
+                            $userAlreadyVotedInPull = true;
                         } else {
                             $userCanVoteInPoll = true;
                         }
@@ -164,7 +167,8 @@ class ArticleController extends Controller
                         return view('article', compact('revision', 'wiki', 'article',
                         'userId', 'userName', 'userCanDeleteComments',
                         'userCanApproveComments', 'is_comments_enabled',
-                        'images', 'trivia', 'poll', 'userCanVoteInPoll'));
+                        'images', 'trivia', 'poll', 'userCanVoteInPoll',
+                        'userAlreadyVotedInPull'));
                     } else {
                         return response(__('Article does not exist'), 404)
                             ->header('Content-Type', 'text/plain');

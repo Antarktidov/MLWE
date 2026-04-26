@@ -10,6 +10,7 @@
         <script>
                 var pollId = {{$poll->id}};
                 var userCanVoteInPoll = {{$userCanVoteInPoll ? 'true': 'false'}};
+                var userAlreadyVotedInPull = {{ userAlreadyVotedInPull ? 'true': 'false' }};
         </script>
     @endif
     <script src="{{ asset('js/utils.js') }}" defer></script>
@@ -96,8 +97,17 @@
                     document.querySelectorAll('.variant').forEach((el) => {
                         el.setAttribute('onclick', '');
                     })
+                    fetchVotes();
                 }
-                }
+            }
+
+            if (userAlreadyVotedInPull) {
+                fetchVotes();
+            }
+
+            function fetchVotes() {
+
+            }
         </script>
     @endif
 @endsection

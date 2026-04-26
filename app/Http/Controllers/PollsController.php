@@ -68,4 +68,12 @@ class PollsController extends Controller
 
         return 'Голос сохранён';
     }
+
+    public function get_votes(Poll $poll) {
+        $votes = PollVote::where('poll_id', $poll->id)
+        ->selectRaw('variant_idx, COUNT(*) as count')
+        ->groupBy('variant_idx')
+        ->get();
+        return $votes;
+    }
 }

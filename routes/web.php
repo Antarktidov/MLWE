@@ -213,7 +213,7 @@ Route::middleware([ProtectionLevel3Middleware::class])->group(function () {
     ->middleware(ManagePollsMiddleware::class);
     Route::post('/api/polls/accept_vote/{poll}', [PollsController::class, 'accept_vote'])->name('poll.accept_vote')
     ->middleware('auth');
-    
+    Route::get('/api/polls/get_votes/{poll}', [PollsController::class, 'get_votes'])->name('poll.get_votes');
 
 //Логин, регистрация
 $options = Option::getOptions();//волшебный код, который может положить всё приложение
