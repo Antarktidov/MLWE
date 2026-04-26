@@ -74,6 +74,9 @@ class PollsController extends Controller
         ->selectRaw('variant_idx, COUNT(*) as count')
         ->groupBy('variant_idx')
         ->get();
-        return $votes;
+        $total = PollVote::where('poll_id', $poll->id)
+        ->selectRaw('COUNT(*)')
+        ->get();
+        return [$votes, $total];
     }
 }

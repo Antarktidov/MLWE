@@ -10,7 +10,7 @@
         <script>
                 var pollId = {{$poll->id}};
                 var userCanVoteInPoll = {{$userCanVoteInPoll ? 'true': 'false'}};
-                var userAlreadyVotedInPull = {{ userAlreadyVotedInPull ? 'true': 'false' }};
+                var userAlreadyVotedInPull = {{ $userAlreadyVotedInPull ? 'true': 'false' }};
         </script>
     @endif
     <script src="{{ asset('js/utils.js') }}" defer></script>
@@ -106,7 +106,25 @@
             }
 
             function fetchVotes() {
+            var url = `/api/polls/get_votes/${pollId}`;
 
+            fetch(url, { method: 'GET' })
+            .then(Result => Result.json())
+            .then(data => {
+                console.log("Данные опроса", data);
+                var poll_data = data[0];
+                var poll_total = data[1];
+                poll_data.forEach((pollElem) => {
+                    console.log('pollElem', pollElem);
+                    var percent = pollElem.count / poll_total.count;
+                    var pollHtmlEl = document.querySelector(`[data-poll-answer_idx="${pollElem.variant_idx}"]`);
+                    var pollHtmlElChild = document.createElement('div');
+                    pollHtmlElChild.style.width = percent + '%';
+                    pollHtmlElChild.style.color = 'gray';
+                    pollHtmlEl.append(pollHtmlElChild);
+                })
+            })
+            .catch(errorMsg => { console.log(errorMsg); });
             }
         </script>
     @endif
