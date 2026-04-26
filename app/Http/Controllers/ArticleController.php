@@ -80,6 +80,8 @@ class ArticleController extends Controller
                 ->first();
             if($article) {
 
+                $userAlreadyVotedInPull = false;
+
                 if ($user != null) {
                     $can_check_revisions = $user->can('check_revisions', $wiki->url);
                     $userCanApproveComments = $user->can('check_comments', $wiki->url);
@@ -88,8 +90,6 @@ class ArticleController extends Controller
                         $pv = PollVote::where('user_id', $user->id)
                         ->where('poll_id', $article->poll_id)
                         ->first();
-
-                        $userAlreadyVotedInPull = false;
 
                         if ($pv != null) {
                             $userCanVoteInPoll = false;

@@ -70,6 +70,17 @@ class PollsController extends Controller
     }
 
     public function get_votes(Poll $poll) {
+
+        $user = auth()->user();
+        if ($user != null) {
+            $my_vote_idx = PollVote::where('poll_id', $poll->id)
+            ->where('user_id', $user->id)
+            ->select('variant_idx')
+            ->get();
+        } else {
+            $my_vote_idx = null;
+        }
+
         $votes = PollVote::where('poll_id', $poll->id)
         ->selectRaw('variant_idx, COUNT(*) as count')
         ->groupBy('variant_idx')
@@ -77,6 +88,6 @@ class PollsController extends Controller
         $total = PollVote::where('poll_id', $poll->id)
         ->selectRaw('COUNT(*)')
         ->get();
-        return [$votes, $total];
+        return [$votes, $total, $my_vote_idx];
     }
 }

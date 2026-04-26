@@ -114,6 +114,9 @@
                 console.log("Данные опроса", data);
                 var poll_data = data[0];
                 var poll_total = data[1][0];
+                var my_vote_idx = data[2][0].variant_idx;
+
+                console.error(my_vote_idx);
                 poll_data.forEach((pollElem) => {
                     console.log('pollElem', pollElem);
                     var percent = pollElem.count / poll_total.count;
@@ -121,6 +124,11 @@
                     var pollHtmlElChild = document.createElement('div');
                     pollHtmlElChild.style.width = (percent * 110) +  '%';
                     pollHtmlElChild.classList.add('sub-variant');
+
+                    if (my_vote_idx === pollElem.variant_idx) {
+                        pollHtmlElChild.classList.add('my-sub-variant');
+                    }
+
                     pollHtmlEl.append(pollHtmlElChild);
                 })
             })
