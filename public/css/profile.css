@@ -43,6 +43,10 @@ main {
   .profile-social-link:hover {
     opacity: 0.8;
   }
+  .profile-avatar,
+  .friend-avatar {
+      background-size: cover !important;
+  }
   @media (prefers-color-scheme: light) {
     .user-group-name.theme-aware {
       background-color: rgba(var(--bs-dark-rgb), 1) !important;
@@ -90,4 +94,11 @@ main {
     display: flex;
     align-items: center;
     justify-content: center;
+}
+.friends-pagination {
+    display: flex;
+    width: 250px;
+    & > * {
+        margin: auto;
+    }
 }
