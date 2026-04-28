@@ -20,7 +20,7 @@ return new class extends Migration
         $sql2 = <<<SQL
         -- Уникальность через триггер или функцию
         CREATE OR REPLACE FUNCTION normalize_friends(friends BIGINT[]) 
-        RETURNS INT[] AS $$
+        RETURNS BIGINT[] AS $$
         BEGIN
             RETURN ARRAY[LEAST(friends[1], friends[2]), GREATEST(friends[1], friends[2])];
         END;

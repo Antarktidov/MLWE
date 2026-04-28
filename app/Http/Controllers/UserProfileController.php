@@ -12,9 +12,14 @@ use App\Models\Wiki;
 use App\Models\Medal;
 use App\Models\UserMedal;
 
+use App\Helpers\FriendsHelper;
+
 class UserProfileController extends Controller
 {
     public function show_global(User $user) {
+
+        $friend_status = FriendsHelper::check_friend_status_with_this_user($user);
+        dd($friend_status);
 
         $user_group_ids = UserUserGroupWiki::where('user_id', $user->id)
             ->where('wiki_id', 0)
