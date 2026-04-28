@@ -10,20 +10,26 @@ use App\Models\UserProfileRevision;
 
 class FriendsController extends Controller
 {
-    public function get_user_friends(User $user) {
+    public function get_user_friends(Request $request, User $user) {
+        $friends_per_page = 10;
+        $current_page = max(1, (int) $request->query('page', 1));
+        $offset = ($current_page - 1) * $friends_per_page;
         $user_id = $user->id;
+
+        $countSql = <<<SQL
+            SELECT COUNT(*) AS total
+            FROM friends f
+            WHERE ? = ANY(f.friends);
+        SQL;
+
+        $total = (int) (DB::selectOne($countSql, [$user_id])->total ?? 0);
+
         $sql = <<<SQL
-            SELECT COALESCE(
-                JSON_AGG(
-                    JSON_BUILD_OBJECT(
-                        'id', friend_user_id,
-                        'name', u.name,
-                        'avatar', upr.avatar
-                    )
-                    ORDER BY friend_user_id
-                ),
-                '[]'::json
-            ) AS user_friends
+            SELECT JSON_BUILD_OBJECT(
+                'id', friends_list.friend_user_id,
+                'name', u.name,
+                'avatar', upr.avatar
+            ) AS friend_item
             FROM (
                 SELECT
                     CASE
@@ -32,6 +38,9 @@ class FriendsController extends Controller
                     END AS friend_user_id
                 FROM friends f
                 WHERE ? = ANY(f.friends)
+                ORDER BY 1
+                LIMIT ?
+                OFFSET ?
             ) friends_list
             JOIN users u ON u.id = friends_list.friend_user_id
             LEFT JOIN LATERAL (
@@ -45,15 +54,17 @@ class FriendsController extends Controller
             ) upr ON TRUE;
         SQL;
 
-        $friends = DB::selectOne($sql, [$user_id, $user_id, $user_id]);
-        $friendsPayload = $friends?->user_friends ?? '[]';
-
-        if (is_string($friendsPayload)) {
-            $friendsPayload = json_decode($friendsPayload, true) ?? [];
-        }
+        $friendRows = DB::select($sql, [$user_id, $user_id, $user_id, $friends_per_page, $offset]);
+        $friendsPayload = array_map(static fn ($row) => json_decode($row->friend_item, true), $friendRows);
 
         return [
             'user_friends' => $friendsPayload,
+            'pagination' => [
+                'page' => $current_page,
+                'friends_per_page' => $friends_per_page,
+                'total' => $total,
+                'last_page' => max(1, (int) ceil($total / $friends_per_page)),
+            ],
         ];
     }
 }
