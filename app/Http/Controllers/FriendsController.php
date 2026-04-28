@@ -46,9 +46,14 @@ class FriendsController extends Controller
         SQL;
 
         $friends = DB::selectOne($sql, [$user_id, $user_id, $user_id]);
+        $friendsPayload = $friends?->user_friends ?? '[]';
+
+        if (is_string($friendsPayload)) {
+            $friendsPayload = json_decode($friendsPayload, true) ?? [];
+        }
 
         return [
-            'user_friends'=> $friends?->user_friends ?? [],
+            'user_friends' => $friendsPayload,
         ];
     }
 }
