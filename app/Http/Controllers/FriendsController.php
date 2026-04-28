@@ -22,22 +22,6 @@ class FriendsController extends Controller
             FROM friends 
             WHERE ? = ANY(friends);
         SQL;
-
-        $result = DB::select($sql, [$user_id, $user_id, $user_id]);
-        $friends = $result[0]->user_friends ?? [];
-        if ($friends != null) {
-            $friends = explode(',', substr($friends, 1, -1));
-            $db_friends = User::find($friends)
-            ->select('name', 'id');
-            $db_avatars = UserProfileRevision::whereIn('user_id', $friends)
-            ->where('wiki_id', 0)
-            ->select('user_id', 'avatar') 
-            ->latest()
-            ->get()
-            ->unique('user_id');
-
-            return [$friends, $db_friends, $db_avatars];
-        }
         return [
             'user_friends'=> $friends,
         ];
