@@ -13,6 +13,7 @@ use App\Http\Controllers\UserProfileController;
 use App\Http\Controllers\MedalController;
 use App\Http\Controllers\QuizController;
 use App\Http\Controllers\PollsController;
+use App\Http\Controllers\FriendsController;
 
 use App\Http\Middleware\DeleteMiddleware;
 use App\Http\Middleware\DeleteRevisionMiddleware;
@@ -214,6 +215,7 @@ Route::middleware([ProtectionLevel3Middleware::class])->group(function () {
     Route::post('/api/polls/accept_vote/{poll}', [PollsController::class, 'accept_vote'])->name('poll.accept_vote')
     ->middleware('auth');
     Route::get('/api/polls/get_votes/{poll}', [PollsController::class, 'get_votes'])->name('poll.get_votes');
+    Route::get('/api/user/friends/{user}', [FriendsController::class, 'get_user_friends'])->name('user.friends.get_friends');
 
 //Логин, регистрация
 $options = Option::getOptions();//волшебный код, который может положить всё приложение
