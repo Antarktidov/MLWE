@@ -1,3 +1,10 @@
+main {
+    display: grid;
+    grid-template-columns: 20vw 1fr 20vw;
+    margin-right: auto;
+    margin-left: auto;
+}  
+  
   .profile-header {
     display: flex;
     flex-wrap: wrap;
@@ -66,4 +73,21 @@
     gap: 10px;
     grid-auto-rows: minmax(100px, auto);
     margin-bottom: 50px;
+}
+/*Friends*/
+.friends-avatars {
+    width: 250px;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+    grid-template-rows: 1fr 1fr 1fr 1fr 1fr;
+}
+
+.friend-avatar {
+    height: 40px;
+    width: 40px;
+    border-radius: 12px;
+    
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }

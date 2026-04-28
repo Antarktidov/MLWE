@@ -154,3 +154,9 @@
   </div>
 </div>
 @endsection
+@section('right-column')
+<div class="user-friends">
+  <h2>{{__('Friends')}}</h2>
+  <div id="user-friends-svelte" data-user-id={{ $user->id }}></div>
+</div>
+@endsection
