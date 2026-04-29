@@ -131,7 +131,7 @@ class FriendsController extends Controller
         ->orderBy('id', 'desc')->first();
 
         $friends_request->update([
-            //'status' => 'accepted',
+            'status' => 'accepted',
         ]);
         
         $sql = <<<SQL
