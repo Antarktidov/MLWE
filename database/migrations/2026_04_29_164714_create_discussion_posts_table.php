@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('title');
             $table->string('type');//post, trivia, poll, reply
+            $table->unsignedBigInteger('wiki_id');
             $table->unsignedBigInteger('author_id')->nullable();
             $table->string('author_ip');
             $table->unsignedBigInteger('poll_id')->nullable();
