@@ -113,4 +113,33 @@ class FriendsController extends Controller
 
         return __('Friend request deleted');
     }
+
+    public function accept_friend_request(User $friend) {
+        $friend_status = FriendsHelper::check_friend_status_with_this_user($friend);
+        if ($friend_status !== 'this_user_wants_add_you_to_friends') {
+            abort(400);
+        }
+
+        $user = auth()->user();
+        if ($user == null) {
+            abort(401);
+        }
+
+        $friends_request = FriendsRequest::where('requester_id', $friend->id)
+        ->where('recipient_id',  $user->id)
+        ->where('status', 'pending')
+        ->orderBy('id', 'desc')->first();
+
+        $friends_request->update([
+            //'status' => 'accepted',
+        ]);
+        
+        $sql = <<<SQL
+        INSERT INTO friends (friends) VALUES (ARRAY[?::BIGINT, ?::BIGINT]);
+        SQL;
+
+        DB::statement($sql, [$user->id, $friend->id]);
+
+        return __('Friend request accepted');
+    }
 }

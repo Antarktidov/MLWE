@@ -48,3 +48,15 @@ async function cancelFriendRequest() {
             },
         });
 }
+
+async function acceptFriendRequest() {
+    event.preventDefault();
+
+    let response = await fetch(`/api/friends/accept_friend_request/${userId}`, {
+            method: 'POST',
+            headers: {
+            'Content-Type': 'application/json;charset=utf-8',
+            'X-CSRF-TOKEN': csrf_token,
+            },
+        });
+}

@@ -23,7 +23,9 @@ class FriendsHelper {
         WHERE normalize_friends(friends) = normalize_friends (ARRAY[?::BIGINT, ?::BIGINT]);
         SQL;
 
-        if (DB::select($sql, [$user->id, $friend->id]) != null) {
+        $friends = DB::select($sql, [$user->id, $friend->id]);
+
+        if (count($friends) > 0) {
             return 'already_friends';
         }
 
@@ -54,6 +56,8 @@ class FriendsHelper {
         if ($fr2 != null && $fr2->status === 'declined') {
             return 'you_declined_friend_request_from_this_user';
         }
+
+        return '';
 
         if (config('app.debug') == true) {
              dd('Error in FriendHelper::check_friend_status_with_this_user()');

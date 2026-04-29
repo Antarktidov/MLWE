@@ -40,8 +40,11 @@ class UserProfileController extends Controller
                 $can_review_user_profiles = false;
                 $can_manage_global_medals = false;
             }
+            $can_review_user_profiles = false;
+            $can_manage_global_medals = false;
             $is_my_profile = $user2->id === $user->id;
         } else {
+            $can_manage_global_medals = false;
             $can_review_user_profiles = false;
             $is_my_profile = false;
         }

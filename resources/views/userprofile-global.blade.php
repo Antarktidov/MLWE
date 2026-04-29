@@ -58,7 +58,8 @@
             <button onclick="cancelFriendRequest()" class="btn btn-danger">{{__('Cancel friend request')}}</button>
           @endif
           @if($friend_status === 'this_user_wants_add_you_to_friends')
-            <a href="#" class="btn btn-success">{{__('Accept friend request')}}</a>
+            <button onclick="acceptFriendRequest()" class="btn btn-success">{{__('Accept friend request')}}</a>
+            <button class="btn btn-danger">{{__('Decline friend request')}}</a>
           @endif
         </div>
         @if($user_group_names)
