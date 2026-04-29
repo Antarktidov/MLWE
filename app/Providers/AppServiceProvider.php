@@ -130,6 +130,10 @@ public function boot(): void
     Gate::define('manage_polls', function ($user, $wikiName) {
         return PermissionChecker::check($user, $wikiName, 'can_manage_polls');
     });
+
+    Gate::define('moderate_discussions', function ($user, $wikiName) {
+        return PermissionChecker::check($user, $wikiName, 'can_moderate_discussions');
+    });
     
     /*Gate::define('revert_edits_to_old_version', function ($user, $wikiName) {
         return PermissionChecker::check($user, $wikiName, 'can_revert_edits_to_old_version');
