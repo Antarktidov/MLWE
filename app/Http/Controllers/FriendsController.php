@@ -7,6 +7,9 @@ use Illuminate\Support\Facades\DB;
 
 use App\Models\User;
 use App\Models\UserProfileRevision;
+use App\Models\FriendsRequest;
+
+use App\Helpers\FriendsHelper;
 
 class FriendsController extends Controller
 {
@@ -66,5 +69,27 @@ class FriendsController extends Controller
                 'last_page' => max(1, (int) ceil($total / $friends_per_page)),
             ],
         ];
+    }
+
+    public function add_friend(User $friend) {
+        $friend_status = FriendsHelper::check_friend_status_with_this_user($friend);
+        if ($friend_status !== 'not_friends') {
+            abort(400);
+        }
+
+        $user = auth()->user();
+        if ($user == null) {
+            abort(401);
+        }
+
+        $friend_request = [
+            'requester_id' => $user->id,
+            'recipient_id' => $friend->id,
+            'status' => 'pending',
+        ];
+
+        FriendsRequest::create($friend_request);
+
+        return __('Friend request created successfully');
     }
 }

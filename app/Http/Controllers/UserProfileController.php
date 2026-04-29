@@ -19,7 +19,6 @@ class UserProfileController extends Controller
     public function show_global(User $user) {
 
         $friend_status = FriendsHelper::check_friend_status_with_this_user($user);
-        dd($friend_status);
 
         $user_group_ids = UserUserGroupWiki::where('user_id', $user->id)
             ->where('wiki_id', 0)
@@ -81,7 +80,7 @@ class UserProfileController extends Controller
         return view('userprofile-global', compact('user_profile', 'user',
                                         'user_group_names', 'can_review_user_profiles',
                                         'is_my_profile', 'medals', 'can_manage_global_medals',
-                                        'wiki', 'all_medals'));
+                                        'wiki', 'all_medals', 'friend_status'));
     }
 
     public function show_local(string $wikiName, User $user) {

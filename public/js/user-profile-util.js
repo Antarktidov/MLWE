@@ -24,3 +24,15 @@ async function deleteProfile() {
             },
         });
 }
+
+async function addFriend() {
+    event.preventDefault();
+
+    let response = await fetch(`/api/friends/add_friend/${userId}`, {
+            method: 'POST',
+            headers: {
+            'Content-Type': 'application/json;charset=utf-8',
+            'X-CSRF-TOKEN': csrf_token,
+            },
+        });
+}

@@ -215,7 +215,11 @@ Route::middleware([ProtectionLevel3Middleware::class])->group(function () {
     Route::post('/api/polls/accept_vote/{poll}', [PollsController::class, 'accept_vote'])->name('poll.accept_vote')
     ->middleware('auth');
     Route::get('/api/polls/get_votes/{poll}', [PollsController::class, 'get_votes'])->name('poll.get_votes');
+
+    //Friends (Друзья)
     Route::get('/api/user/friends/{user}', [FriendsController::class, 'get_user_friends'])->name('user.friends.get_friends');
+    Route::post('/api/friends/add_friend/{friend}', [FriendsController::class, 'add_friend'])->name('user.friends.add_friend')
+    ->middleware('auth');
 
 //Логин, регистрация
 $options = Option::getOptions();//волшебный код, который может положить всё приложение
