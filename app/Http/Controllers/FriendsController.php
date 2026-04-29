@@ -142,4 +142,27 @@ class FriendsController extends Controller
 
         return __('Friend request accepted');
     }
+
+    public function decline_friend_request(User $friend) {
+        $friend_status = FriendsHelper::check_friend_status_with_this_user($friend);
+        if ($friend_status !== 'this_user_wants_add_you_to_friends') {
+            abort(400);
+        }
+
+        $user = auth()->user();
+        if ($user == null) {
+            abort(401);
+        }
+
+        $friends_request = FriendsRequest::where('requester_id', $friend->id)
+        ->where('recipient_id',  $user->id)
+        ->where('status', 'pending')
+        ->orderBy('id', 'desc')->first();
+
+        $friends_request->update([
+            'status' => 'declined',
+        ]);
+
+        return __('Friend request declined');
+    }
 }

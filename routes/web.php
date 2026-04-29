@@ -224,6 +224,8 @@ Route::middleware([ProtectionLevel3Middleware::class])->group(function () {
     ->middleware('auth');
     Route::post('/api/friends/accept_friend_request/{friend}', [FriendsController::class, 'accept_friend_request'])->name('user.accept_friend_request')
     ->middleware('auth');
+    Route::post('/api/friends/decline_friend_request/{friend}', [FriendsController::class, 'decline_friend_request'])->name('user.decline_friend_request')
+    ->middleware('auth');
 
 //Логин, регистрация
 $options = Option::getOptions();//волшебный код, который может положить всё приложение

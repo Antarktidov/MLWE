@@ -60,3 +60,15 @@ async function acceptFriendRequest() {
             },
         });
 }
+
+async function declineFriendRequest() {
+    event.preventDefault();
+
+    let response = await fetch(`/api/friends/decline_friend_request/${userId}`, {
+            method: 'POST',
+            headers: {
+            'Content-Type': 'application/json;charset=utf-8',
+            'X-CSRF-TOKEN': csrf_token,
+            },
+        });
+}
