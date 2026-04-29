@@ -52,10 +52,10 @@
             <a href="{{ route('userprofile.global.edit', $user) }}" class="btn btn-primary">{{__('Edit')}}</a>
           @endif
           @if($friend_status === 'not_friends')
-            <button href="#" class="btn btn-primary" onclick="addFriend()">{{__('Add to friends')}}</button>
+            <button class="btn btn-primary" onclick="addFriend()">{{__('Add to friends')}}</button>
           @endif
           @if($friend_status === 'your_friend_request_is_pending')
-            <a href="#" class="btn btn-danger">{{__('Cancel friend request')}}</a>
+            <button onclick="cancelFriendRequest()" class="btn btn-danger">{{__('Cancel friend request')}}</button>
           @endif
           @if($friend_status === 'this_user_wants_add_you_to_friends')
             <a href="#" class="btn btn-success">{{__('Accept friend request')}}</a>

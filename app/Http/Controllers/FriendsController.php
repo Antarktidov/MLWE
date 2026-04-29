@@ -92,4 +92,25 @@ class FriendsController extends Controller
 
         return __('Friend request created successfully');
     }
+
+    public function cancel_friends_request(User $friend) {
+        $friend_status = FriendsHelper::check_friend_status_with_this_user($friend);
+        if ($friend_status !== 'your_friend_request_is_pending') {
+            abort(400);
+        }
+
+        $user = auth()->user();
+        if ($user == null) {
+            abort(401);
+        }
+
+        $friends_request = FriendsRequest::where('requester_id', $user->id)
+        ->where('recipient_id', $friend->id)
+        ->where('status', 'pending')
+        ->orderBy('id', 'desc')->first();
+
+        $friends_request->delete();
+
+        return __('Friend request deleted');
+    }
 }
