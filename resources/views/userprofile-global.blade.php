@@ -51,6 +51,22 @@
           @if($is_my_profile)
             <a href="{{ route('userprofile.global.edit', $user) }}" class="btn btn-primary">{{__('Edit')}}</a>
           @endif
+           @if($friend_status === 'already_friends')
+            <button class="btn btn-danger" onclick="removeFriend()">{{__('Remove to friends')}}</button>
+          @endif
+          @if($friend_status === 'not_friends')
+            <button class="btn btn-primary" onclick="addFriend()">{{__('Add to friends')}}</button>
+          @endif
+          @if($friend_status === 'your_friend_request_is_pending')
+            <button onclick="cancelFriendRequest()" class="btn btn-danger">{{__('Cancel friend request')}}</button>
+          @endif
+          @if($friend_status === 'this_user_wants_add_you_to_friends')
+            <button onclick="acceptFriendRequest()" class="btn btn-success">{{__('Accept friend request')}}</a>
+            <button onclick="declineFriendRequest()" class="btn btn-danger">{{__('Decline friend request')}}</a>
+          @endif
+          @if($friend_status === 'your_cannot_add_this_user_to_friends')
+            <button class="btn btn-danger-outline" disabled="disabled">{{__('This user declined your friend request')}}</a>
+          @endif
         </div>
         @if($user_group_names)
           <div class="d-flex flex-wrap gap-1">
@@ -152,5 +168,11 @@
         </section>
       @endif
   </div>
+</div>
+@endsection
+@section('right-column')
+<div class="user-friends">
+  <h2>{{__('Friends')}}</h2>
+  <div id="user-friends-svelte" data-user-id={{ $user->id }}></div>
 </div>
 @endsection

@@ -1,3 +1,10 @@
+main {
+    display: grid;
+    grid-template-columns: 20vw 1fr 20vw;
+    margin-right: auto;
+    margin-left: auto;
+}  
+  
   .profile-header {
     display: flex;
     flex-wrap: wrap;
@@ -36,6 +43,10 @@
   .profile-social-link:hover {
     opacity: 0.8;
   }
+  .profile-avatar,
+  .friend-avatar {
+      background-size: cover !important;
+  }
   @media (prefers-color-scheme: light) {
     .user-group-name.theme-aware {
       background-color: rgba(var(--bs-dark-rgb), 1) !important;
@@ -66,4 +77,29 @@
     gap: 10px;
     grid-auto-rows: minmax(100px, auto);
     margin-bottom: 50px;
+}
+/*Friends*/
+.friends-avatars {
+    width: 250px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin: 10px;
+}
+
+.friend-avatar {
+    height: 40px;
+    width: 40px;
+    border-radius: 12px;
+    
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.friends-pagination {
+    display: flex;
+    width: 250px;
+    & > * {
+        margin: auto;
+    }
 }

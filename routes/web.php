@@ -13,6 +13,7 @@ use App\Http\Controllers\UserProfileController;
 use App\Http\Controllers\MedalController;
 use App\Http\Controllers\QuizController;
 use App\Http\Controllers\PollsController;
+use App\Http\Controllers\FriendsController;
 
 use App\Http\Middleware\DeleteMiddleware;
 use App\Http\Middleware\DeleteRevisionMiddleware;
@@ -214,6 +215,19 @@ Route::middleware([ProtectionLevel3Middleware::class])->group(function () {
     Route::post('/api/polls/accept_vote/{poll}', [PollsController::class, 'accept_vote'])->name('poll.accept_vote')
     ->middleware('auth');
     Route::get('/api/polls/get_votes/{poll}', [PollsController::class, 'get_votes'])->name('poll.get_votes');
+
+    //Friends (Друзья)
+    Route::get('/api/user/friends/{user}', [FriendsController::class, 'get_user_friends'])->name('user.friends.get_friends');
+    Route::post('/api/friends/add_friend/{friend}', [FriendsController::class, 'add_friend'])->name('user.friends.add_friend')
+    ->middleware('auth');
+    Route::delete('/api/friends/cancel_friends_request/{friend}', [FriendsController::class, 'cancel_friends_request'])->name('user.friends.cancel_friends_request')
+    ->middleware('auth');
+    Route::post('/api/friends/accept_friend_request/{friend}', [FriendsController::class, 'accept_friend_request'])->name('user.accept_friend_request')
+    ->middleware('auth');
+    Route::post('/api/friends/decline_friend_request/{friend}', [FriendsController::class, 'decline_friend_request'])->name('user.decline_friend_request')
+    ->middleware('auth');
+    Route::delete('/api/friends/delete/{friend}', [FriendsController::class, 'delete'])->name('user.friends.delete')
+    ->middleware('auth');
 
 //Логин, регистрация
 $options = Option::getOptions();//волшебный код, который может положить всё приложение
