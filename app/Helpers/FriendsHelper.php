@@ -31,10 +31,12 @@ class FriendsHelper {
 
         $fr1 = FriendsRequest::where('requester_id', $user->id)
         ->where('recipient_id', $friend->id)
+        ->whereNot('status', 'accepted')
         ->orderBy('id', 'desc')->first();
 
         $fr2 = FriendsRequest::where('requester_id', $friend->id)
         ->where('recipient_id', $user->id)
+        ->whereNot('status', 'accepted')
         ->orderBy('id', 'desc')->first();
 
         if ($fr1 == null && $fr2 == null) {
@@ -56,8 +58,6 @@ class FriendsHelper {
         if ($fr2 != null && $fr2->status === 'declined') {
             return 'you_declined_friend_request_from_this_user';
         }
-
-        return '';
 
         if (config('app.debug') == true) {
              dd('Error in FriendHelper::check_friend_status_with_this_user()');

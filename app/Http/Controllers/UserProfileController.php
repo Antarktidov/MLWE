@@ -19,7 +19,6 @@ class UserProfileController extends Controller
     public function show_global(User $user) {
 
         $friend_status = FriendsHelper::check_friend_status_with_this_user($user);
-        
         $user_group_ids = UserUserGroupWiki::where('user_id', $user->id)
             ->where('wiki_id', 0)
             ->pluck('user_group_id')
