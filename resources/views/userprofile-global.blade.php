@@ -51,6 +51,9 @@
           @if($is_my_profile)
             <a href="{{ route('userprofile.global.edit', $user) }}" class="btn btn-primary">{{__('Edit')}}</a>
           @endif
+           @if($friend_status === 'already_friends')
+            <button class="btn btn-danger" onclick="removeFriend()">{{__('Remove to friends')}}</button>
+          @endif
           @if($friend_status === 'not_friends')
             <button class="btn btn-primary" onclick="addFriend()">{{__('Add to friends')}}</button>
           @endif

@@ -72,3 +72,15 @@ async function declineFriendRequest() {
             },
         });
 }
+
+async function removeFriend() {
+    event.preventDefault();
+
+    let response = await fetch(`/api/friends/delete/${userId}`, {
+            method: 'DELETE',
+            headers: {
+            'Content-Type': 'application/json;charset=utf-8',
+            'X-CSRF-TOKEN': csrf_token,
+            },
+        });
+}

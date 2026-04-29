@@ -165,4 +165,25 @@ class FriendsController extends Controller
 
         return __('Friend request declined');
     }
+
+    public function delete(User $friend) {
+        $friend_status = FriendsHelper::check_friend_status_with_this_user($friend);
+        if ($friend_status !== 'already_friends') {
+            abort(400);
+        }
+
+        $user = auth()->user();
+        if ($user == null) {
+            abort(401);
+        }
+
+        $sql = <<<SQL
+        DELETE FROM friends 
+        WHERE normalize_friends(friends) = normalize_friends (ARRAY[?::BIGINT, ?::BIGINT]);
+        SQL;
+
+        $friends = DB::delete($sql, [$user->id, $friend->id]);
+
+        return __('Friend deleted');
+    }
 }
