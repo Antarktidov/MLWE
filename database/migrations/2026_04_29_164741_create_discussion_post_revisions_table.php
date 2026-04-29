@@ -19,8 +19,6 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
         });
-
-        DB::statement('ALTER TABLE discussion_post_revisions ADD COLUMN images_id BIGINT[]');
     }
 
     /**
