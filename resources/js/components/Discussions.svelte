@@ -5,6 +5,8 @@
     let postType = $state('post');
     let triviaId = $state(null);
     let pollId = $state(null);
+    let title = $state('');
+    let content = $state('');
 
     const postTypes = [
         { value: 'post', label: 'Post' },
@@ -48,8 +50,9 @@
     {:else}
     <form action="#" method="post">
         {#if postType === 'post'}
-        <input class="form-control mb-2" id="title" name="title" type="text" placeholder="Введите заголовок">
-        <textarea class="form-control mb-3" name="content" id="content" placeholder="Введите текст"></textarea>
+        <input class="form-control mb-2" id="title" name="title" type="text"
+        placeholder="Введите заголовок" value={title}>
+        <textarea class="form-control mb-3" name="content" id="content" placeholder="Введите текст">{content}</textarea>
         {:else if postType === 'trivia'}
         <input class="form-control mb-3" type="number" min="1" step="1" name="trivia_id" id="trivia_id"
         placeholder="Введите id trivia" value={triviaId}>
