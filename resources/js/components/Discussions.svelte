@@ -46,6 +46,24 @@
             openEditor();
         }
     }
+
+    async function sendPost() {
+        let post = {
+            'title': title,
+            'content': content,
+            'category_id': newPostCategory,
+        };
+
+        let response = await fetch(`/api/wiki/${wikiName}/discussions/store`, {
+        method: 'POST',
+        headers: {
+        'Content-Type': 'application/json;charset=utf-8',
+        'X-CSRF-TOKEN': csrf_token,
+        },
+        body: JSON.stringify(post)
+        });
+        const resJson = await response.json();
+    }
 </script>
 <div>
     {#if !isEditorOpen}
@@ -73,7 +91,7 @@
         <input class="form-control mb-3" type="number" min="1" step="1" name="poll_id" id="poll_id"
         placeholder="Введите id опроса" bind:value={pollId}>
         {/if}
-        <button class="btn btn-success">Save</button>
+        <button onclick={() => sendPost()} class="btn btn-success">Save</button>
         <select bind:value={postType} id="post-type" name="post-type" class="btn btn-info" aria-label="Тип записи">
             {#each postTypes as option}
                 <option value={option.value}>

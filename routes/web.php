@@ -234,7 +234,8 @@ Route::middleware([ProtectionLevel3Middleware::class])->group(function () {
     Route::get('/wiki/{wikiName}/discussions', [DiscussionsController::class, 'html_index'])->name('discussions.html.index');
     Route::get('/api/wiki/{wikiName}/discussions/categories', [DiscussionsController::class, 'get_all_discussions_categories'])
     ->name('discussions.api.categories');
-
+    Route::get('/api/wiki/{wikiName}/discussions/store', [DiscussionsController::class, 'store'])->name('discussions.api.store');
+    
     //Helping api
     Route::get('/api/avatar/{user}', [UserProfileController::class, 'showAvatar'])->name('avatar.show');
 
