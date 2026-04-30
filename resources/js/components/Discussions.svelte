@@ -1,6 +1,7 @@
 <script>
     let { wikiName, userId, userName, userModerateDiscussions, wikiId } = $props();
     let userAvatarBg = $state(null);
+    let isEditorOpen = $state(false);
 
     async function fetchAvatar() {
         const res = await fetch(`/api/avatar/${userId}`);
@@ -11,9 +12,19 @@
     if (userId !== 0) {
         fetchAvatar();
     }
+
+    function openEditor() {
+        console.log('Открываем редактор!');
+    }
+
+    function openEditorWrapper() {
+        if (event.key === 'Enter') {
+            openEditor();
+        }
+    }
 </script>
 <div>
-    <div class="editor-placeholder">
+    <div tabindex="0" onkeydown={() => openEditorWrapper()} role="button" onclick={() => openEditor()} class="editor-placeholder">
         <div class="avatar-wrapper">
             {#if userAvatarBg != null}
                 <div class="avatar" style="background: {userAvatarBg};"></div>
