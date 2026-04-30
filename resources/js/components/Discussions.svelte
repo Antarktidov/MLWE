@@ -21,6 +21,7 @@
                 <div class="avatar" style="background: gray;"></div>
             {/if}
         </div>
+        <div class="whats-on-your-mind text-muted">Чем хочешь поделиться, {userName != null ? userName : 'Анон'}?</div>
     </div>
 </div>
 <style>
@@ -29,12 +30,17 @@
     border-radius: 10px;
     height: 100px;
     background-color: var(--bs-tertiary-bg);
+    display: flex;
+    align-items: center;
 
     & .avatar {
     width: 40px;
     height: 40px;
-    margin-top: 30px;
     margin-left: 20px;
+    }
+
+    & .whats-on-your-mind {
+        margin-left: 20px;
     }
 }
 .avatar {
