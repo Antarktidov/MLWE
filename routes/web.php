@@ -14,6 +14,7 @@ use App\Http\Controllers\MedalController;
 use App\Http\Controllers\QuizController;
 use App\Http\Controllers\PollsController;
 use App\Http\Controllers\FriendsController;
+use App\Http\Controllers\DiscussionsController;
 
 use App\Http\Middleware\DeleteMiddleware;
 use App\Http\Middleware\DeleteRevisionMiddleware;
@@ -229,6 +230,9 @@ Route::middleware([ProtectionLevel3Middleware::class])->group(function () {
     Route::delete('/api/friends/delete/{friend}', [FriendsController::class, 'delete'])->name('user.friends.delete')
     ->middleware('auth');
 
+    //Обсуждения (Discussions)
+    Route::get('/api/wiki/{wikiName}/discussions', [DiscussionsController::class, 'index'])->name('discussions.api.index');
+    Route::get('/wiki/{wikiName}/discussions', [DiscussionsController::class, 'html_index'])->name('discussions.html.index');
 //Логин, регистрация
 $options = Option::getOptions();//волшебный код, который может положить всё приложение
 Auth::routes([
