@@ -8,7 +8,7 @@
     let title = $state('');
     let content = $state('');
     let categories = $state([]);
-    let newPostCategory = $state({});
+    let newPostCategory = $state(0);
     $inspect('newPostCategory', newPostCategory);
 
     const postTypes = [
@@ -27,7 +27,7 @@
         const res = await fetch(`/api/wiki/${wikiName}/discussions/categories`);
         const json = await res.json();
         categories = json;
-        newPostCategory = categories[0];
+        newPostCategory = categories[0].id;
     }
 
     if (userId !== 0) {
@@ -74,7 +74,7 @@
         placeholder="Введите id опроса" bind:value={pollId}>
         {/if}
         <button class="btn btn-success">Save</button>
-        <select bind:value={postType} id="post-type" name="post-type" class="btn btn-primary" aria-label="Тип записи">
+        <select bind:value={postType} id="post-type" name="post-type" class="btn btn-info" aria-label="Тип записи">
             {#each postTypes as option}
                 <option value={option.value}>
                     {option.label}
