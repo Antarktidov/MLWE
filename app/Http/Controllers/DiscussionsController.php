@@ -7,6 +7,8 @@ use App\Models\DiscussionPost;
 use App\Models\DiscussionPostRevision;
 use App\Models\DiscussionCategory;
 
+use Illuminate\Http\Request;
+
 class DiscussionsController extends Controller
 {
     public function index(string $wikiName) {
@@ -49,8 +51,8 @@ class DiscussionsController extends Controller
         $created_post = DiscussionPost::create($post);
 
         $post_revision = [
-            'title' => data['title'],
-            'content' => data['content'],
+            'title' => $data['title'],
+            'content' => $data['content'],
             'author_ip' => $user_ip,
             'post_id' => $created_post->id,
         ];

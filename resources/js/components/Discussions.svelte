@@ -9,7 +9,8 @@
     let content = $state('');
     let categories = $state([]);
     let newPostCategory = $state(0);
-    $inspect('newPostCategory', newPostCategory);
+    
+    const csrf_token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
     const postTypes = [
         { value: 'post', label: 'Post' },
@@ -78,7 +79,7 @@
         <div class="whats-on-your-mind text-muted">Чем хочешь поделиться, {userName != null ? userName : 'Анон'}?</div>
     </div>
     {:else}
-    <form action="#" method="post">
+    <div>
         {#if postType === 'post'}
         <input class="form-control mb-2" id="title" name="title" type="text"
         placeholder="Введите заголовок" bind:value={title}>
@@ -106,7 +107,7 @@
                 </option>
             {/each}
         </select>
-    </form>
+    </div>
     {/if}
 </div>
 <style>
