@@ -45,9 +45,13 @@ class DiscussionsController extends Controller
         ]));
     }
 
-    public function get_all_discussions_categories() {
-        $categories = DiscussionCategory::all()
-        ->select(['id', 'name']);
+    public function get_all_discussions_categories(string $wikiName) {
+        $wiki = Wiki::where('url', $wikiName)->whereNull('deleted_at')->first();
+        abort_if($wiki === null, 404);
+
+        $categories = DiscussionCategory::where('wiki_id', $wiki->id)
+        ->select(['id', 'name'])
+        ->get();
 
         return $categories;
     }

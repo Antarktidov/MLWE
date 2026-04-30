@@ -7,8 +7,9 @@
     let pollId = $state(null);
     let title = $state('');
     let content = $state('');
-    let newPostCategory = $state(null);
-    console.log('newPostCategory', newPostCategory);
+    let categories = $state([]);
+    let newPostCategory = $state({});
+    $inspect('newPostCategory', newPostCategory);
 
     const postTypes = [
         { value: 'post', label: 'Post' },
@@ -20,11 +21,20 @@
         const res = await fetch(`/api/avatar/${userId}`);
         const json = await res.json();
         userAvatarBg = json[0];
-        console.log(json);
     }
+
+    async function fetchCategories() {
+        const res = await fetch(`/api/wiki/${wikiName}/discussions/categories`);
+        const json = await res.json();
+        categories = json;
+        newPostCategory = categories[0];
+    }
+
     if (userId !== 0) {
         fetchAvatar();
     }
+
+    fetchCategories();
 
     function openEditor() {
         console.log('Открываем редактор!');
@@ -71,7 +81,7 @@
                 </option>
             {/each}
         </select>
-        <select bind:value={newPostCategory.name} id="category-id" name="category-id" class="btn btn-primary" aria-label="Категория поста">
+        <select bind:value={newPostCategory} id="category-id" name="category-id" class="btn btn-primary" aria-label="Категория поста">
             {#each categories as option}
                 <option value={option.id}>
                     {option.name}

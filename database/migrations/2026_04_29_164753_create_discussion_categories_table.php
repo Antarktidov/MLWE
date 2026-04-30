@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('discussion_categories', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->unsignedBigInteger('wiki_id');
             $table->timestamps();
             $table->softDeletes();
         });
