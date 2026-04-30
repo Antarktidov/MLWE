@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Wiki;
 use App\Models\DiscussionPost;
-use Inertia\Inertia;
+use App\Models\DiscussionCategory;
 
 class DiscussionsController extends Controller
 {
@@ -43,5 +43,12 @@ class DiscussionsController extends Controller
             'userId', 'userName', 'userCanModerateDiscussions',
             'wiki', 'wikiId'
         ]));
+    }
+
+    public function get_all_discussions_categories() {
+        $categories = DiscussionCategory::all()
+        ->select(['id', 'name']);
+
+        return $categories;
     }
 }

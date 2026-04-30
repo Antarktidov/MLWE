@@ -7,6 +7,8 @@
     let pollId = $state(null);
     let title = $state('');
     let content = $state('');
+    let newPostCategory = $state(null);
+    console.log('newPostCategory', newPostCategory);
 
     const postTypes = [
         { value: 'post', label: 'Post' },
@@ -66,6 +68,13 @@
             {#each postTypes as option}
                 <option value={option.value}>
                     {option.label}
+                </option>
+            {/each}
+        </select>
+        <select bind:value={newPostCategory.name} id="category-id" name="category-id" class="btn btn-primary" aria-label="Категория поста">
+            {#each categories as option}
+                <option value={option.id}>
+                    {option.name}
                 </option>
             {/each}
         </select>
