@@ -2,6 +2,13 @@
     let { wikiName, userId, userName, userModerateDiscussions, wikiId } = $props();
     let userAvatarBg = $state(null);
     let isEditorOpen = $state(false);
+    let postType = $state('post');
+
+    const postTypes = [
+        { value: 'post', label: 'Post' },
+        { value: 'trivia', label: 'Trivia Quiz' },
+        { value: 'poll', label: 'Poll' }
+    ];
 
     async function fetchAvatar() {
         const res = await fetch(`/api/avatar/${userId}`);
@@ -40,7 +47,14 @@
     <form action="#" method="post">
         <input class="form-control mb-2" id="title" name="title" type="text" placeholder="Введите заголовок">
         <textarea class="form-control mb-3" name="content" id="content" placeholder="Введите текст"></textarea>
-        <button class="btn btn-primary">Save</button>
+        <button class="btn btn-success">Save</button>
+        <select bind:value={postType} id="post-type" name="post-type" class="btn btn-primary" aria-label="Тип записи">
+            {#each postTypes as option}
+                <option value={option.value}>
+                    {option.label}
+                </option>
+            {/each}
+        </select>
     </form>
     {/if}
 </div>
