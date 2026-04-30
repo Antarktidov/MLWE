@@ -3,6 +3,7 @@ import './bootstrap';
 
 import Comments from './components/Comments.svelte'
 import Friends from './components/Friends.svelte'
+import Discussions from './components/Discussions.svelte'
 
 {
     const el = document.getElementById('comments')
@@ -28,6 +29,21 @@ import Friends from './components/Friends.svelte'
             target: el,
             props: {
                 userId: el.dataset.userId,
+            }
+        })
+    }
+}
+
+{
+    const el = document.getElementById('discussions-index-root')
+    if (el) {
+        new Discussions({
+            target: el,
+            props: {
+                wikiName: el.dataset.wikiName,
+                userId: el.dataset.userId,
+                userName: el.dataset.userName,
+                userCanModerateDiscussions: el.dataset.userCanModerateDiscussions === 'true',
             }
         })
     }
