@@ -231,7 +231,7 @@ Route::middleware([ProtectionLevel3Middleware::class])->group(function () {
     ->middleware('auth');
 
     //Обсуждения (Discussions)
-    Route::get('/discussions/', [DiscussionsController::class, 'index'])->name('discussions.index');
+    Route::get('/wiki/{wikiName}/discussions/', [DiscussionsController::class, 'index'])->name('discussions.index');
 
 //Логин, регистрация
 $options = Option::getOptions();//волшебный код, который может положить всё приложение
