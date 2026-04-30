@@ -20,6 +20,6 @@ class DiscussionsController extends Controller
         ->select(['id', 'user_id', 'title', 'created_at', 'category_id', 'type'])
         ->paginate(10);
         //$revision = DiscussionPostRevision
-        return inertia('DiscussionsShow.svelte');
+        return inertia('discussions-show');
     }
 }

@@ -1,5 +1,4 @@
 import './bootstrap';
-import { createInertiaApp } from '@inertiajs/svelte'
 
 
 import Comments from './components/Comments.svelte'
@@ -33,5 +32,3 @@ import Friends from './components/Friends.svelte'
         })
     }
 }
-
-createInertiaApp()
