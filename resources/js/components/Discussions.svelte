@@ -51,14 +51,15 @@
     <form action="#" method="post">
         {#if postType === 'post'}
         <input class="form-control mb-2" id="title" name="title" type="text"
-        placeholder="Введите заголовок" value={title}>
-        <textarea class="form-control mb-3" name="content" id="content" placeholder="Введите текст">{content}</textarea>
+        placeholder="Введите заголовок" bind:value={title}>
+        <textarea class="form-control mb-3" name="content" id="content" placeholder="Введите текст"
+        bind:value={content}></textarea>
         {:else if postType === 'trivia'}
         <input class="form-control mb-3" type="number" min="1" step="1" name="trivia_id" id="trivia_id"
-        placeholder="Введите id trivia" value={triviaId}>
+        placeholder="Введите id trivia" bind:value={triviaId}>
         {:else if postType === 'poll'}
         <input class="form-control mb-3" type="number" min="1" step="1" name="poll_id" id="poll_id"
-        placeholder="Введите id опроса" value={pollId}>
+        placeholder="Введите id опроса" bind:value={pollId}>
         {/if}
         <button class="btn btn-success">Save</button>
         <select bind:value={postType} id="post-type" name="post-type" class="btn btn-primary" aria-label="Тип записи">
