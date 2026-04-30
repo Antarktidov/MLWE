@@ -17,6 +17,8 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
         });
+
+        DB::statement('ALTER TABLE discussion_categories ADD COLUMN names varchar(255)[]');
     }
 
     /**
