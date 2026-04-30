@@ -15,6 +15,7 @@
 
     function openEditor() {
         console.log('Открываем редактор!');
+        isEditorOpen = true;
     }
 
     function openEditorWrapper() {
@@ -24,6 +25,7 @@
     }
 </script>
 <div>
+    {#if !isEditorOpen}
     <div tabindex="0" onkeydown={() => openEditorWrapper()} role="button" onclick={() => openEditor()} class="editor-placeholder">
         <div class="avatar-wrapper">
             {#if userAvatarBg != null}
@@ -34,6 +36,13 @@
         </div>
         <div class="whats-on-your-mind text-muted">Чем хочешь поделиться, {userName != null ? userName : 'Анон'}?</div>
     </div>
+    {:else}
+    <form action="#" method="post">
+        <input class="form-control mb-2" id="title" name="title" type="text" placeholder="Введите заголовок">
+        <textarea class="form-control mb-3" name="content" id="content" placeholder="Введите текст"></textarea>
+        <button class="btn btn-primary">Save</button>
+    </form>
+    {/if}
 </div>
 <style>
 .editor-placeholder {
@@ -57,5 +66,8 @@
 .avatar {
     border-radius: 90px;
     background-size: cover !important;
+}
+#title {
+    height: 100px;
 }
 </style>
