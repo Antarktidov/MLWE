@@ -8,15 +8,17 @@
         userAvatarBg = json[0];
         console.log(json);
     }
-    fetchAvatar();
+    if (userId !== 0) {
+        fetchAvatar();
+    }
 </script>
 <div>
     <div class="editor-placeholder">
         <div class="avatar-wrapper">
-            {#if userId !== 0}
+            {#if userAvatarBg != null}
                 <div class="avatar" style="background: {userAvatarBg};"></div>
             {:else}
-                <div></div>
+                <div class="avatar" style="background: gray;"></div>
             {/if}
         </div>
     </div>

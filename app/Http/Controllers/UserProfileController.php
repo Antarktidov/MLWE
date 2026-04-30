@@ -332,6 +332,9 @@ class UserProfileController extends Controller
 
     public function showAvatar(User $user) {
         $user_profile = $this->latestProfileRevision($user->id, 0, true);
+        if ($user_profile == null) {
+            return [null];
+        }
         $avatar = $user_profile->avatar;
         return [$avatar];
     }
