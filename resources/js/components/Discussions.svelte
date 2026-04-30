@@ -1,22 +1,20 @@
 <script>
     let { wikiName, userId, userName, userModerateDiscussions, wikiId } = $props();
+    let userAvatarBg = $state(null);
 
     async function fetchAvatar() {
-        const res = await fetch(`/api/avatar/{userId}/{wikiId}`);
+        const res = await fetch(`/api/avatar/${userId}`);
         const json = await res.json();
-        user_friends = json.user_friends;
-        pagination = json.pagination;
-        currentPage = pagination.page;
+        userAvatarBg = json[0];
         console.log(json);
     }
-    ///api/avatar/{user}/{wiki}
     fetchAvatar();
 </script>
 <div>
     <div class="editor-placeholder">
         <div class="avatar-wrapper">
             {#if userId !== 0}
-                <div></div>
+                <div class="avatar" style="background: {userAvatarBg};"></div>
             {:else}
                 <div></div>
             {/if}
@@ -29,5 +27,16 @@
     border-radius: 10px;
     height: 100px;
     background-color: var(--bs-tertiary-bg);
+
+    & .avatar {
+    width: 40px;
+    height: 40px;
+    margin-top: 30px;
+    margin-left: 20px;
+    }
+}
+.avatar {
+    border-radius: 90px;
+    background-size: cover !important;
 }
 </style>

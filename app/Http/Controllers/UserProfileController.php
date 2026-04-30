@@ -330,10 +330,10 @@ class UserProfileController extends Controller
             ->header('Content-Type', 'text/plain');
     }
 
-    public function showAvatar(User $user, Wiki $wiki) {
-        $user_profile = $this->latestProfileRevision($user->id, $wiki->id, true);
+    public function showAvatar(User $user) {
+        $user_profile = $this->latestProfileRevision($user->id, 0, true);
         $avatar = $user_profile->avatar;
-        return $avatar;
+        return [$avatar];
     }
 
     private function latestProfileRevision(int $userId, int $wikiId, bool $onlyApproved = false): ?UserProfileRevision

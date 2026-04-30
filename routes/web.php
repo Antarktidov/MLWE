@@ -234,7 +234,7 @@ Route::middleware([ProtectionLevel3Middleware::class])->group(function () {
     Route::get('/wiki/{wikiName}/discussions', [DiscussionsController::class, 'html_index'])->name('discussions.html.index');
     
     //Helping api
-    Route::get('/api/avatar/{user}/{wiki}', [UserProfileController::class, 'showAvatar'])->name('avatar.show');
+    Route::get('/api/avatar/{user}', [UserProfileController::class, 'showAvatar'])->name('avatar.show');
 
 });
     //Логин, регистрация
