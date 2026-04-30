@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Wiki;
 use App\Models\DiscussionPost;
+use App\Models\DiscussionPostRevision;
 use App\Models\DiscussionCategory;
 
 class DiscussionsController extends Controller
@@ -19,6 +20,43 @@ class DiscussionsController extends Controller
             ->paginate(10);
 
         dd($posts);
+    }
+
+    public function store(Request $request, string $wikiName) {
+        $wiki = Wiki::where('url', $wikiName)->whereNull('deleted_at')->first();
+        $data = $request->validate([
+            'title' => 'string',
+            'content' => 'string',
+            'category_id' => 'integer'
+        ]);
+
+        $user = auth()->user();
+        if ($user != null) {
+            $user_id = $user->id;
+        } else {
+            $user_id = 0;
+        }
+
+        $user_ip = $request->ip();
+
+        $post = [
+            'title' => $data['title'],
+            'category_id' => $data['category_id'],
+            'type' => 'post',
+            'author_id' => $user_id,
+            'author_ip' => $user_ip,
+        ];
+        $created_post = DiscussionPost::create($post);
+
+        $post_revision = [
+            'title' => data['title'],
+            'content' => data['content'],
+            'author_ip' => $user_ip,
+            'post_id' => $created_post->id,
+        ];
+        DiscussionPostRevision::create($post_revision);
+
+        return ["Post created!"];
     }
 
     public function html_index(string $wikiName) {
