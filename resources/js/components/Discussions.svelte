@@ -1,5 +1,16 @@
 <script>
-    let { wikiName, userId, userName, userModerateDiscussions } = $props();
+    let { wikiName, userId, userName, userModerateDiscussions, wikiId } = $props();
+
+    async function fetchAvatar() {
+        const res = await fetch(`/api/avatar/{userId}/{wikiId}`);
+        const json = await res.json();
+        user_friends = json.user_friends;
+        pagination = json.pagination;
+        currentPage = pagination.page;
+        console.log(json);
+    }
+    ///api/avatar/{user}/{wiki}
+    fetchAvatar();
 </script>
 <div>
     <div class="editor-placeholder">

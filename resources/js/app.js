@@ -14,6 +14,7 @@ import Discussions from './components/Discussions.svelte'
                 wikiName: el.dataset.wikiName,
                 articleName: el.dataset.articleName,
                 userId: el.dataset.userId,
+                wikiId: el.dataset.wikiId,
                 userName: el.dataset.userName,
                 userCanDeleteComments: el.dataset.userCanDeleteComments === 'true',
                 userCanApproveComments: el.dataset.userCanApproveComments === 'true',

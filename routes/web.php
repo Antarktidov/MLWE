@@ -199,7 +199,6 @@ Route::middleware([ProtectionLevel3Middleware::class])->group(function () {
         ->middleware(ManageGlobalMedalsMiddleware::class);
     Route::delete('/wiki/{wikiName}/take-medal-away/{user}/{medal}', [MedalController::class, 'take_away_local'])->name('medals.local.take-away')
         ->middleware(ManageGlobalMedalsMiddleware::class);
-    });
 
     //квизы
     Route::get('/quizes/create', [QuizController::class, 'create'])->name('quiz.create')
@@ -233,7 +232,12 @@ Route::middleware([ProtectionLevel3Middleware::class])->group(function () {
     //Обсуждения (Discussions)
     Route::get('/api/wiki/{wikiName}/discussions', [DiscussionsController::class, 'index'])->name('discussions.api.index');
     Route::get('/wiki/{wikiName}/discussions', [DiscussionsController::class, 'html_index'])->name('discussions.html.index');
-//Логин, регистрация
+    
+    //Helping api
+    Route::get('/api/avatar/{user}/{wiki}', [UserProfileController::class, 'showAvatar'])->name('avatar.show');
+
+});
+    //Логин, регистрация
 $options = Option::getOptions();//волшебный код, который может положить всё приложение
 Auth::routes([
     'verify' => true,

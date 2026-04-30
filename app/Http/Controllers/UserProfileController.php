@@ -330,6 +330,12 @@ class UserProfileController extends Controller
             ->header('Content-Type', 'text/plain');
     }
 
+    public function showAvatar(User $user, Wiki $wiki) {
+        $user_profile = $this->latestProfileRevision($user->id, $wiki->id, true);
+        $avatar = $user_profile->avatar;
+        return $avatar;
+    }
+
     private function latestProfileRevision(int $userId, int $wikiId, bool $onlyApproved = false): ?UserProfileRevision
     {
         $query = UserProfileRevision::where('user_id', $userId)

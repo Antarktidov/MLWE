@@ -26,6 +26,8 @@ class DiscussionsController extends Controller
 
         abort_if($wiki === null, 404);
 
+        $wikiId = $wiki->id;
+
         $user = auth()->user();
         if ($user != null) {
             $userId = $user->id;
@@ -39,7 +41,7 @@ class DiscussionsController extends Controller
 
         return view('discussions-index', compact([
             'userId', 'userName', 'userCanModerateDiscussions',
-            'wiki'
+            'wiki', 'wikiId'
         ]));
     }
 }
