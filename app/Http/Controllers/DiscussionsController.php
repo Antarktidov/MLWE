@@ -2,24 +2,31 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-
 use App\Models\Wiki;
 use App\Models\DiscussionPost;
-use App\Models\DiscussionPostRevision;
-use App\Models\DiscussionPostLike;
-use App\Models\DiscussionCategory;
+use Inertia\Inertia;
 
 class DiscussionsController extends Controller
 {
-    public function index(string $wikiName) {
-        $wiki = Wiki::where('url', $wikiName)->whereNull('deleted_at')->first();
+    public function index() {
+        $wiki = Wiki::first();
+        abort_if($wiki === null, 404);
+
         $posts = DiscussionPost::whereNull('deleted_at')
-        ->where('wiki_id', $wiki->id)
-        ->orderBy('created_at', 'desc')
-        ->select(['id', 'user_id', 'title', 'created_at', 'category_id', 'type'])
-        ->paginate(10);
-        //$revision = DiscussionPostRevision
-        return inertia('DiscussionsShow.svelte');
+            ->where('wiki_id', $wiki->id)
+            ->orderBy('created_at', 'desc')
+            ->select(['id', 'user_id', 'title', 'created_at', 'category_id', 'type'])
+            ->paginate(10);
+
+            $posts = null;
+
+        return inertia('discussions-show', [
+            'wiki' => [
+                'id' => $wiki->id,
+                'url' => $wiki->url,
+            ],
+            'posts' => $posts,
+        ]);
+        
     }
 }

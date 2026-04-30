@@ -1,4 +1,5 @@
 <!doctype html>
+<!--secret svelte blade mark -->
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="utf-8">
@@ -30,7 +31,7 @@
     </script>
 </head>
 <body>
-    <div id="app">
+    <div class="app-shell">
         <nav class="navbar navbar-expand-md shadow-sm border-bottom">
             <div class="container">
                 <a class="navbar-brand" href="{{ url('/') }}">
