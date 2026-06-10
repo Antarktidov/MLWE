@@ -541,7 +541,8 @@ class ArticleController extends Controller
         }
     }
 
-    public function transfer_articles() {
+    public function transfer_articles(Request $request, Article $article) {
+        dd($article);
         return view('transfer-articles');
     }
 

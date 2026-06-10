@@ -122,10 +122,10 @@ Route::middleware([ProtectionLevel3Middleware::class])->group(function () {
         ->middleware(RestoreMiddleware::class);
 
     //трансфер статей
-    Route::get('/transfer-articles', [ArticleController::class,'transfer_articles'])
+    Route::post('/transfer-articles/article_id/{article}', [ArticleController::class,'transfer_articles'])
     ->name('articles.transfer.form')
     ->middleware(TransferArticlesMiddleware::class);
-    Route::post('/transfer-articles', [ArticleController::class,'transfer_articles_post'])
+    Route::post('/transfer-articles-post', [ArticleController::class,'transfer_articles_post'])
     ->name('articles.transfer.post')
     ->middleware(TransferArticlesMiddleware::class);
 
