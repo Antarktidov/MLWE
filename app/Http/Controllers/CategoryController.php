@@ -49,6 +49,6 @@ class CategoryController extends Controller
         WHERE ? = ANY(categories_ids)
         AND ? = wiki_id;";
         $articles = DB::select($sql, [$category->id, $wiki->id]);
-        dd($articles);
+        return view('category', compact('category', 'articles'));
     }
 }
