@@ -52,8 +52,8 @@
         </span>
     @endforeach
     </span>
-        <input name="new-category" class="border rounded" type="text" placeholder="new category">
-        <button class="border rounded" type="submit" onclick="addCat()">Add category</button>
+        <input name="new-category" class="border rounded m-1" type="text" placeholder="new category">
+        <button class="border rounded m-1 p-1" type="submit" onclick="addCat()">Add category</button>
     <!-- Конец категорий -->
     @if ($is_comments_enabled)
     <div id="comments"
