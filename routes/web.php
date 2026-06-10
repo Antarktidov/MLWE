@@ -14,7 +14,7 @@ use App\Http\Controllers\MedalController;
 use App\Http\Controllers\QuizController;
 use App\Http\Controllers\PollsController;
 use App\Http\Controllers\FriendsController;
-use App\Http\Middleware\CategoryController;
+use App\Http\Controllers\CategoryController;
 
 use App\Http\Middleware\DeleteMiddleware;
 use App\Http\Middleware\DeleteRevisionMiddleware;

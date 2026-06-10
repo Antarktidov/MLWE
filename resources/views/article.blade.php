@@ -13,7 +13,11 @@
                 var userAlreadyVotedInPull = {{ $userAlreadyVotedInPull ? 'true': 'false' }};
         </script>
     @endif
+    <script>
+        var article_id = {{$article->id}};
+    </script>
     <script src="{{ asset('js/utils.js') }}" defer></script>
+    <script src="{{ asset('js/cat.js') }}" defer></script>
     <h1>{{$revision->title}}</h1>
     <div class="links">
     <a href="{{route('articles.edit', [$wiki->url, $article->url_title])}}" class="btn btn-primary">{{__('Edit')}}</a>
@@ -41,7 +45,10 @@
     ])!!}</p>
     <!-- Категории -->
     @foreach ($categories as $cat)
-        <span class="border rounded p-1">{{ $cat->name }}</span>
+        <span class="border rounded p-1 category-item" data-cat-id="{{ $cat->id }}">
+            <span class="cat-item-body">{{ $cat->name }}</span>
+            <span class="cat-item-remove text-danger" onclick="removeCat({{ $cat->id }})">x</span>
+        </span>
     @endforeach
     <!-- Конец категорий -->
     @if ($is_comments_enabled)
