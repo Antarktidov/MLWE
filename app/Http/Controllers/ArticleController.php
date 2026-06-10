@@ -541,4 +541,21 @@ class ArticleController extends Controller
         }
     }
 
+    public function transfer_articles(Article $article) {
+        $original_wiki = Wiki::find($article->wiki_id);
+        $all_wikis = Wiki::all();
+        return view('transfer-articles', compact('original_wiki', 'article', 'all_wikis'));
+    }
+
+    public function transfer_articles_post(Article $article, Request $request) {
+        $data = $request->validate([
+            'wiki-to-transfer' => 'integer|required',
+        ]);
+        $target_wiki_id = $data['wiki-to-transfer'];
+        $article->update([
+            'wiki_id' => $target_wiki_id,
+        ]);
+        return 'Статья перемещена на другую вики';
+    }
+
 }

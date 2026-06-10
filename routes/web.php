@@ -56,6 +56,7 @@ use App\Models\Option;//волшебный код, который может п�
 
 use App\Http\Middleware\ManageMedalsMiddleware;
 use App\Http\Middleware\ManageGlobalMedalsMiddleware;
+use App\Http\Middleware\TransferArticlesMiddleware;
 
 Route::middleware([ProtectionLevel3Middleware::class])->group(function () {
 
@@ -119,6 +120,14 @@ Route::middleware([ProtectionLevel3Middleware::class])->group(function () {
     ->middleware(ViewDeletedMiddleware::class);
     Route::post('/wiki/{wikiName}/{articleName}/restore', [ArticleController::class,'restore'])->name('articles.restore')
         ->middleware(RestoreMiddleware::class);
+
+    //трансфер статей
+    Route::post('/transfer-articles/article_id/{article}', [ArticleController::class,'transfer_articles'])
+    ->name('articles.transfer.form')
+    ->middleware(TransferArticlesMiddleware::class);
+    Route::post('/transfer-articles-post/article_id/{article}', [ArticleController::class,'transfer_articles_post'])
+    ->name('articles.transfer.post')
+    ->middleware(TransferArticlesMiddleware::class);
 
     //Работа с историей правок
     Route::get('/wiki/{wikiName}/article/{articleName}/history', [RevisionController::class,'index'])->name('articles.history');
