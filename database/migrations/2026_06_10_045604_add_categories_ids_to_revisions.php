@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         $sql = <<<SQL
-        ALTER TABLE articles ADD COLUMN categories_ids BIGINT[];
+        ALTER TABLE revisions ADD COLUMN categories_ids BIGINT[];
         SQL;
         DB::statement($sql);
     }
@@ -22,6 +22,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        DB::statement('ALTER TABLE articles DROP INDEX IF EXISTS categories_ids;');
+        DB::statement('ALTER TABLE revisions DROP COLUMN IF EXISTS friends;');
     }
 };
