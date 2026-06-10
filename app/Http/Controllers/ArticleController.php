@@ -542,8 +542,9 @@ class ArticleController extends Controller
     }
 
     public function transfer_articles(Request $request, Article $article) {
-        dd($article);
-        return view('transfer-articles');
+        $original_wiki = Wiki::find($article->wiki_id);
+        $all_wikis = Wiki::all();
+        return view('transfer-articles', compact('original_wiki', 'article', 'all_wikis'));
     }
 
     public function transfer_articles_post() {
