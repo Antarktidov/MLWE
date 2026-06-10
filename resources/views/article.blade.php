@@ -19,7 +19,10 @@
     <a href="{{route('articles.edit', [$wiki->url, $article->url_title])}}" class="btn btn-primary">{{__('Edit')}}</a>
     <a href="{{route('articles.history', [$wiki->url, $article->url_title])}}" class="btn btn-secondary">{{__('History')}}</a>
     @can('transfer_articles', $wiki->url)
-    <a href="{{route('articles.transfer.form', [$wiki->url, $article->url_title])}}" class="btn btn-secondary">{{__('Transfer article')}}</a>
+    <form action="{{route('articles.transfer.form',  [$wiki->url, $article->url_title])}}" method="get">
+        <input type="hidden" name="article_id" id="article_id" value="{{ $article->id }}">
+        <button class="btn btn-secondary" type="submit">{{__('Transfer article')}}</button>
+    </form>
     @endcan
     @can('delete', $wiki->url)
     <form action="{{route('articles.destroy',  [$wiki->url, $article->url_title])}}" method="post">
