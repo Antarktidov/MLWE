@@ -47,7 +47,7 @@
     <span class="categories-list">
     @foreach ($categories as $cat)
         <span class="border rounded p-1 category-item m-1" data-cat-id="{{ $cat->id }}">
-            <span class="cat-item-body">{{ $cat->name }}</span>
+            <span class="cat-item-body"><a href="{{ route('category.show', [$wiki->url, $cat->name]) }}">{{ $cat->name }}</a></span>
             <span class="cat-item-remove text-danger" onclick="removeCat({{ $cat->id }})">x</span>
         </span>
     @endforeach

@@ -3,7 +3,7 @@
 <h1>Категория: {{ $category->name }}</h1>
 <ul>
 @foreach ($articles as $article)
-    <li>{{$article->title}}</li>
+    <li><a href="{{ route('articles.show', [$wiki->url, $article->url_title]) }}">{{$article->title}}</a></li>
 @endforeach
 </ul>
 @endsection
