@@ -15,4 +15,23 @@ class CategoryController extends Controller
         DB::statement($sql, [$category->id, $article->id]);
         return ["category removed"];
     }
+
+    public function add_category(Request $request, Article $article) {
+        $data = $request->validate([
+            'category_name' => 'string|required',
+        ]);
+        $category_name = $data['category_name'];
+
+        $category = Category::where('name', $category_name)->first();
+        if ($category == null) {
+            $category = Category::create([
+                'name' => $category_name,
+                ]);
+        }
+
+        $sql = "UPDATE articles SET categories_ids = array_append(categories_ids, ?) WHERE id = ?;";
+        DB::statement($sql, [$category->id, $article->id]);
+
+        return ["category added"];
+    }
 }

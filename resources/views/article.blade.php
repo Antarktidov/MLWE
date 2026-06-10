@@ -44,12 +44,16 @@
         'html_input' => 'strip',
     ])!!}</p>
     <!-- Категории -->
+    <span class="categories-list">
     @foreach ($categories as $cat)
-        <span class="border rounded p-1 category-item" data-cat-id="{{ $cat->id }}">
+        <span class="border rounded p-1 category-item m-1" data-cat-id="{{ $cat->id }}">
             <span class="cat-item-body">{{ $cat->name }}</span>
             <span class="cat-item-remove text-danger" onclick="removeCat({{ $cat->id }})">x</span>
         </span>
     @endforeach
+    </span>
+        <input name="new-category" class="border rounded" type="text" placeholder="new category">
+        <button class="border rounded" type="submit" onclick="addCat()">Add category</button>
     <!-- Конец категорий -->
     @if ($is_comments_enabled)
     <div id="comments"

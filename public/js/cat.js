@@ -13,3 +13,28 @@ async function removeCat(cat_id) {
             cat_selector.remove();
         }
 }
+
+async function addCat() {
+    var new_category_input = document.querySelector('[name="new-category"]');
+    var categories_list_selector = document.querySelector('.categories-list');
+    var category_name = new_category_input.value;
+    var data = {
+        'category_name': category_name
+    };
+    let response = await fetch(`/api/add_category/${article_id}`, {
+            method: 'POST',
+            headers: {
+            'Content-Type': 'application/json;charset=utf-8',
+            'X-CSRF-TOKEN': csrf_token,
+            },
+            body: JSON.stringify(data)
+        });
+        if (response.ok === true) {
+            new_category_input.value = '';
+            categories_list_selector.innerHTML += `<span class="border rounded p-1 category-item m-1" data-cat-id="0">
+                <span class="cat-item-body">${escapeHTML(category_name)}</span>
+                <span class="cat-item-remove text-danger" onclick="removeCat(0)">x</span>
+            </span>
+            `;
+        }
+}
