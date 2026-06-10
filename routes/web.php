@@ -14,6 +14,7 @@ use App\Http\Controllers\MedalController;
 use App\Http\Controllers\QuizController;
 use App\Http\Controllers\PollsController;
 use App\Http\Controllers\FriendsController;
+use App\Http\Middleware\CategoryController;
 
 use App\Http\Middleware\DeleteMiddleware;
 use App\Http\Middleware\DeleteRevisionMiddleware;
@@ -128,6 +129,10 @@ Route::middleware([ProtectionLevel3Middleware::class])->group(function () {
     Route::post('/transfer-articles-post/article_id/{article}', [ArticleController::class,'transfer_articles_post'])
     ->name('articles.transfer.post')
     ->middleware(TransferArticlesMiddleware::class);
+
+    //Категории
+    Route::post('/api/remove_category_from_article/{category}/{article}', [CategoryController::class,'remove_category_from_article'])
+    ->name('category.remove');
 
     //Работа с историей правок
     Route::get('/wiki/{wikiName}/article/{articleName}/history', [RevisionController::class,'index'])->name('articles.history');
