@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use App\Models\Article;
+use App\Models\Wiki;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -41,7 +42,13 @@ class CategoryController extends Controller
             ];
     }
 
-    public function show_category(Category $category) {
-
+    public function show_category(string $wikiName, string $CategoryName) {
+        $wiki = Wiki::where('url', $wikiName)->whereNull('deleted_at')->first();
+        $category = Category::where('name', $CategoryName)->first();
+        $sql = "SELECT * FROM articles
+        WHERE ? = ANY(categories_ids)
+        AND ? = wiki_id;";
+        $articles = DB::select($sql, [$category->id, $wiki->id]);
+        dd($articles);
     }
 }

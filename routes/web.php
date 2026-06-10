@@ -135,6 +135,9 @@ Route::middleware([ProtectionLevel3Middleware::class])->group(function () {
     ->name('category.remove');
     Route::post('/api/add_category/{article}', [CategoryController::class,'add_category'])
     ->name('category.add');
+    Route::get('/wiki/{wikiName}/category/{category}', [CategoryController::class,'show_category'])
+    ->name('category.show');
+    //show_category
 
     //Работа с историей правок
     Route::get('/wiki/{wikiName}/article/{articleName}/history', [RevisionController::class,'index'])->name('articles.history');
