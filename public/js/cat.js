@@ -29,11 +29,16 @@ async function addCat() {
             },
             body: JSON.stringify(data)
         });
+        const result = await response.json();
+        console.log(result);
+        var category_id = result[1].category_id;
+        var category_id_str = category_id.toString();
+        console.log(category_id);
         if (response.ok === true) {
             new_category_input.value = '';
-            categories_list_selector.innerHTML += `<span class="border rounded p-1 category-item m-1" data-cat-id="0">
+            categories_list_selector.innerHTML += `<span class="border rounded p-1 category-item m-1" data-cat-id="${escapeHTML(category_id_str)}">
                 <span class="cat-item-body">${escapeHTML(category_name)}</span>
-                <span class="cat-item-remove text-danger" onclick="removeCat(0)">x</span>
+                <span class="cat-item-remove text-danger" onclick="removeCat(${escapeHTML(category_id_str)})">x</span>
             </span>
             `;
         }

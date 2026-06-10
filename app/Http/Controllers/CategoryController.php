@@ -32,6 +32,9 @@ class CategoryController extends Controller
         $sql = "UPDATE articles SET categories_ids = array_append(categories_ids, ?) WHERE id = ?;";
         DB::statement($sql, [$category->id, $article->id]);
 
-        return ["category added"];
+        return [
+            "category added",
+            ["category_id" => $category->id],
+            ];
     }
 }
