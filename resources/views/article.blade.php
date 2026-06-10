@@ -39,6 +39,11 @@
     <p class="mt-3">{!!Str::of($revision->content)->markdown([
         'html_input' => 'strip',
     ])!!}</p>
+    <!-- Категории -->
+    @foreach ($categories as $cat)
+        <span class="border rounded p-1">{{ $cat->name }}</span>
+    @endforeach
+    <!-- Конец категорий -->
     @if ($is_comments_enabled)
     <div id="comments"
          data-wiki-name="{{ $wiki->url }}"
