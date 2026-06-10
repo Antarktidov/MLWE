@@ -541,4 +541,8 @@ class ArticleController extends Controller
         }
     }
 
+    public function transfer_articles() {
+        dd('Заглушка трансфера статей');
+    }
+
 }
