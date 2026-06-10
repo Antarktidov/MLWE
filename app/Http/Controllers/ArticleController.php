@@ -542,7 +542,11 @@ class ArticleController extends Controller
     }
 
     public function transfer_articles() {
-        dd('Заглушка трансфера статей');
+        return view('transfer-articles');
+    }
+
+    public function transfer_articles_post() {
+        dd('Заглушка поста трансфера статей');
     }
 
 }

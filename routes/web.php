@@ -125,6 +125,9 @@ Route::middleware([ProtectionLevel3Middleware::class])->group(function () {
     Route::get('/transfer-articles', [ArticleController::class,'transfer_articles'])
     ->name('articles.transfer.form')
     ->middleware(TransferArticlesMiddleware::class);
+    Route::post('/transfer-articles', [ArticleController::class,'transfer_articles_post'])
+    ->name('articles.transfer.post')
+    ->middleware(TransferArticlesMiddleware::class);
 
     //Работа с историей правок
     Route::get('/wiki/{wikiName}/article/{articleName}/history', [RevisionController::class,'index'])->name('articles.history');
