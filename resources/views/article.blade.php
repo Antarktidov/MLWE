@@ -13,7 +13,11 @@
                 var userAlreadyVotedInPull = {{ $userAlreadyVotedInPull ? 'true': 'false' }};
         </script>
     @endif
+    <script>
+        var article_id = {{$article->id}};
+    </script>
     <script src="{{ asset('js/utils.js') }}" defer></script>
+    <script src="{{ asset('js/cat.js') }}" defer></script>
     <h1>{{$revision->title}}</h1>
     <div class="links">
     <a href="{{route('articles.edit', [$wiki->url, $article->url_title])}}" class="btn btn-primary">{{__('Edit')}}</a>
@@ -39,6 +43,18 @@
     <p class="mt-3">{!!Str::of($revision->content)->markdown([
         'html_input' => 'strip',
     ])!!}</p>
+    <!-- Категории -->
+    <span class="categories-list">
+    @foreach ($categories as $cat)
+        <span class="border rounded p-1 category-item m-1" data-cat-id="{{ $cat->id }}">
+            <span class="cat-item-body"><a href="{{ route('category.show', [$wiki->url, $cat->name]) }}">{{ $cat->name }}</a></span>
+            <span class="cat-item-remove text-danger" onclick="removeCat({{ $cat->id }})">x</span>
+        </span>
+    @endforeach
+    </span>
+        <input name="new-category" class="border rounded m-1" type="text" placeholder="new category">
+        <button class="border rounded m-1 p-1" type="submit" onclick="addCat()">Add category</button>
+    <!-- Конец категорий -->
     @if ($is_comments_enabled)
     <div id="comments"
          data-wiki-name="{{ $wiki->url }}"

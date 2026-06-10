@@ -10,6 +10,7 @@ use App\Models\Image;
 use App\Models\Quiz;
 use App\Models\Poll;
 use App\Models\PollVote;
+use App\Models\Category;
 
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
@@ -79,6 +80,10 @@ class ArticleController extends Controller
                 ->where('url_title', $articleName)
                 ->first();
             if($article) {
+
+                $categories_ids = explode(',', substr($article->categories_ids, 1, -1));
+                $categories = Category::findMany($categories_ids);
+                //dd($categories);
 
                 $userAlreadyVotedInPull = false;
 
@@ -168,7 +173,7 @@ class ArticleController extends Controller
                         'userId', 'userName', 'userCanDeleteComments',
                         'userCanApproveComments', 'is_comments_enabled',
                         'images', 'trivia', 'poll', 'userCanVoteInPoll',
-                        'userAlreadyVotedInPull'));
+                        'userAlreadyVotedInPull', 'categories'));
                     } else {
                         return response(__('Article does not exist'), 404)
                             ->header('Content-Type', 'text/plain');
