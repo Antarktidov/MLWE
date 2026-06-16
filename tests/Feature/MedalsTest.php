@@ -11,6 +11,7 @@ use App\Models\UserUserGroupWiki;
 use App\Models\UserGroup;
 use App\Models\Wiki;
 use App\Models\Medal;
+use App\Models\UserMedal;
 
 class MedalsTest extends TestCase
 {
@@ -87,6 +88,51 @@ class MedalsTest extends TestCase
             'giver_id' => $giver->id,
             'wiki_id' => $wiki->id,
             'medal_id' => $medal->id, 
+        ]);
+    }
+
+    public function test_that_user_with_local_rights_can_take_away_local_medal(): void {
+        $giver = User::factory()->create();
+        $receiver = User::factory()->create();
+        $taker = User::factory()->create();
+
+        $wiki = Wiki::factory()->create();
+        $medal = Medal::factory()->create([
+            'wiki_id' => $wiki->id,
+        ]);
+
+        $u_group = UserGroup::factory()->create([
+            'is_global' => 0,
+            'can_manage_medals' => 1,
+        ]);
+
+        $uugw = UserUserGroupWiki::factory()->create([
+            'wiki_id' => $wiki->id,
+            'user_id' => $taker->id,
+            'user_group_id' => $u_group->id,
+        ]);
+
+        $user_medal = UserMedal::factory()->create([
+            'user_id' => $receiver->id,
+            'giver_id' => $giver->id,
+            'wiki_id' => $wiki->id,
+            'medal_id' => $medal->id, 
+        ]);
+
+        $data = [
+            'award_wiki_id' => $wiki->id,
+        ];
+
+        $this->actingAs($taker);
+
+        $response = $this->delete("wiki/{$wiki->url}/take-medal-away/{$receiver->id}/{$medal->id}", $data);
+        $response->assertStatus(200);
+
+        $this->assertDatabaseMissing('user_medals', [
+            'user_id' => $receiver->id,
+            'giver_id' => $giver->id,
+            'wiki_id' => $wiki->id,
+            'medal_id' => $medal->id,
         ]);
     }
 }
