@@ -52,7 +52,6 @@ class MedalController extends Controller
         $giver = auth()->user();
 
         $user_medal2 = UserMedal::where('medal_id', $medal_id)
-        ->where('giver_id', $giver->id)
         ->where('user_id', $user->id)
         ->where('wiki_id', 0)
         ->first();
@@ -161,7 +160,7 @@ class MedalController extends Controller
         }
 
         $user_medal2 = UserMedal::where('medal_id', $medal->id)
-            ->where('giver_id', $giver->id)
+
             ->where('user_id', $user->id)
             ->where('wiki_id', $awardWikiId)
             ->first();
