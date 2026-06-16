@@ -51,4 +51,42 @@ class MedalsTest extends TestCase
             'medal_id' => $medal->id, 
         ]);
     }
+
+    public function test_that_user_with_local_rights_can_give_local_medal(): void
+    {
+        $giver = User::factory()->create();
+        $receiver = User::factory()->create();
+
+        $wiki = Wiki::factory()->create();
+        $medal = Medal::factory()->create([
+            'wiki_id' => $wiki->id,
+        ]);
+
+        $data = [
+            'medal' => $medal->id,
+        ];
+
+        $u_group = UserGroup::factory()->create([
+            'is_global' => 0,
+            'can_manage_medals' => 1,
+        ]);
+
+        $uugw = UserUserGroupWiki::factory()->create([
+            'wiki_id' => $wiki->id,
+            'user_id' => $giver->id,
+            'user_group_id' => $u_group->id,
+        ]);
+
+        $this->actingAs($giver);
+
+        $response = $this->post("wiki/{$wiki->url}/give-medal/{$receiver->id}/", $data);
+        $response->assertStatus(200);
+
+        $this->assertDatabaseHas('user_medals', [
+            'user_id' => $receiver->id,
+            'giver_id' => $giver->id,
+            'wiki_id' => $wiki->id,
+            'medal_id' => $medal->id, 
+        ]);
+    }
 }
