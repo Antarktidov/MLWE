@@ -293,122 +293,54 @@ class ArticleController extends Controller
     //POST-ручка для формы правки статьи
     public function update($wikiName, $articleName, Request $request)
     {
-
-        $wiki = Wiki::where('url', $wikiName)->whereNull('deleted_at')->first();
-
+        $wiki = Wiki::where('url', $wikiName)->whereNull('deleted_at')->firstOrFail();
         $user = auth()->user();
 
-        if ($user != null) {
-            $can_manage_trivia = $user->can('manage_trivia', $wiki->url);
-            $can_manage_polls = $user->can('manage_polls', $wiki->url);
-        } else {
-            $can_manage_trivia = false;
-            $can_manage_polls = false;
-        }
+        $can_manage_trivia = $user?->can('manage_trivia', $wiki->url) ?? false;
+        $can_manage_polls  = $user?->can('manage_polls',  $wiki->url) ?? false;
 
-        $data;
+        // Базовые правила
+        $rules = [
+            'title'     => 'string',
+            'url_title' => 'string',
+            'content'   => 'string',
+        ];
 
-        if (!$can_manage_trivia && !$can_manage_polls) {
-            $data = request()->validate([
-                'title' => 'string',
-                'url_title' => 'string',
-                'content' => 'string',
-            ]);
-        } else if ($can_manage_trivia && !$can_manage_polls) {
-            $data = request()->validate([
-                'title' => 'string',
-                'url_title' => 'string',
-                'content' => 'string',
-                'trivia_id' => 'integer',
-            ]);
-        } else if (!$can_manage_trivia && $can_manage_polls) {
-            $data = request()->validate([
-                'title' => 'string',
-                'url_title' => 'string',
-                'content' => 'string',
-                'poll_id' => 'integer',
-            ]);
-        } else if ($can_manage_trivia && $can_manage_polls) {
-            $data = request()->validate([
-                'title' => 'string',
-                'url_title' => 'string',
-                'content' => 'string',
-                'trivia_id' => 'integer',
-                'poll_id' => 'integer',
-            ]);
-        }
+        // Добавляем поля по правам
+        if ($can_manage_trivia) $rules['trivia_id'] = 'integer';
+        if ($can_manage_polls)  $rules['poll_id']   = 'integer';
 
-        if ($wiki) {
+        $data = $request->validate($rules);
 
-            if ($can_manage_trivia && !$can_manage_polls) {
-                $my_article = [
-                    'wiki_id' => $wiki->id,
-                    'url_title' => $data['url_title'],
-                    'title' => $data['title'],
-                    'trivia_id' => $data['trivia_id'],
-                ];
-            } else if (!$can_manage_trivia && !$can_manage_polls) {
-                $my_article = [
-                    'wiki_id' => $wiki->id,
-                    'url_title' => $data['url_title'],
-                    'title' => $data['title'],
-                ];
-            } else if (!$can_manage_trivia && $can_manage_polls) {
-                $my_article = [
-                    'wiki_id' => $wiki->id,
-                    'url_title' => $data['url_title'],
-                    'title' => $data['title'],
-                    'poll_id' => $data['poll_id'],
-                ];
-            } else if ($can_manage_trivia && $can_manage_polls) {
-                $my_article = [
-                    'wiki_id' => $wiki->id,
-                    'url_title' => $data['url_title'],
-                    'title' => $data['title'],
-                    'poll_id' => $data['poll_id'],
-                    'trivia_id' => $data['trivia_id'],
-                ];
-            }
+        // Формируем массив для обновления
+        $my_article = [
+            'wiki_id'   => $wiki->id,
+            'url_title' => $data['url_title'],
+            'title'     => $data['title'],
+        ];
 
-            $my_article2 = Article::where('wiki_id', $wiki->id)
-                ->whereNull('deleted_at')
-                ->where('url_title', $articleName)
-                ->first();
+        if ($can_manage_trivia) $my_article['trivia_id'] = $data['trivia_id'];
+        if ($can_manage_polls)  $my_article['poll_id']   = $data['poll_id'];
 
-            if ($my_article2) {
+        $article = Article::where('wiki_id', $wiki->id)
+            ->whereNull('deleted_at')
+            ->where('url_title', $articleName)
+            ->firstOrFail();
 
-                $my_article2->update($my_article);
+        $article->update($my_article);
 
-                if (auth()->user() != null) {
-                    $user_id = auth()->user()->id;
-                } else {
-                    $user_id = 0;
-                }
+        Revision::create([
+            'article_id' => $article->id,
+            'title'      => $data['title'],
+            'url_title'  => $data['url_title'],
+            'content'    => $data['content'],
+            'user_id'    => $user?->id ?? 0,
+            'user_ip'    => $request->ip(),
+        ]);
 
-                $user_ip = $request->ip();
-
-                $my_revision = [
-                    'article_id' => $my_article2->id,
-                    'title' =>  $data['title'],
-                    'url_title' => $data['url_title'],
-                    'content' => $data['content'],
-                    'user_id' => $user_id,
-                    'user_ip' => $user_ip,
-                ];
-
-                Revision::create($my_revision);
-
-                return redirect()->route('articles.show', [$wiki->url, $my_article2->url_title]);
-            } else {
-                return response(__('Error'), 500)
-                    ->header('Content-Type', 'text/plain');
-            }
-
-        } else {
-            return response(__('Wiki does not exist'), 404)
-                ->header('Content-Type', 'text/plain');
-        }
+        return redirect()->route('articles.show', [$wiki->url, $article->url_title]);
     }
+
 
     //DELETE-ручка для удаления статьи
     //(требуются технические права)
