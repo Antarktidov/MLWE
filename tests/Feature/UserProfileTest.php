@@ -52,8 +52,8 @@ class UserProfileTest extends TestCase
 
         $this->actingAs($user);
 
-        $response = $this->post("/userprofile-global/{$user->id}/store");
-
+        $response = $this->post("/wiki/{$wiki->url}/userprofile/{$user->id}/store");
+        
         $response->assertStatus(200);
     }
 }
