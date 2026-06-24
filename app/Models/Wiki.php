@@ -18,4 +18,12 @@ class Wiki extends Model
     {
         return $this->hasMany(Article::class, 'wiki_id', 'id');
     }
+
+    public function scopeActive($q) {
+        return $q->whereNull('deleted_at');
+    }
+
+    public function scopeByUrl($q, $url) {
+        return $q->where('url', $url);
+    }
 }
