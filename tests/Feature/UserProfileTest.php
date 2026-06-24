@@ -30,4 +30,30 @@ class UserProfileTest extends TestCase
 
         $response->assertStatus(200);
     }
+
+    public function test_that_user_can_update_his_profile(): void
+    {
+        $user = User::factory()->create();
+
+        $wiki = Wiki::factory()->create();
+
+        $this->actingAs($user);
+
+        $response = $this->post("/userprofile-global/{$user->id}/store");
+
+        $response->assertStatus(200);
+    }
+
+    public function test_that_user_can_update_his_local_profile(): void
+    {
+        $user = User::factory()->create();
+
+        $wiki = Wiki::factory()->create();
+
+        $this->actingAs($user);
+
+        $response = $this->post("/wiki/{$wiki->url}/userprofile/{$user->id}/store");
+        
+        $response->assertStatus(200);
+    }
 }
