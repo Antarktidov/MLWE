@@ -14,8 +14,23 @@ use App\Models\UserMedal;
 
 use App\Helpers\FriendsHelper;
 
+use App\Services\PermissionService;
+use App\Services\ProfileService;
+use App\Services\GroupService;
+use App\Services\MedalService;
+use App\Services\WikiService;
+
+
 class UserProfileController extends Controller
 {
+    public function __construct(
+        private PermissionService $permissionService,
+        private ProfileService $profileService,
+        private GroupService $groupService,
+        private MedalService $medalService,
+        private WikiService $wikiService,
+    ) {}
+
     public function show_global(User $user) {
 
         $friend_status = FriendsHelper::check_friend_status_with_this_user($user);
@@ -85,92 +100,39 @@ class UserProfileController extends Controller
                                         'wiki', 'all_medals', 'friend_status'));
     }
 
-    public function show_local(string $wikiName, User $user) {
-
-        $wiki = Wiki::where('url', $wikiName)->whereNull('deleted_at')->first();
+    public function show_local(string $wikiName, User $user)
+    {
+        $wiki = $this->wikiService->getActiveWiki($wikiName);
         if (!$wiki) {
-            return response(__('Wiki does not exist'), 404)
-                ->header('Content-Type', 'text/plain');
+            return $this->wikiService->notFoundResponse();
         }
 
-        $user_group_ids = UserUserGroupWiki::where('user_id', $user->id)
-            ->whereIn('wiki_id', [0, $wiki->id])
-            ->pluck('user_group_id')
-            ->unique();
+        $viewer = auth()->user();
 
-        $user_group_names = UserGroup::whereIn('id', $user_group_ids)
-            ->pluck('name')
-            ->values()
-            ->all();
+        $permissions = $this->permissionService->profilePermissions($viewer, $user, $wiki);
+        $profiles = $this->profileService->getProfiles($user->id, $wiki->id, $permissions);
 
-        $user2 = auth()->user();
-        if ($user2 != null) {
-            $can_review_user_profiles = $user2->can('review_user_profiles', $wiki->url);
-            $is_my_profile = $user2->id === $user->id;
-        } else {
-            $can_review_user_profiles = false;
-            $is_my_profile = false;
-        }
+        $groups = $this->groupService->getUserGroups($user->id, $wiki->id);
 
-        if ($can_review_user_profiles || $is_my_profile) {
-            $user_profile = $this->latestProfileRevision($user->id, 0);
-            $user_profile_local = $this->latestProfileRevision($user->id, $wiki->id);
-        } else {
-            $user_profile = $this->latestProfileRevision($user->id, 0, true);
-            $user_profile_local = $this->latestProfileRevision($user->id, $wiki->id, true);
-        }
+        $medals = $this->medalService->getUserMedalsWithMeta($user->id, $wiki->id);
+        $allMedals = $this->medalService->getAllMedals($wiki->id);
 
-        if ($user2 != null) {
-            $can_manage_global_medals = $user2->can('manage_global_medals', $wiki->url);
-            $can_manage_medals = $user2->can('manage_medals', $wiki->url);
-        } else {
-            $can_manage_global_medals = false;
-            $can_manage_medals = false;
-        }
-
-        $user_medals = UserMedal::where('user_id', $user->id)
-            ->where(function ($query) use ($wiki) {
-                $query->where('wiki_id', 0)
-                    ->orWhere('wiki_id', $wiki->id);
-            })
-            ->orderByRaw('CASE WHEN wiki_id = 0 THEN 0 ELSE 1 END')
-            ->orderBy('id')
-            ->get();
-
-        $medals = [];
-        $medal_by_id = Medal::whereIn('id', $user_medals->pluck('medal_id')->unique())
-            ->get()
-            ->keyBy('id');
-        $giver_by_id = User::whereIn('id', $user_medals->pluck('giver_id')->filter()->unique())
-            ->get()
-            ->keyBy('id');
-
-        foreach ($user_medals as $um) {
-            $medal = $medal_by_id->get($um->medal_id);
-            if ($medal) {
-                $medal_with_meta = clone $medal;
-                $giver = $giver_by_id->get($um->giver_id);
-                if ($giver) {
-                    $medal_with_meta->giver_name = $giver->name;
-                    $medal_with_meta->giver_id = $giver->id;
-                } else {
-                    $medal_with_meta->giver_name = '?';
-                    $medal_with_meta->giver_id = null;
-                }
-                $medal_with_meta->award_wiki_id = $um->wiki_id;
-                $medals[] = $medal_with_meta;
-            }
-        }
-
-        $all_medals_global = Medal::where('wiki_id', 0)->orderBy('name')->get();
-        $all_medals_local = Medal::where('wiki_id', $wiki->id)->orderBy('name')->get();
-        //dd($all_medals_local);
-
-        return view('userprofile', compact('user_profile', 'user_profile_local', 'user',
-                                        'user_group_names', 'can_review_user_profiles',
-                                        'is_my_profile', 'wiki', 'medals', 'can_manage_global_medals',
-                                        'can_manage_medals', 'all_medals_global', 'all_medals_local'));
+        return view('userprofile', [
+            'user' => $user,
+            'wiki' => $wiki,
+            'user_group_names' => $groups,
+            'user_profile' => $profiles['global'],
+            'user_profile_local' => $profiles['local'],
+            'can_review_user_profiles' => $permissions['can_review'],
+            'is_my_profile' => $permissions['is_my_profile'],
+            'can_manage_global_medals' => $permissions['can_manage_global_medals'],
+            'can_manage_medals' => $permissions['can_manage_medals'],
+            'medals' => $medals,
+            'all_medals_global' => $allMedals['global'],
+            'all_medals_local' => $allMedals['local'],
+        ]);
     }
+
 
     public function approve(UserProfileRevision $up_rev) {
         $up_rev->update([
@@ -330,7 +292,7 @@ class UserProfileController extends Controller
             ->header('Content-Type', 'text/plain');
     }
 
-    private function latestProfileRevision(int $userId, int $wikiId, bool $onlyApproved = false): ?UserProfileRevision
+    public static function latestProfileRevision(int $userId, int $wikiId, bool $onlyApproved = false): ?UserProfileRevision
     {
         $query = UserProfileRevision::where('user_id', $userId)
             ->where('wiki_id', $wikiId)
