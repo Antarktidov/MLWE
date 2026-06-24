@@ -31,4 +31,16 @@ class Article extends Model
         return $this->hasMany(Comment::class, 'article_id', 'id');
     }
 
+    public function scopeActive($q) {
+        return $q->whereNull('deleted_at');
+    }
+
+    public function scopeByWiki($q, Wiki $wiki) {
+        return $q->where('wiki_id', $wiki->id);
+    }
+
+    public function scopeByUrl($q, $url) {
+        return $q->where('url_title', $url);
+    }
+
 }

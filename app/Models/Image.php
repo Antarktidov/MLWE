@@ -11,4 +11,10 @@ class Image extends Model
     use HasFactory;
     use SoftDeletes;
     protected $guarded = false;
+
+    public function scopeApproved($query)
+    {
+        return $query->where('is_approved', true);
+    }
+
 }

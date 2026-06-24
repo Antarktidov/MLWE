@@ -15,8 +15,24 @@ use App\Models\Category;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
 
+use App\Services\PermissionService;
+use App\Services\RevisionService;
+use App\Services\PollService;
+use App\Services\CategoryService;
+use App\Services\UserService;
+use App\Services\TriviaService;
+
 class ArticleController extends Controller
 {
+    public function __construct(
+        private PermissionService $permissionService,
+        private RevisionService $revisionService,
+        private PollService $pollService,
+        private CategoryService $categoryService,
+        private UserService $userService,
+        private TriviaService $triviaService,
+    ) {}
+
     //Заглавная конкретной вики: список всех статей
     //(Аналог Служебная:Все страницы)
     public function index(string $wikiName) {
@@ -71,121 +87,34 @@ class ArticleController extends Controller
     }
 
     //Показывает вики-страницу
-    public function show(string $wikiName, string $articleName) {
-        $wiki = Wiki::where('url', $wikiName)->whereNull('deleted_at')->first();
+    public function show(string $wikiName, string $articleName)
+    {
+        $wiki = Wiki::active()->byUrl($wikiName)->firstOrFail();
+        $article = Article::active()->byWiki($wiki)->byUrl($articleName)->firstOrFail();
+
         $user = auth()->user();
-        if ($wiki) {
-            $article = Article::where('wiki_id', $wiki->id)
-                ->whereNull('deleted_at')
-                ->where('url_title', $articleName)
-                ->first();
-            if($article) {
+        $userId = $user->id ?? 0;
+        $userName = $user->name ?? 'Анонимный участник';
+        $userCanDeleteComments  = $user?->can('delete_comments',  $wiki->url) ?? false;
+        $userCanApproveComments  = $user?->can('approve_comments',  $wiki->url) ?? false;
 
-                $categories_ids = explode(',', substr($article->categories_ids, 1, -1));
-                $categories = Category::findMany($categories_ids);
-                //dd($categories);
+        $permissions = $this->permissionService->getArticlePermissions($user, $wiki, $article);
+        $revision = $this->revisionService->getVisibleRevision($article, $permissions);
+        $poll = $this->pollService->getPollData($article, $user);
+        $trivia = $this->triviaService->getTrivia($article);
+        $categories = $this->categoryService->getCategories($article);
+        $userInfo = $this->userService->getUserInfo($user, $wiki);
+        $options = Option::getOptions();
+        $is_comments_enabled = $options->is_comments_enabled;
+        $images = Image::approved()->latest()->limit(5)->get();
 
-                $userAlreadyVotedInPull = false;
-
-                if ($user != null) {
-                    $can_check_revisions = $user->can('check_revisions', $wiki->url);
-                    $userCanApproveComments = $user->can('check_comments', $wiki->url);
-
-                    if ($article->poll_id !== 0) {
-                        $pv = PollVote::where('user_id', $user->id)
-                        ->where('poll_id', $article->poll_id)
-                        ->first();
-
-                        if ($pv != null) {
-                            $userCanVoteInPoll = false;
-                            $userAlreadyVotedInPull = true;
-                        } else {
-                            $userCanVoteInPoll = true;
-                        }
-                    } else {
-                        $userCanVoteInPoll = false;
-                    }
-
-                } else {
-                    $can_check_revisions = false;
-                    $userCanApproveComments = false;
-                    $userCanVoteInPoll = false;
-                }
-
-                    if ($article->trivia_id !== 0) {
-                        $trivia = Quiz::find($article->trivia_id);
-                    } else {
-                        $trivia = null;
-                    }
-
-                    if ($article->poll_id !== 0) {
-                        $poll = Poll::find($article->poll_id);
-                        $poll['variants']= explode(',', substr($poll->variants, 1, -1));
-                    } else {
-                        $poll = null;
-                    }
-
-                    if ($can_check_revisions) {
-                        $revision = Revision::where('article_id', $article->id)
-                        //->where('deleted_at', '')
-                        ->whereNull('deleted_at')
-                        ->orderBy('id', 'desc')->first();
-                    } else {
-                        if ($user != null) {
-                            $revision = Revision::where('article_id', $article->id)
-                            //->where('deleted_at', '')
-                            ->whereNull('deleted_at')
-                            ->where('is_approved', true)
-                            ->orderBy('id', 'desc')->first();
-                        } else {
-                            $revision = Revision::where('article_id', $article->id)
-                            //->where('deleted_at', '')
-                            ->whereNull('deleted_at')
-                            ->where('is_approved', true)
-                            ->where('is_patrolled', true)
-                            ->orderBy('id', 'desc')->first();
-                        }
-                    }
-                    
-                    //$user = auth()->user();
-
-                    if ($user != null) {
-                        $userId = $user->id;
-                        $userName = $user->name;
-                        $userCanDeleteComments = $user->can('delete_comments', $wiki->url);
-                    } else {
-                        $userId = 0;
-                        $userName = 'Анонимный участник';
-                        $userCanDeleteComments = false;
-                    }
-
-                    if ($revision) {
-                        $options = Option::getOptions();
-                        $images = Image::where('is_approved', true)
-                        ->whereNull('deleted_at')
-                        ->orderBy('id', 'desc')
-                        ->limit(5)
-                        ->get();
-                        
-                        $is_comments_enabled = $options->is_comments_enabled;
-
-                        return view('article', compact('revision', 'wiki', 'article',
-                        'userId', 'userName', 'userCanDeleteComments',
-                        'userCanApproveComments', 'is_comments_enabled',
-                        'images', 'trivia', 'poll', 'userCanVoteInPoll',
-                        'userAlreadyVotedInPull', 'categories'));
-                    } else {
-                        return response(__('Article does not exist'), 404)
-                            ->header('Content-Type', 'text/plain');
-                    }
-            } else {
-                return response(__('Article does not exist'), 404)
-                    ->header('Content-Type', 'text/plain');
-            }
-        } else {
-            return response(__('Wiki does not exist'), 404)
-                ->header('Content-Type', 'text/plain');
-        }
+        return view('article', compact(
+            'revision', 'wiki', 'article', 'categories',
+            'poll', 'trivia', 'permissions', 'userInfo',
+            'options', 'images', 'is_comments_enabled',
+            'userId', 'userName', 'userCanDeleteComments',
+            'userCanApproveComments'
+        ));
     }
 
     //Форма создания статьи
