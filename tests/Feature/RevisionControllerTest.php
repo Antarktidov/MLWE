@@ -85,4 +85,51 @@ class RevisionControllerTest extends TestCase
             'is_patrolled' => false,
         ]);
     }
+
+    public function test_that_user_with_patrol_right_can_patrol_revision(): void
+    {
+        $user = User::factory()->create();
+        $wiki = Wiki::factory()->create();
+
+        $article = Article::factory()->create([
+            'wiki_id' => $wiki->id,
+        ]);
+        $revision = Revision::factory()->create([
+            'article_id' => $article->id,
+            'user_ip' => '127.0.0.1',
+            'user_id' => $user->id,
+            'title' =>  $article->title,
+            'url_title' =>  $article->url_title,
+            'is_approved' => true,
+            'is_patrolled' => false,
+        ]);
+
+        $ug = UserGroup::factory()->create([
+            'is_global' => false,
+            'can_patrol_revisions' => true,
+            'name' => 'approver',
+        ]);
+
+        UserUserGroupWiki::factory()->create([
+            'wiki_id' => $wiki->id,
+            'user_id' => $user->id,
+            'user_group_id' => $ug->id,
+        ]);
+
+        $this->actingAs($user);
+
+        $response = $this->post("/wiki/{$wiki->url}/{$article->url_title}/{$revision->id}/patrol");
+
+        $response->assertStatus(200);
+
+        $this->assertDatabaseHas('revisions', [
+            'article_id' => $article->id,
+            'user_ip' => '127.0.0.1',
+            'user_id' => $user->id,
+            'title' =>  $article->title,
+            'url_title' =>  $article->url_title,
+            'is_approved' => true,
+            'is_patrolled' => true,
+        ]);
+    }
 }
