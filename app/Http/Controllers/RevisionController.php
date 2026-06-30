@@ -153,6 +153,50 @@ class RevisionController extends Controller
         }
     }
 
+    public function index_blog(string $wikiName, User $author,  string $articleName, string $namespace = 'blog')
+    {
+        $wiki = Wiki::where('url', $wikiName)->whereNull('deleted_at')->first();
+        if ($wiki) {
+            $article = Article::where('wiki_id', $wiki->id)
+            ->where('url_title', $articleName)
+            ->where('namespace', 'blog')
+            ->where('author_id', $author->id)
+            ->first();
+            if ($article) {
+                $user = auth()->user();
+                if ($user != null) {
+                    $can_check_revisions = $user->can('check_revisions', $wiki->url);
+                } else {
+                    $can_check_revisions = false;
+                }
+
+                $revisionsQuery = Revision::where('article_id', $article->id)
+                    ->whereNull('deleted_at');
+
+                if (!$can_check_revisions) {
+                    $revisionsQuery->where('is_approved', true);
+                }
+
+                $revisions = $revisionsQuery->get();
+                if ($revisions->isNotEmpty()) {
+                    $users = User::all();
+                    $view = $namespace === 'blog' ? 'blogs.history' : 'history';
+
+                    return view($view, compact('article', 'revisions', 'users', 'wiki'));
+                } else {
+                    return response(__('Article does not exist'), 404)
+                    ->header('Content-Type', 'text/plain');
+                }
+            } else {
+                return response(__('Article does not exist'), 404)
+                    ->header('Content-Type', 'text/plain');
+            }
+        } else {
+            return response(__('Wiki does not exist'), 404)
+                ->header('Content-Type', 'text/plain');
+        }
+    }
+
     public function show_deleted_hist(string $wikiName, string $articleName, string $namespace = 'article')
     {
         $wiki = Wiki::where('url', $wikiName)->whereNull('deleted_at')->first();

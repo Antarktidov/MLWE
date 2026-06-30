@@ -13,9 +13,6 @@
             <th scope="col">{{ __('User IP') }}</th>
             @endcan
             <th scope="col">{{ __('Time and data (UTC)') }}</th>
-            @can('delete_revisions', $wiki->url)
-            <th scope="col"></th>
-            @endcan
             @can('check_revisions', $wiki->url)
             <th scope="col"></th>
             @endcan
@@ -49,15 +46,6 @@
             <th scope="row">{{ $revision->user_ip }}</th>
             @endcan
             <th scope="row">{{ $revision->created_at }}</th>
-            @can('delete_revisions', $wiki->url)
-            <th scope="row">
-              <form action="{{ route('blogs.revision.delete', [$wiki->url, $article->url_title, $revision->id]) }}" method="post">
-                @csrf
-                @method('delete')
-                <button class="btn btn-danger" type="submit">{{ __('Delete') }}</button>
-            </form>
-            </th>
-            @endcan
             @can('check_revisions', $wiki->url)
             <th scope="row">
               @if ($revision->is_approved)
