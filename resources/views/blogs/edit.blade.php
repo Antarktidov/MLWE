@@ -1,7 +1,7 @@
 @extends('layouts.app')
 @section('content')
 <h1>{{ __('Edit blog') }}</h1>
-<form action="{{ route('blogs.update', [$wiki->url, $article->url_title]) }}" method="post">
+<form action="{{ route('blogs.update', [$wiki->url, $author->id, $article->url_title]) }}" method="post">
     @csrf
     <div class="mb-3">
       <label for="title" class="form-label">{{ __('Title') }}</label>

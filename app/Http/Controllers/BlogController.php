@@ -81,11 +81,12 @@ class BlogController extends Controller
         return view('blogs.index', compact('articles', 'wiki'));
     }
 
-    public function show(string $wikiName, string $articleName)
+    public function show(string $wikiName, User $author, string $articleName)
     {
         $wiki = Wiki::active()->byUrl($wikiName)->firstOrFail();
         $article = Article::active()->byWiki($wiki)->byUrl($articleName)
             ->byNS(self::NS)
+            ->where('author_id', $author->id)
             ->firstOrFail();
 
         $user = auth()->user();
@@ -171,10 +172,10 @@ class BlogController extends Controller
             'is_patrolled' => true,
         ]);
 
-        return redirect()->route('blogs.show', [$wiki->url, $created_article->url_title]);
+        return redirect()->route('blogs.show', [$wiki->url, $user->id, $created_article->url_title]);
     }
 
-    public function edit(string $wikiName, string $articleName)
+    public function edit(string $wikiName, User $author, string $articleName)
     {
         $user = auth()->user();
         if (!$user) {
@@ -192,6 +193,7 @@ class BlogController extends Controller
             ->whereNull('deleted_at')
             ->where('url_title', $articleName)
             ->where('namespace', self::NS)
+            ->where('author_id', $author->id)
             ->first();
 
         if (!$article) {
@@ -224,10 +226,10 @@ class BlogController extends Controller
                 ->header('Content-Type', 'text/plain');
         }
 
-        return view('blogs.edit', compact('article', 'revision', 'wiki'));
+        return view('blogs.edit', compact('article', 'revision', 'wiki', 'author'));
     }
 
-    public function update(string $wikiName, string $articleName, Request $request)
+    public function update(string $wikiName, User $author, string $articleName, Request $request)
     {
         $wiki = Wiki::where('url', $wikiName)->whereNull('deleted_at')->firstOrFail();
         $user = auth()->user();
@@ -241,6 +243,7 @@ class BlogController extends Controller
             ->whereNull('deleted_at')
             ->where('url_title', $articleName)
             ->where('namespace', self::NS)
+            ->where('author_id', $author->id)
             ->firstOrFail();
 
         if (!$this->canEditBlog($user, $wiki, $article)) {
@@ -291,10 +294,10 @@ class BlogController extends Controller
             'is_patrolled' => true,
         ]);
 
-        return redirect()->route('blogs.show', [$wiki->url, $article->url_title]);
+        return redirect()->route('blogs.show', [$wiki->url, $author->id, $article->url_title]);
     }
 
-    public function destroy(string $wikiName, string $articleName): Response
+    public function destroy(string $wikiName, User $author, string $articleName): Response
     {
         $user = auth()->user();
         if (!$user) {
@@ -312,6 +315,7 @@ class BlogController extends Controller
             ->whereNull('deleted_at')
             ->where('url_title', $articleName)
             ->where('namespace', self::NS)
+            ->where('author_id', $author->id)
             ->first();
 
         if (!$article) {
@@ -363,7 +367,7 @@ class BlogController extends Controller
         return view('blogs.trash', compact('articles', 'wiki'));
     }
 
-    public function show_deleted(string $wikiName, string $articleName)
+    public function show_deleted(string $wikiName, User $author, string $articleName)
     {
         $wiki = Wiki::where('url', $wikiName)->first();
         if (!$wiki) {
@@ -378,12 +382,15 @@ class BlogController extends Controller
             ->where('wiki_id', $wiki->id)
             ->where('namespace', self::NS)
             ->where('url_title', $articleName)
+            ->where('author_id', $author->id)
             ->first();
 
         if (!$article) {
             return response(__('Article does not exist'), 404)
                 ->header('Content-Type', 'text/plain');
         }
+
+        $author = User::find($article->author_id);
 
         if ($can_check_revisions) {
             $revision = Revision::where('article_id', $article->id)
@@ -405,10 +412,11 @@ class BlogController extends Controller
 
         $canEditBlog = $user && $this->canEditBlog($user, $wiki, $article);
 
-        return view('blogs.deleted', compact('revision', 'wiki', 'article', 'canEditBlog'));
+        return view('blogs.deleted', compact('revision', 'wiki', 'article',
+        'author', 'canEditBlog'));
     }
 
-    public function restore(string $wikiName, string $articleName): Response
+    public function restore(string $wikiName, User $author, string $articleName): Response
     {
         $user = auth()->user();
         if (!$user) {
@@ -426,6 +434,7 @@ class BlogController extends Controller
             ->where('wiki_id', $wiki->id)
             ->where('url_title', $articleName)
             ->where('namespace', self::NS)
+            ->where('author_id', $author->id)
             ->first();
 
         if (!$article) {

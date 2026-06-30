@@ -125,42 +125,42 @@ Route::middleware([ProtectionLevel3Middleware::class])->group(function () {
 
     //Работа с блогами на викиях
     Route::get('/wiki/{wikiName}/all-blogs', [BlogController::class, 'index'])->name('blogs.index');
-    Route::get('/wiki/{wikiName}/blog/{articleName}', [BlogController::class, 'show'])->name('blogs.show');
-    Route::get('/wiki/{wikiName}/blog/{articleName}/edit', [BlogController::class, 'edit'])->name('blogs.edit')
+    Route::get('/wiki/{wikiName}/blog/{author}/{articleName}', [BlogController::class, 'show'])->name('blogs.show');
+    Route::get('/wiki/{wikiName}/blog/{author}/{articleName}/edit', [BlogController::class, 'edit'])->name('blogs.edit')
         ->middleware(['auth', ProtectionLevel1Middleware::class, ProtectionLevel2Middleware::class]);
     Route::get('/wiki/{wikiName}/create-blog', [BlogController::class, 'create'])->name('blogs.create')
         ->middleware(['auth', ProtectionLevel1Middleware::class, ProtectionLevel2Middleware::class]);
     Route::post('/wiki/{wikiName}/store-blog', [BlogController::class, 'store'])->name('blogs.store')
         ->middleware(['auth', ProtectionLevel1Middleware::class]);
-    Route::post('/wiki/{wikiName}/update/{articleName}/blog/edit', [BlogController::class, 'update'])->name('blogs.update')
+    Route::post('/wiki/{wikiName}/update/{author}/{articleName}/blog/edit', [BlogController::class, 'update'])->name('blogs.update')
         ->middleware(['auth', ProtectionLevel1Middleware::class, ProtectionLevel2Middleware::class]);
-    Route::delete('/wiki/{wikiName}/blog/{articleName}/destroy', [BlogController::class, 'destroy'])->name('blogs.destroy')
+    Route::delete('/wiki/{wikiName}/blog/{author}/{articleName}/destroy', [BlogController::class, 'destroy'])->name('blogs.destroy')
         ->middleware('auth');
     Route::get('/wiki/{wikiName}/blog-trash', [BlogController::class, 'trash'])->name('blogs.trash')
         ->middleware(ViewDeletedMiddleware::class);
-    Route::get('/wiki/{wikiName}/blog-trash/{articleName}', [BlogController::class, 'show_deleted'])
+    Route::get('/wiki/{wikiName}/blog-trash/{author}/{articleName}', [BlogController::class, 'show_deleted'])
         ->name('blogs.trash.show')
         ->middleware(ViewDeletedMiddleware::class);
-    Route::post('/wiki/{wikiName}/blog/{articleName}/restore', [BlogController::class, 'restore'])->name('blogs.restore')
+    Route::post('/wiki/{wikiName}/blog/{author}/{articleName}/restore', [BlogController::class, 'restore'])->name('blogs.restore')
         ->middleware('auth');
 
     //Работа с историей правок блогов
-    Route::get('/wiki/{wikiName}/blog/{articleName}/history', [RevisionController::class, 'index'])
+    Route::get('/wiki/{wikiName}/blog/{author}/{articleName}/history', [RevisionController::class, 'index'])
         ->defaults('namespace', 'blog')
         ->name('blogs.history');
-    Route::get('/wiki/{wikiName}/blog-trash/{articleName}/history', [RevisionController::class, 'show_deleted_hist'])
+    Route::get('/wiki/{wikiName}/blog-trash/{author}/{articleName}/history', [RevisionController::class, 'show_deleted_hist'])
         ->defaults('namespace', 'blog')
         ->name('blogs.deleted.history')
         ->middleware(ViewDeletedMiddleware::class);
-    Route::get('/wiki/{wikiName}/blog/{articleName}/deleted_history', [RevisionController::class, 'trash'])
+    Route::get('/wiki/{wikiName}/blog/{author}/{articleName}/deleted_history', [RevisionController::class, 'trash'])
         ->defaults('namespace', 'blog')
         ->name('blogs.trash.edits')
         ->middleware(ViewDeletedRevisionsMiddleware::class);
-    Route::delete('/wiki/{wikiName}/blog/{articleName}/{revisionId}/destroy', [RevisionController::class, 'destroy'])
+    Route::delete('/wiki/{wikiName}/blog/{author}/{articleName}/{revisionId}/destroy', [RevisionController::class, 'destroy'])
         ->defaults('namespace', 'blog')
         ->name('blogs.revision.delete')
         ->middleware(DeleteRevisionMiddleware::class);
-    Route::post('/wiki/{wikiName}/blog/{articleName}/{revisionId}/restore', [RevisionController::class, 'restore'])
+    Route::post('/wiki/{wikiName}/blog/{author}/{articleName}/{revisionId}/restore', [RevisionController::class, 'restore'])
         ->defaults('namespace', 'blog')
         ->name('blogs.revision.restore')
         ->middleware(RestoreRevisionMiddleware::class);
@@ -175,7 +175,7 @@ Route::middleware([ProtectionLevel3Middleware::class])->group(function () {
         ->defaults('namespace', 'blog')
         ->name('blogs.revision.patrol')
         ->middleware(PatrolRevisionMiddleware::class);
-    Route::post('/wiki/{wikiName}/blog/{articleName}/{revisionId}/depatrol', [RevisionController::class, 'depatrol'])
+    Route::post('/wiki/{wikiName}/blog/{author}/{articleName}/{revisionId}/depatrol', [RevisionController::class, 'depatrol'])
         ->defaults('namespace', 'blog')
         ->name('blogs.revision.depatrol')
         ->middleware(PatrolRevisionMiddleware::class);

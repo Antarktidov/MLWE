@@ -17,10 +17,10 @@
     @endphp
     <tr>
         <th scope="row">{{ $article->id }}</th>
-        <th scope="row"><a href="{{ route('blogs.show', [$wiki->url, $article->url_title]) }}">{{ $article->title }}</a></th>
+        <th scope="row"><a href="{{ route('blogs.show', [$wiki->url, $author->id,  $article->url_title]) }}">{{ $article->title }}</a></th>
         <th scope="row">
             @if ($author)
-                <a href="{{ route('userprofile.local.show', [$wiki->url, $author->id]) }}">{{ $author->name }}</a>
+                <a href="{{ route('userprofile.local.show', [$wiki->url,  $author->id, $author->id]) }}">{{ $author->name }}</a>
             @else
                 —
             @endif
