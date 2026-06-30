@@ -22,7 +22,7 @@
     <div class="links">
         @if ($canEditBlog)
             <a href="{{ route('blogs.edit', [$wiki->url, $author->id, $article->url_title]) }}" class="btn btn-primary">{{ __('Edit') }}</a>
-            <!--<a href=" route('blogs.history', [$wiki->url, $author->id, $article->url_title]) " class="btn btn-secondary"> __('History') </a>-->
+            <a href="{{ route('blogs.history', [$wiki->url, $author->id, $article->url_title]) }}" class="btn btn-secondary">{{ __('History') }}</a>
             <form action="{{ route('blogs.destroy', [$wiki->url, $author->id, $article->url_title]) }}" method="post">
                 @csrf
                 @method('delete')
