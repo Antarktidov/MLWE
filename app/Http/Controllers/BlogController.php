@@ -523,8 +523,10 @@ class BlogController extends Controller
         INNER JOIN (
             SELECT article_id, MAX(created_at) as max_created_at
             FROM revisions
+            WHERE is_approved = true
             GROUP BY article_id
         ) r2 ON r1.article_id = r2.article_id AND r1.created_at = r2.max_created_at
+        WHERE r1.is_approved = true
     ) as last_revision'), 'articles.id', '=', 'last_revision.article_id')
     ->leftJoin(DB::raw('(
         SELECT r1.* 
@@ -532,19 +534,22 @@ class BlogController extends Controller
         INNER JOIN (
             SELECT article_id, MAX(created_at) as max_created_at
             FROM revisions
-            WHERE created_at < (
+            WHERE is_approved = true
+            AND created_at < (
                 SELECT MAX(created_at)
                 FROM revisions r3
                 WHERE r3.article_id = revisions.article_id
+                AND r3.is_approved = true
             )
             GROUP BY article_id
         ) r2 ON r1.article_id = r2.article_id AND r1.created_at = r2.max_created_at
+        WHERE r1.is_approved = true
     ) as prev_revision'), 'articles.id', '=', 'prev_revision.article_id')
     ->whereExists(function ($query) {
         $query->select(DB::raw('1'))
             ->from('revisions')
             ->whereColumn('revisions.article_id', 'articles.id')
-            ->where('revisions.is_approved', true); // Исправлено: true вместо "1"
+            ->where('revisions.is_approved', true);
     })
     ->paginate(5);
         }
