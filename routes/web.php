@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\WikisController;
 use App\Http\Controllers\ArticleController;
+use App\Http\Controllers\BlogController;
 use App\Http\Controllers\RevisionController;
 use App\Http\Controllers\ImageController;
 use App\Http\Controllers\UserRightsController;
@@ -121,6 +122,27 @@ Route::middleware([ProtectionLevel3Middleware::class])->group(function () {
     ->middleware(ViewDeletedMiddleware::class);
     Route::post('/wiki/{wikiName}/{articleName}/restore', [ArticleController::class,'restore'])->name('articles.restore')
         ->middleware(RestoreMiddleware::class);
+
+    //Работа с блогами на викиях
+    Route::get('/wiki/{wikiName}/all-blogs', [BlogController::class, 'index'])->name('blogs.index');
+    Route::get('/wiki/{wikiName}/blog/{articleName}', [BlogController::class, 'show'])->name('blogs.show');
+    Route::get('/wiki/{wikiName}/blog/{articleName}/edit', [BlogController::class, 'edit'])->name('blogs.edit')
+        ->middleware(['auth', ProtectionLevel1Middleware::class, ProtectionLevel2Middleware::class]);
+    Route::get('/wiki/{wikiName}/create-blog', [BlogController::class, 'create'])->name('blogs.create')
+        ->middleware(['auth', ProtectionLevel1Middleware::class, ProtectionLevel2Middleware::class]);
+    Route::post('/wiki/{wikiName}/store-blog', [BlogController::class, 'store'])->name('blogs.store')
+        ->middleware(['auth', ProtectionLevel1Middleware::class]);
+    Route::post('/wiki/{wikiName}/update/{articleName}/blog/edit', [BlogController::class, 'update'])->name('blogs.update')
+        ->middleware(['auth', ProtectionLevel1Middleware::class, ProtectionLevel2Middleware::class]);
+    Route::delete('/wiki/{wikiName}/blog/{articleName}/destroy', [BlogController::class, 'destroy'])->name('blogs.destroy')
+        ->middleware('auth');
+    Route::get('/wiki/{wikiName}/blog-trash', [BlogController::class, 'trash'])->name('blogs.trash')
+        ->middleware(ViewDeletedMiddleware::class);
+    Route::get('/wiki/{wikiName}/blog-trash/{articleName}', [BlogController::class, 'show_deleted'])
+        ->name('blogs.trash.show')
+        ->middleware(ViewDeletedMiddleware::class);
+    Route::post('/wiki/{wikiName}/blog/{articleName}/restore', [BlogController::class, 'restore'])->name('blogs.restore')
+        ->middleware('auth');
 
     //трансфер статей
     Route::post('/transfer-articles/article_id/{article}', [ArticleController::class,'transfer_articles'])
