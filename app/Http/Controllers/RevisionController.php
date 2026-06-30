@@ -162,10 +162,16 @@ class RevisionController extends Controller
             ->where('namespace', 'blog')
             ->where('author_id', $author->id)
             ->first();
+
             if ($article) {
                 $user = auth()->user();
                 if ($user != null) {
                     $can_check_revisions = $user->can('check_revisions', $wiki->url);
+                    if ($user->id === $author->id || $user->can('edit_other_users_blogs', $wiki->url)) {
+                        //
+                    } else {
+                        abort(403);
+                    }
                 } else {
                     $can_check_revisions = false;
                 }
