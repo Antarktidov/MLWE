@@ -23,6 +23,7 @@ class CommentsController extends Controller
 
         $article = Article::where('wiki_id', $wiki->id)
             ->where('url_title', $articleName)
+            ->where('namespace', 'article')
             ->whereNull('deleted_at')
             ->first();
 
@@ -107,6 +108,7 @@ class CommentsController extends Controller
         if ($wiki) {
             $article = Article::where('wiki_id', $wiki->id)
             ->where('url_title', $articleName)
+            ->where('namespace', 'article')
             ->whereNull('deleted_at')
             ->first();
 
@@ -156,6 +158,7 @@ class CommentsController extends Controller
         if ($wiki) {
             $article = Article::where('wiki_id', $wiki->id)
             ->where('url_title', $articleName)
+            ->where('namespace', 'article')
             ->whereNull('deleted_at')
             ->first();
 
@@ -193,6 +196,7 @@ class CommentsController extends Controller
         if ($wiki) {
             $article = Article::where('wiki_id', $wiki->id)
             ->where('url_title', $articleName)
+            ->where('namespace', 'article')
             ->whereNull('deleted_at')
             ->first();
 
