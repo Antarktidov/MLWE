@@ -13,7 +13,14 @@
     <div class="blog">
         <a href="{{ route('blogs.show', [$wiki->url, $blog->author_id, $blog->url_title]) }}">
             <h2>{{$blog->title}}</h2>
-            <div class="content">{{$blog->last_revision_content}}</div>
+            <div class="content">@php
+        $content = $blog->last_revision_content;
+        $content = Str::of($content)->markdown([
+            'html_input' => 'strip',
+        ]);
+        $content = preg_replace('/<a\b[^>]*>(.*?)<\/a>/is', '$1', $content);
+        @endphp
+        {!! $content !!}</div>
         </a>
     </div>
 </section>
