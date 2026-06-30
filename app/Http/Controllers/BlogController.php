@@ -473,10 +473,17 @@ class BlogController extends Controller
         $can_check_revisions = $user?->can('check_revisions', $wiki->url) ?? false;
 
         if ($can_check_revisions) {
-            $articles = Article::where('wiki_id', $wiki->id)
-                ->where('namespace', self::NS)
-                ->whereNull('deleted_at')
-                ->where('author_id', $author->id)
+            $articles = DB::table('articles')
+                ->select('articles.*')
+                ->where('articles.wiki_id', $wiki->id)
+                ->where('articles.namespace', self::NS)
+                ->where('articles.author_id', $author->id)
+                ->whereNull('articles.deleted_at')
+                ->whereExists(function ($query) {
+                    $query->select(DB::raw(1))
+                        ->from('revisions')
+                        ->whereColumn('revisions.article_id', 'articles.id');
+                })
                 ->paginate(5);
         } elseif ($user != null) {
             $articles = DB::table('articles')
@@ -508,9 +515,8 @@ class BlogController extends Controller
                 })
                 ->paginate(5);
         }
-
         dd($articles);
 
-        return view('blogs.index', compact('articles', 'wiki'));
+        return view('blogs.user_blog', compact('articles', 'wiki', 'author'));
     }
 }
