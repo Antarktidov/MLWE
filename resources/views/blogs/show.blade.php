@@ -18,13 +18,7 @@
     </script>
     <script src="{{ asset('js/utils.js') }}" defer></script>
     <script src="{{ asset('js/cat.js') }}" defer></script>
-    <h1>{{ $revision->title }}</h1>
-    @if ($author)
-        <p class="text-secondary">
-            {{ __('Author') }}:
-            <a href="{{ route('userprofile.local.show', [$wiki->url, $author->id]) }}">{{ $author->name }}</a>
-        </p>
-    @endif
+    <h1>Блог учатника:{{ $author->name }}/{{ $revision->title }}</h1>
     <div class="links">
         @if ($canEditBlog)
             <a href="{{ route('blogs.edit', [$wiki->url, $author->id, $article->url_title]) }}" class="btn btn-primary">{{ __('Edit') }}</a>
