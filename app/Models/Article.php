@@ -43,4 +43,8 @@ class Article extends Model
         return $q->where('url_title', $url);
     }
 
+    public function scopeByNS($q, $ns) {
+        return $q->where('namespace', $ns);
+    }
+
 }

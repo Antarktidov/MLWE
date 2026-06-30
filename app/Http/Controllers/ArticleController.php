@@ -49,12 +49,15 @@ class ArticleController extends Controller
                 }
             }
             if ($can_check_revisions) {
-                $articles = Article::where('wiki_id', $wiki->id)->whereNull('deleted_at')->get();
+                $articles = Article::where('wiki_id', $wiki->id)
+                ->where('namespace', 'article')
+                ->whereNull('deleted_at')->get();
             } else {
                 if ($user != null) {
                     $articles = DB::table('articles')
                     ->select('articles.*')
                     ->where('articles.wiki_id', $wiki->id)
+                    ->where('articles.namespace', 'article')
                     ->whereNull('articles.deleted_at')
                     ->whereExists(function ($query) {
                         $query->select(DB::raw(1))
@@ -67,6 +70,7 @@ class ArticleController extends Controller
                     $articles = DB::table('articles')
                     ->select('articles.*')
                     ->where('articles.wiki_id', $wiki->id)
+                    ->where('articles.namespace', 'article')
                     ->whereNull('articles.deleted_at')
                     ->whereExists(function ($query) {
                         $query->select(DB::raw(1))
@@ -90,7 +94,9 @@ class ArticleController extends Controller
     public function show(string $wikiName, string $articleName)
     {
         $wiki = Wiki::active()->byUrl($wikiName)->firstOrFail();
-        $article = Article::active()->byWiki($wiki)->byUrl($articleName)->firstOrFail();
+        $article = Article::active()->byWiki($wiki)->byUrl($articleName)
+        ->byNS('article')
+        ->firstOrFail();
 
         $user = auth()->user();
         $userId = $user->id ?? 0;
@@ -144,6 +150,7 @@ class ArticleController extends Controller
                 'wiki_id' => $wiki->id,
                 'url_title' => $data['url_title'],
                 'title' => $data['title'],
+                'namespace' => 'article',
             ];
             $created_article = Article::create($my_article);
 
@@ -179,6 +186,7 @@ class ArticleController extends Controller
             $article = Article::where('wiki_id', $wiki->id)
                 ->whereNull('deleted_at')
                 ->where('url_title', $articleName)
+                ->where('namespace', 'article')
                 ->first();
             if ($article) {
 
@@ -254,6 +262,7 @@ class ArticleController extends Controller
         $article = Article::where('wiki_id', $wiki->id)
             ->whereNull('deleted_at')
             ->where('url_title', $articleName)
+            ->where('namespace', 'article')
             ->firstOrFail();
 
         $article->update($my_article);
@@ -280,6 +289,7 @@ class ArticleController extends Controller
             $my_article2 = Article::where('wiki_id', $wiki->id)
                 ->whereNull('deleted_at')
                 ->where('url_title', $articleName)
+                ->where('namespace', 'article')
                 ->first();
 
             if ($my_article2) {
@@ -311,11 +321,14 @@ class ArticleController extends Controller
             }
 
             if ($can_check_revisions) {
-                $articles = Article::onlyTrashed()->where('wiki_id', $wiki->id)->get();
+                $articles = Article::onlyTrashed()->where('wiki_id', $wiki->id)
+                ->where('namespace', 'article')
+                ->get();
             } else {
                 $articles = DB::table('articles')
                 ->select('articles.*')
                 ->where('articles.wiki_id', $wiki->id)
+                ->where('namespace', 'article')
                 ->whereNotNull('articles.deleted_at')
                 ->whereExists(function ($query) {
                     $query->select(DB::raw(1))
@@ -346,6 +359,7 @@ class ArticleController extends Controller
             }
             $article = Article::onlyTrashed()
                 ->where('wiki_id', $wiki->id)
+                ->where('namespace', 'article')
                 ->where('url_title', $articleName)
                 ->first();
 
@@ -390,6 +404,7 @@ class ArticleController extends Controller
             $my_article2 = Article::onlyTrashed()
                 ->where('wiki_id', $wiki->id)
                 ->where('url_title', $articleName)
+                ->where('namespace', 'article')
                 ->first();
             if ($my_article2) {
 
