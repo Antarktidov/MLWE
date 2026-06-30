@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Article;
 use App\Models\Revision;
 use App\Models\Wiki;
+use App\Models\User;
 use App\Models\Option;
 use App\Models\Image;
 
@@ -77,7 +78,7 @@ class BlogController extends Controller
                 ->get();
         }
 
-        return view('show-all-articles', compact('articles', 'wiki'));
+        return view('blogs.index', compact('articles', 'wiki'));
     }
 
     public function show(string $wikiName, string $articleName)
@@ -103,12 +104,15 @@ class BlogController extends Controller
         $is_comments_enabled = $options->is_comments_enabled;
         $images = Image::approved()->latest()->limit(5)->get();
 
-        return view('article', compact(
+        $canEditBlog = $user && $this->canEditBlog($user, $wiki, $article);
+        $author = $article->author_id ? User::find($article->author_id) : null;
+
+        return view('blogs.show', compact(
             'revision', 'wiki', 'article', 'categories',
             'poll', 'trivia', 'permissions', 'userInfo',
             'options', 'images', 'is_comments_enabled',
             'userId', 'userName', 'userCanDeleteComments',
-            'userCanApproveComments'
+            'userCanApproveComments', 'canEditBlog', 'author'
         ));
     }
 
@@ -126,7 +130,7 @@ class BlogController extends Controller
                 ->header('Content-Type', 'text/plain');
         }
 
-        return view('create-article', compact('wiki'));
+        return view('blogs.create', compact('wiki'));
     }
 
     public function store(string $wikiName, Request $request)
@@ -219,7 +223,7 @@ class BlogController extends Controller
                 ->header('Content-Type', 'text/plain');
         }
 
-        return view('edit', compact('article', 'revision', 'wiki'));
+        return view('blogs.edit', compact('article', 'revision', 'wiki'));
     }
 
     public function update(string $wikiName, string $articleName, Request $request)
@@ -354,7 +358,7 @@ class BlogController extends Controller
                 ->get();
         }
 
-        return view('trash', compact('articles', 'wiki'));
+        return view('blogs.trash', compact('articles', 'wiki'));
     }
 
     public function show_deleted(string $wikiName, string $articleName)
@@ -397,7 +401,9 @@ class BlogController extends Controller
                 ->header('Content-Type', 'text/plain');
         }
 
-        return view('deleted-article', compact('revision', 'wiki', 'article'));
+        $canEditBlog = $user && $this->canEditBlog($user, $wiki, $article);
+
+        return view('blogs.deleted', compact('revision', 'wiki', 'article', 'canEditBlog'));
     }
 
     public function restore(string $wikiName, string $articleName): Response
