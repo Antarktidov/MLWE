@@ -477,7 +477,7 @@ class BlogController extends Controller
                 ->where('namespace', self::NS)
                 ->whereNull('deleted_at')
                 ->where('author_id', $author->id)
-                ->get();
+                ->paginate(5);
         } elseif ($user != null) {
             $articles = DB::table('articles')
                 ->select('articles.*')
@@ -491,13 +491,13 @@ class BlogController extends Controller
                         ->whereColumn('revisions.article_id', 'articles.id')
                         ->where('revisions.is_approved', true);
                 })
-                ->get();
+                ->paginate(5);
         } else {
             $articles = DB::table('articles')
                 ->select('articles.*')
                 ->where('articles.wiki_id', $wiki->id)
                 ->where('articles.namespace', self::NS)
-                >where('articles.author_id', $author->id)
+                ->where('articles.author_id', $author->id)
                 ->whereNull('articles.deleted_at')
                 ->whereExists(function ($query) {
                     $query->select(DB::raw(1))
@@ -506,7 +506,7 @@ class BlogController extends Controller
                         ->where('revisions.is_approved', true)
                         ->where('revisions.is_patrolled', true);
                 })
-                ->get();
+                ->paginate(5);
         }
 
         dd($articles);
