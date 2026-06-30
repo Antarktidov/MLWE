@@ -125,6 +125,7 @@ Route::middleware([ProtectionLevel3Middleware::class])->group(function () {
 
     //Работа с блогами на викиях
     Route::get('/wiki/{wikiName}/all-blogs', [BlogController::class, 'index'])->name('blogs.index');
+    Route::get('/wiki/{wikiName}/blog/{author}', [BlogController::class, 'user_blog'])->name('blogs.user_blog');
     Route::get('/wiki/{wikiName}/blog/{author}/{articleName}', [BlogController::class, 'show'])->name('blogs.show');
     Route::get('/wiki/{wikiName}/blog/{author}/{articleName}/edit', [BlogController::class, 'edit'])->name('blogs.edit')
         ->middleware(['auth', ProtectionLevel1Middleware::class, ProtectionLevel2Middleware::class]);

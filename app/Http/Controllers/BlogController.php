@@ -461,4 +461,56 @@ class BlogController extends Controller
 
         return $user->can('edit_other_users_blogs', $wiki->url);
     }
+
+    public function user_blog(string $wikiName, User $author) {
+        $wiki = Wiki::where('url', $wikiName)->whereNull('deleted_at')->first();
+        if (!$wiki) {
+            return response(__('Wiki does not exist'), 404)
+                ->header('Content-Type', 'text/plain');
+        }
+
+        $user = auth()->user();
+        $can_check_revisions = $user?->can('check_revisions', $wiki->url) ?? false;
+
+        if ($can_check_revisions) {
+            $articles = Article::where('wiki_id', $wiki->id)
+                ->where('namespace', self::NS)
+                ->whereNull('deleted_at')
+                ->where('author_id', $author->id)
+                ->get();
+        } elseif ($user != null) {
+            $articles = DB::table('articles')
+                ->select('articles.*')
+                ->where('articles.wiki_id', $wiki->id)
+                ->where('articles.namespace', self::NS)
+                ->where('articles.author_id', $author->id)
+                ->whereNull('articles.deleted_at')
+                ->whereExists(function ($query) {
+                    $query->select(DB::raw(1))
+                        ->from('revisions')
+                        ->whereColumn('revisions.article_id', 'articles.id')
+                        ->where('revisions.is_approved', true);
+                })
+                ->get();
+        } else {
+            $articles = DB::table('articles')
+                ->select('articles.*')
+                ->where('articles.wiki_id', $wiki->id)
+                ->where('articles.namespace', self::NS)
+                >where('articles.author_id', $author->id)
+                ->whereNull('articles.deleted_at')
+                ->whereExists(function ($query) {
+                    $query->select(DB::raw(1))
+                        ->from('revisions')
+                        ->whereColumn('revisions.article_id', 'articles.id')
+                        ->where('revisions.is_approved', true)
+                        ->where('revisions.is_patrolled', true);
+                })
+                ->get();
+        }
+
+        dd($articles);
+
+        return view('blogs.index', compact('articles', 'wiki'));
+    }
 }
