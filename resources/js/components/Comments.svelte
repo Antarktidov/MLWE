@@ -1,6 +1,8 @@
 <script>
   import MarkdownIt from 'markdown-it';
-  let { wikiName, articleName, userId, userName, userCanDeleteComments, userCanApproveComments } = $props();
+  let { wikiName, articleName, pageType = 'article', userId, userName, userCanDeleteComments, userCanApproveComments } = $props();
+
+  const pageSegment = pageType === 'blog' ? 'blog' : 'article';
 //data-user-can-approve-comments
   let comments = $state([]);
   let new_comment = $state('');
@@ -29,7 +31,7 @@
   console.log('Пропсы:', wikiName, articleName, userId, userName, userCanDeleteComments, userCanApproveComments);
 
   async function loadComments(page = 1) {
-    const res = await fetch(`/api/wiki/${wikiName}/article/${articleName}/comments?page=${page}`);
+    const res = await fetch(`/api/wiki/${wikiName}/${pageSegment}/${articleName}/comments?page=${page}`);
     const json = await res.json();
     comments = json.data;
     meta = json.meta;
@@ -44,7 +46,7 @@
       'content': new_comment
     };
 
-    let response = await fetch(`/api/wiki/${wikiName}/article/${articleName}/comments/store`, {
+    let response = await fetch(`/api/wiki/${wikiName}/${pageSegment}/${articleName}/comments/store`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json;charset=utf-8',
@@ -69,7 +71,7 @@
 
   async function deleteComment(commentId) {
     console.log('Delete btn pressed');
-    let response = await fetch(`/api/wiki/${wikiName}/article/${articleName}/comments/${commentId}/delete`, {
+    let response = await fetch(`/api/wiki/${wikiName}/${pageSegment}/${articleName}/comments/${commentId}/delete`, {
     method: 'DELETE',
     headers: {
       'Content-Type': 'application/json;charset=utf-8',
@@ -82,7 +84,7 @@
 
   async function approveComment(commentId) {
     console.log('Approve btn pressed');
-    let response = await fetch(`/api/wiki/${wikiName}/article/${articleName}/comments/${commentId}/approve`, {
+    let response = await fetch(`/api/wiki/${wikiName}/${pageSegment}/${articleName}/comments/${commentId}/approve`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json;charset=utf-8',
@@ -108,7 +110,7 @@
     }
 
     try {
-      let response = await fetch(`/api/wiki/${wikiName}/article/${articleName}/comments/${commentId}/update`, {
+      let response = await fetch(`/api/wiki/${wikiName}/${pageSegment}/${articleName}/comments/${commentId}/update`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json;charset=utf-8',

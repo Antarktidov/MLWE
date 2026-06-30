@@ -28,6 +28,7 @@
     <div class="links">
         @if ($canEditBlog)
             <a href="{{ route('blogs.edit', [$wiki->url, $article->url_title]) }}" class="btn btn-primary">{{ __('Edit') }}</a>
+            <a href="{{ route('blogs.history', [$wiki->url, $article->url_title]) }}" class="btn btn-secondary">{{ __('History') }}</a>
             <form action="{{ route('blogs.destroy', [$wiki->url, $article->url_title]) }}" method="post">
                 @csrf
                 @method('delete')
@@ -57,6 +58,7 @@
     <div id="comments"
          data-wiki-name="{{ $wiki->url }}"
          data-article-name="{{ $article->url_title }}"
+         data-page-type="blog"
          data-user-id="{{ $userId }}"
          data-user-name="{{ $userName }}"
          data-user-can-delete-comments="{{ $userCanDeleteComments ? 'true' : 'false' }}"

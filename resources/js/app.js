@@ -12,6 +12,7 @@ import Friends from './components/Friends.svelte'
             props: {
                 wikiName: el.dataset.wikiName,
                 articleName: el.dataset.articleName,
+                pageType: el.dataset.pageType || 'article',
                 userId: el.dataset.userId,
                 userName: el.dataset.userName,
                 userCanDeleteComments: el.dataset.userCanDeleteComments === 'true',
