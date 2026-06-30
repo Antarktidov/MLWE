@@ -474,48 +474,80 @@ class BlogController extends Controller
 
         if ($can_check_revisions) {
             $articles = DB::table('articles')
-                ->select('articles.*')
-                ->where('articles.wiki_id', $wiki->id)
-                ->where('articles.namespace', self::NS)
-                ->where('articles.author_id', $author->id)
-                ->whereNull('articles.deleted_at')
+            ->select(
+                'articles.*',
+                'last_revision.id as last_revision_id',
+                'last_revision.content as last_revision_content',
+                'last_revision.created_at as last_revision_created_at',
+                'last_revision.user_id as last_revision_author_id'
+            )
+            ->where('articles.wiki_id', $wiki->id)
+            ->where('articles.namespace', self::NS)
+            ->where('articles.author_id', $author->id)
+            ->whereNull('articles.deleted_at')
+                ->leftJoin(DB::raw('(
+                    SELECT r1.* 
+                    FROM revisions r1
+                    INNER JOIN (
+                        SELECT article_id, MAX(created_at) as max_created_at
+                        FROM revisions
+                        GROUP BY article_id
+                    ) r2 ON r1.article_id = r2.article_id AND r1.created_at = r2.max_created_at
+                ) as last_revision'), 'articles.id', '=', 'last_revision.article_id')
                 ->whereExists(function ($query) {
                     $query->select(DB::raw(1))
                         ->from('revisions')
                         ->whereColumn('revisions.article_id', 'articles.id');
                 })
                 ->paginate(5);
-        } elseif ($user != null) {
-            $articles = DB::table('articles')
-                ->select('articles.*')
-                ->where('articles.wiki_id', $wiki->id)
-                ->where('articles.namespace', self::NS)
-                ->where('articles.author_id', $author->id)
-                ->whereNull('articles.deleted_at')
-                ->whereExists(function ($query) {
-                    $query->select(DB::raw(1))
-                        ->from('revisions')
-                        ->whereColumn('revisions.article_id', 'articles.id')
-                        ->where('revisions.is_approved', true);
-                })
-                ->paginate(5);
         } else {
-            $articles = DB::table('articles')
-                ->select('articles.*')
-                ->where('articles.wiki_id', $wiki->id)
-                ->where('articles.namespace', self::NS)
-                ->where('articles.author_id', $author->id)
-                ->whereNull('articles.deleted_at')
-                ->whereExists(function ($query) {
-                    $query->select(DB::raw(1))
-                        ->from('revisions')
-                        ->whereColumn('revisions.article_id', 'articles.id')
-                        ->where('revisions.is_approved', true)
-                        ->where('revisions.is_patrolled', true);
-                })
-                ->paginate(5);
+           $articles = DB::table('articles')
+    ->select(
+        'articles.*',
+        'last_revision.id as last_revision_id',
+        'last_revision.content as last_revision_content',
+        'last_revision.created_at as last_revision_created_at',
+        'last_revision.user_id as last_revision_author_id',
+        'prev_revision.id as prev_revision_id',
+        'prev_revision.content as prev_revision_content',
+        'prev_revision.created_at as prev_revision_created_at',
+        'prev_revision.user_id as prev_revision_author_id'
+    )
+    ->where('articles.wiki_id', $wiki->id)
+    ->where('articles.namespace', self::NS)
+    ->where('articles.author_id', $author->id)
+    ->whereNull('articles.deleted_at')
+    ->leftJoin(DB::raw('(
+        SELECT r1.* 
+        FROM revisions r1
+        INNER JOIN (
+            SELECT article_id, MAX(created_at) as max_created_at
+            FROM revisions
+            GROUP BY article_id
+        ) r2 ON r1.article_id = r2.article_id AND r1.created_at = r2.max_created_at
+    ) as last_revision'), 'articles.id', '=', 'last_revision.article_id')
+    ->leftJoin(DB::raw('(
+        SELECT r1.* 
+        FROM revisions r1
+        INNER JOIN (
+            SELECT article_id, MAX(created_at) as max_created_at
+            FROM revisions
+            WHERE created_at < (
+                SELECT MAX(created_at)
+                FROM revisions r3
+                WHERE r3.article_id = revisions.article_id
+            )
+            GROUP BY article_id
+        ) r2 ON r1.article_id = r2.article_id AND r1.created_at = r2.max_created_at
+    ) as prev_revision'), 'articles.id', '=', 'prev_revision.article_id')
+    ->whereExists(function ($query) {
+        $query->select(DB::raw('1'))
+            ->from('revisions')
+            ->whereColumn('revisions.article_id', 'articles.id')
+            ->where('revisions.is_approved', true); // Исправлено: true вместо "1"
+    })
+    ->paginate(5);
         }
-        dd($articles);
 
         return view('blogs.user_blog', compact('articles', 'wiki', 'author'));
     }
