@@ -93,7 +93,7 @@ class BlogController extends Controller
         $userId = $user->id ?? 0;
         $userName = $user->name ?? 'Анонимный участник';
         $userCanDeleteComments = $user?->can('delete_comments', $wiki->url) ?? false;
-        $userCanApproveComments = $user?->can('approve_comments', $wiki->url) ?? false;
+        $userCanApproveComments = $user?->can('check_comments', $wiki->url) ?? false;
 
         $permissions = $this->permissionService->getArticlePermissions($user, $wiki, $article);
         $revision = $this->revisionService->getVisibleRevision($article, $permissions);
