@@ -168,6 +168,7 @@ class BlogController extends Controller
             'content' => $data['content'],
             'user_id' => $user->id,
             'user_ip' => $request->ip(),
+            'is_patrolled' => true,
         ]);
 
         return redirect()->route('blogs.show', [$wiki->url, $created_article->url_title]);
@@ -287,6 +288,7 @@ class BlogController extends Controller
             'content' => $data['content'],
             'user_id' => $user->id,
             'user_ip' => $request->ip(),
+            'is_patrolled' => true,
         ]);
 
         return redirect()->route('blogs.show', [$wiki->url, $article->url_title]);

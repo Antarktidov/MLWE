@@ -19,9 +19,6 @@
             @can('check_revisions', $wiki->url)
             <th scope="col"></th>
             @endcan
-            @can('patrol_revisions', $wiki->url)
-            <th scope="col"></th>
-            @endcan
             @can('revert_edits_to_old_version', $wiki->url)
             <th scope="col"></th>
             @endcan
@@ -69,21 +66,6 @@
               <form action="{{ route('blogs.revision.approve', [$wiki->url, $article->url_title, $revision->id]) }}" method="post">
                 @csrf
                 <button class="btn btn-success" type="submit">{{ __('Approve') }}</button>
-              </form>
-              @endif
-            </th>
-            @endcan
-            @can('patrol_revisions', $wiki->url)
-            <th scope="row">
-              @if ($revision->is_patrolled)
-              <form action="{{ route('blogs.revision.depatrol', [$wiki->url, $article->url_title, $revision->id]) }}" method="post">
-                @csrf
-                <button class="btn btn-info" type="submit">{{ __("Depatroll") }}</button>
-              </form>
-              @else
-              <form action="{{ route('blogs.revision.patrol', [$wiki->url, $article->url_title, $revision->id]) }}" method="post">
-                @csrf
-                <button class="btn btn-info" type="submit">{{ __("Patroll") }}</button>
               </form>
               @endif
             </th>
