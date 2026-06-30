@@ -28,7 +28,7 @@
     <div class="links">
         @if ($canEditBlog)
             <a href="{{ route('blogs.edit', [$wiki->url, $author->id, $article->url_title]) }}" class="btn btn-primary">{{ __('Edit') }}</a>
-            <a href="{{ route('blogs.history', [$wiki->url, $author->id, $article->url_title]) }}" class="btn btn-secondary">{{ __('History') }}</a>
+            <!--<a href=" route('blogs.history', [$wiki->url, $author->id, $article->url_title]) " class="btn btn-secondary"> __('History') </a>-->
             <form action="{{ route('blogs.destroy', [$wiki->url, $author->id, $article->url_title]) }}" method="post">
                 @csrf
                 @method('delete')
@@ -36,24 +36,20 @@
             </form>
         @endif
     </div>
-    @if (!$revision->is_patrolled)
-    <div class="alert alert-warning mt-3" role="alert">
-        {{ __("This revision hasn't been patrolled yet and can contain disinformation") }}
-    </div>
-    @endif
     <p class="mt-3">{!! Str::of($revision->content)->markdown([
         'html_input' => 'strip',
     ]) !!}</p>
     <span class="categories-list">
-    @foreach ($categories as $cat)
-        <span class="border rounded p-1 category-item m-1" data-cat-id="{{ $cat->id }}">
-            <span class="cat-item-body"><a href="{{ route('category.show', [$wiki->url, $cat->name]) }}">{{ $cat->name }}</a></span>
-            <span class="cat-item-remove text-danger" onclick="removeCat({{ $cat->id }})">x</span>
+    <!--foreach ($categories as $cat)
+        <span class="border rounded p-1 category-item m-1" data-cat-id=" $cat->id ">
+            <span class="cat-item-body"><a href=" route('category.show', [$wiki->url, $cat->name]) "> $cat->name </a></span>
+            <span class="cat-item-remove text-danger" onclick="removeCat( $cat->id )">x</span>
         </span>
-    @endforeach
+    endforeach
     </span>
         <input name="new-category" class="border rounded m-1" type="text" placeholder="new category">
         <button class="border rounded m-1 p-1" type="submit" onclick="addCat()">Add category</button>
+        -->
     @if ($is_comments_enabled)
     <div id="comments"
          data-wiki-name="{{ $wiki->url }}"

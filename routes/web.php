@@ -145,7 +145,7 @@ Route::middleware([ProtectionLevel3Middleware::class])->group(function () {
         ->middleware('auth');
 
     //Работа с историей правок блогов
-    Route::get('/wiki/{wikiName}/blog/{author}/{articleName}/history', [RevisionController::class, 'index'])
+    /*Route::get('/wiki/{wikiName}/blog/{author}/{articleName}/history', [RevisionController::class, 'index'])
         ->defaults('namespace', 'blog')
         ->name('blogs.history');
     Route::get('/wiki/{wikiName}/blog-trash/{author}/{articleName}/history', [RevisionController::class, 'show_deleted_hist'])
@@ -178,7 +178,7 @@ Route::middleware([ProtectionLevel3Middleware::class])->group(function () {
     Route::post('/wiki/{wikiName}/blog/{author}/{articleName}/{revisionId}/depatrol', [RevisionController::class, 'depatrol'])
         ->defaults('namespace', 'blog')
         ->name('blogs.revision.depatrol')
-        ->middleware(PatrolRevisionMiddleware::class);
+        ->middleware(PatrolRevisionMiddleware::class);*/
 
     //трансфер статей
     Route::post('/transfer-articles/article_id/{article}', [ArticleController::class,'transfer_articles'])
