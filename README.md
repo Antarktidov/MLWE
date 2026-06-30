@@ -21,6 +21,7 @@ A PHP Laravel 13 Wiki Engine with comments and more.
 * manage wikifarm
 * approve and patroll feature
 * friends system
+* user blog
 
 ## Requirements
 * PHP 8.5

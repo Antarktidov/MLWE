@@ -9,15 +9,11 @@ use App\Models\Wiki;
 
 class RevisionController extends Controller
 {
-    //DELETE-ручка для сокрытия правки
-    public function destroy(string $wikiName, string $articleName, int $revisionId)
+    public function destroy(string $wikiName, string $articleName, int $revisionId, string $namespace = 'article')
     {
         $wiki = Wiki::where('url', $wikiName)->whereNull('deleted_at')->first();
         if ($wiki) {
-            $my_article = Article::where('wiki_id', $wiki->id)
-                ->where('url_title', $articleName)
-                ->whereNull('deleted_at')
-                ->first();
+            $my_article = $this->findPage($wiki, $articleName, $namespace);
 
             if ($my_article) {
                 $my_revision = Revision::where('article_id', $my_article->id)
@@ -31,10 +27,10 @@ class RevisionController extends Controller
                     ->header('Content-Type', 'text/plain');
                 } else {
                     return response(__('No such revision'), 404)
-                    ->header('Content-Type', 'text/plain');
+                        ->header('Content-Type', 'text/plain');
                 }
 
-            }   else {
+            } else {
                     return response(__('No such article'), 404)
                         ->header('Content-Type', 'text/plain');
             }
@@ -45,14 +41,11 @@ class RevisionController extends Controller
         }
     }
 
-    //POST-ручка для восстановления скрытой правки
-    public function restore(string $wikiName, string $articleName, int $revisionId) {
+    public function restore(string $wikiName, string $articleName, int $revisionId, string $namespace = 'article')
+    {
         $wiki = Wiki::where('url', $wikiName)->whereNull('deleted_at')->first();
         if ($wiki) {
-            $my_article = Article::where('wiki_id', $wiki->id)
-                ->where('url_title', $articleName)
-                ->whereNull('deleted_at')
-                ->first();
+            $my_article = $this->findPage($wiki, $articleName, $namespace);
             if ($my_article) {
                 $my_revision = Revision::onlyTrashed()
                     ->where('article_id', $my_article->id)
@@ -77,15 +70,11 @@ class RevisionController extends Controller
         }
     }
 
-    //Просмотр правки статьи по ID
-    public function view(string $wikiName, string $articleName, int $revisionId)
+    public function view(string $wikiName, string $articleName, int $revisionId, string $namespace = 'article')
     {
         $wiki = Wiki::where('url', $wikiName)->whereNull('deleted_at')->first();
         if ($wiki) {
-            $article = Article::where('wiki_id', $wiki->id)
-                ->where('url_title', $articleName)
-                ->whereNull('deleted_at')
-                ->first();
+            $article = $this->findPage($wiki, $articleName, $namespace);
 
             if ($article) {
                 $user = auth()->user();
@@ -104,15 +93,16 @@ class RevisionController extends Controller
                 }
 
                 $revision = $revisionQuery->first();
-                if($revision) {
-                    return view('revision', compact('revision', 'wiki', 'article'));
-                }
-                else {
+                if ($revision) {
+                    $view = $namespace === 'blog' ? 'blogs.revision' : 'revision';
+
+                    return view($view, compact('revision', 'wiki', 'article'));
+                } else {
                     return response(__('404. Invalid edit id entered.'), 404)
                         ->header('Content-Type', 'text/plain');
                 }
 
-            }   else {
+            } else {
                 return response(__('Error'), 500)
                     ->header('Content-Type', 'text/plain');
             }
@@ -123,15 +113,12 @@ class RevisionController extends Controller
         }
     }
 
-    //Показывает историю страницы
-    public function index(string $wikiName, string $articleName) {
+    public function index(string $wikiName, string $articleName, string $namespace = 'article')
+    {
         $wiki = Wiki::where('url', $wikiName)->whereNull('deleted_at')->first();
         if ($wiki) {
-            $article = Article::where('wiki_id', $wiki->id)
-                ->where('url_title', $articleName)
-                ->whereNull('deleted_at')
-                ->first();
-            if($article) {
+            $article = $this->findPage($wiki, $articleName, $namespace);
+            if ($article) {
                 $user = auth()->user();
                 if ($user != null) {
                     $can_check_revisions = $user->can('check_revisions', $wiki->url);
@@ -149,8 +136,9 @@ class RevisionController extends Controller
                 $revisions = $revisionsQuery->get();
                 if ($revisions->isNotEmpty()) {
                     $users = User::all();
-                    return view('history', compact('article', 'revisions',
-                    'users', 'wiki'));
+                    $view = $namespace === 'blog' ? 'blogs.history' : 'history';
+
+                    return view($view, compact('article', 'revisions', 'users', 'wiki'));
                 } else {
                     return response(__('Article does not exist'), 404)
                     ->header('Content-Type', 'text/plain');
@@ -165,16 +153,62 @@ class RevisionController extends Controller
         }
     }
 
-    //Показывает историю удалённой страницы
-    //(требуются технические права)
-    public function show_deleted_hist(string $wikiName, string $articleName) {
+    public function index_blog(string $wikiName, User $author,  string $articleName, string $namespace = 'blog')
+    {
         $wiki = Wiki::where('url', $wikiName)->whereNull('deleted_at')->first();
         if ($wiki) {
-            $article = Article::onlyTrashed()
-                ->where('wiki_id', $wiki->id)
-                ->where('url_title', $articleName)
-                ->first();
-            if($article) {
+            $article = Article::where('wiki_id', $wiki->id)
+            ->where('url_title', $articleName)
+            ->where('namespace', 'blog')
+            ->where('author_id', $author->id)
+            ->first();
+
+            if ($article) {
+                $user = auth()->user();
+                if ($user != null) {
+                    $can_check_revisions = $user->can('check_revisions', $wiki->url);
+                    if ($user->id === $author->id || $user->can('edit_other_users_blogs', $wiki->url)) {
+                        //
+                    } else {
+                        abort(403);
+                    }
+                } else {
+                    $can_check_revisions = false;
+                }
+
+                $revisionsQuery = Revision::where('article_id', $article->id)
+                    ->whereNull('deleted_at');
+
+                if (!$can_check_revisions) {
+                    $revisionsQuery->where('is_approved', true);
+                }
+
+                $revisions = $revisionsQuery->get();
+                if ($revisions->isNotEmpty()) {
+                    $users = User::all();
+                    $view = $namespace === 'blog' ? 'blogs.history' : 'history';
+
+                    return view($view, compact('article', 'revisions', 'users', 'wiki'));
+                } else {
+                    return response(__('Article does not exist'), 404)
+                    ->header('Content-Type', 'text/plain');
+                }
+            } else {
+                return response(__('Article does not exist'), 404)
+                    ->header('Content-Type', 'text/plain');
+            }
+        } else {
+            return response(__('Wiki does not exist'), 404)
+                ->header('Content-Type', 'text/plain');
+        }
+    }
+
+    public function show_deleted_hist(string $wikiName, string $articleName, string $namespace = 'article')
+    {
+        $wiki = Wiki::where('url', $wikiName)->whereNull('deleted_at')->first();
+        if ($wiki) {
+            $article = $this->findPage($wiki, $articleName, $namespace, onlyTrashed: true);
+            if ($article) {
                 $user = auth()->user();
                 if ($user != null) {
                     $can_check_revisions = $user->can('check_revisions', $wiki->url);
@@ -194,10 +228,10 @@ class RevisionController extends Controller
                 $revisions = $revisionsQuery->get();
                 if ($revisions->isNotEmpty()) {
                     $users = User::all();
-                    return view('show_deleted_article_history', compact('article', 'revisions',
-                        'users', 'wiki'));
-                }
-                else {
+                    $view = $namespace === 'blog' ? 'blogs.deleted_page_history' : 'show_deleted_article_history';
+
+                    return view($view, compact('article', 'revisions', 'users', 'wiki'));
+                } else {
                     return response(__('Article does not exist'), 404)
                     ->header('Content-Type', 'text/plain');
                 }
@@ -211,16 +245,17 @@ class RevisionController extends Controller
         }
     }
 
-    //Показывает скрытые правки в истории страницы
-    //(требуются технические права)
-    public function trash(string $wikiName, string $articleName) {
+    public function trash(string $wikiName, string $articleName, string $namespace = 'article')
+    {
         $wiki = Wiki::where('url', $wikiName)->whereNull('deleted_at')->first();
         if ($wiki) {
-            $article = Article::where('wiki_id', $wiki->id)->where('url_title', $articleName)->whereNull('deleted_at')->first();
+            $article = $this->findPage($wiki, $articleName, $namespace);
             if ($article) {
                 $revisions = Revision::onlyTrashed()->where('article_id', $article->id)->get();
                 $users = User::all();
-                return view('deleted_history', compact('article', 'revisions', 'users', 'wiki'));
+                $view = $namespace === 'blog' ? 'blogs.deleted_history' : 'deleted_history';
+
+                return view($view, compact('article', 'revisions', 'users', 'wiki'));
             } else {
                 return response(__('Article does not exist'), 404)
                     ->header('Content-Type', 'text/plain');
@@ -231,14 +266,11 @@ class RevisionController extends Controller
         }
     }
 
-    //Одобряем правку
-    public function approve(string $wikiName, string $articleName, int $revisionId) {
+    public function approve(string $wikiName, string $articleName, int $revisionId, string $namespace = 'article')
+    {
         $wiki = Wiki::where('url', $wikiName)->whereNull('deleted_at')->first();
         if ($wiki) {
-            $my_article = Article::where('wiki_id', $wiki->id)
-                ->where('url_title', $articleName)
-                ->whereNull('deleted_at')
-                ->first();
+            $my_article = $this->findPage($wiki, $articleName, $namespace);
             if ($my_article) {
                 $my_revision = Revision::where('article_id', $my_article->id)
                     ->where('id', $revisionId)
@@ -264,15 +296,12 @@ class RevisionController extends Controller
                 ->header('Content-Type', 'text/plain');
         }
     }
-    
-    //Патрулируем правку
-    public function patrol(string $wikiName, string $articleName, int $revisionId) {
+
+    public function patrol(string $wikiName, string $articleName, int $revisionId, string $namespace = 'article')
+    {
         $wiki = Wiki::where('url', $wikiName)->whereNull('deleted_at')->first();
         if ($wiki) {
-            $my_article = Article::where('wiki_id', $wiki->id)
-                ->where('url_title', $articleName)
-                ->whereNull('deleted_at')
-                ->first();
+            $my_article = $this->findPage($wiki, $articleName, $namespace);
             if ($my_article) {
                 $my_revision = Revision::where('article_id', $my_article->id)
                     ->where('id', $revisionId)
@@ -299,14 +328,11 @@ class RevisionController extends Controller
         }
     }
 
-    //Распатрулируем правку
-    public function depatrol(string $wikiName, string $articleName, int $revisionId) {
+    public function depatrol(string $wikiName, string $articleName, int $revisionId, string $namespace = 'article')
+    {
         $wiki = Wiki::where('url', $wikiName)->whereNull('deleted_at')->first();
         if ($wiki) {
-            $my_article = Article::where('wiki_id', $wiki->id)
-                ->where('url_title', $articleName)
-                ->whereNull('deleted_at')
-                ->first();
+            $my_article = $this->findPage($wiki, $articleName, $namespace);
             if ($my_article) {
                 $my_revision = Revision::where('article_id', $my_article->id)
                     ->where('id', $revisionId)
@@ -331,5 +357,20 @@ class RevisionController extends Controller
             return response(__('Wiki does not exist'), 404)
                 ->header('Content-Type', 'text/plain');
         }
+    }
+
+    private function findPage(Wiki $wiki, string $articleName, string $namespace, bool $onlyTrashed = false): ?Article
+    {
+        $query = Article::where('wiki_id', $wiki->id)
+            ->where('url_title', $articleName)
+            ->where('namespace', $namespace);
+
+        if ($onlyTrashed) {
+            $query->onlyTrashed();
+        } else {
+            $query->whereNull('deleted_at');
+        }
+
+        return $query->first();
     }
 }

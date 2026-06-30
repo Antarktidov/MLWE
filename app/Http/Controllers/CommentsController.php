@@ -13,7 +13,7 @@ use Illuminate\Support\Str;
 
 class CommentsController extends Controller
 {
-    public function show_comments_under_article(string $wikiName, string $articleName)
+    public function show_comments_under_article(string $wikiName, string $articleName, string $namespace = 'article')
     {
         $wiki = Wiki::where('url', $wikiName)->whereNull('deleted_at')->first();
         if (!$wiki) {
@@ -21,10 +21,7 @@ class CommentsController extends Controller
                 ->header('Content-Type', 'text/plain');
         }
 
-        $article = Article::where('wiki_id', $wiki->id)
-            ->where('url_title', $articleName)
-            ->whereNull('deleted_at')
-            ->first();
+        $article = $this->findPage($wiki, $articleName, $namespace);
 
         if (!$article) {
             return response(__('Article does not exist'), 404)
@@ -98,17 +95,15 @@ class CommentsController extends Controller
         ]);
     }
 
-    public function store(string $wikiName, string $articleName, Request $request) {
+    public function store(string $wikiName, string $articleName, Request $request, string $namespace = 'article')
+    {
         $data = request()->validate([
             'content' => 'string',
         ]);
         $wiki = Wiki::where('url', $wikiName)->whereNull('deleted_at')->first();
 
         if ($wiki) {
-            $article = Article::where('wiki_id', $wiki->id)
-            ->where('url_title', $articleName)
-            ->whereNull('deleted_at')
-            ->first();
+            $article = $this->findPage($wiki, $articleName, $namespace);
 
             if ($article) {
                 $user = auth()->user();
@@ -142,29 +137,28 @@ class CommentsController extends Controller
         }
     }
 
-    public function delete(string $wikiName, string $articleName, Comment $comment) {
+    public function delete(string $wikiName, string $articleName, Comment $comment, string $namespace = 'article')
+    {
         $comment->delete();
         return ['message' => 'comment deleted'];
     }
 
-    public function update(string $wikiName, string $articleName, Comment $comment, Request $request) {
+    public function update(string $wikiName, string $articleName, Comment $comment, Request $request, string $namespace = 'article')
+    {
         $data = request()->validate([
             'content' => 'string',
         ]);
         $wiki = Wiki::where('url', $wikiName)->whereNull('deleted_at')->first();
 
         if ($wiki) {
-            $article = Article::where('wiki_id', $wiki->id)
-            ->where('url_title', $articleName)
-            ->whereNull('deleted_at')
-            ->first();
+            $article = $this->findPage($wiki, $articleName, $namespace);
 
             if ($article) {
                 $user = auth()->user();
                 if ($user == null) {
                     return response()->json(['error' => 'forbidden'], 403);
                 }
-                
+
                 if ($user->id === $comment->user_id) {
                     $comment_revision = [
                         'content' => $data['content'],
@@ -178,7 +172,7 @@ class CommentsController extends Controller
                 } else {
                     return response()->json(['error' => 'forbidden'], 403);
                 }
-                
+
             } else {
                 return response()->json(['error' => 'Article not found'], 404);
             }
@@ -187,33 +181,39 @@ class CommentsController extends Controller
         }
     }
 
-    public function approve(string $wikiName, string $articleName, Comment $comment, Request $request) {
+    public function approve(string $wikiName, string $articleName, Comment $comment, Request $request, string $namespace = 'article')
+    {
         $wiki = Wiki::where('url', $wikiName)->whereNull('deleted_at')->first();
 
         if ($wiki) {
-            $article = Article::where('wiki_id', $wiki->id)
-            ->where('url_title', $articleName)
-            ->whereNull('deleted_at')
-            ->first();
+            $article = $this->findPage($wiki, $articleName, $namespace);
 
             if ($article) {
-                $user = auth()->user();
-                    $comment_revision = CommentRevision::where('comment_id', $comment->id)
+                $comment_revision = CommentRevision::where('comment_id', $comment->id)
                     ->whereNull('deleted_at')
                     ->orderBy('id', 'desc')
                     ->first();
 
-                    $comment_revision->update([
-                        'is_approved' => true,
-                    ]);
+                $comment_revision->update([
+                    'is_approved' => true,
+                ]);
 
-                    return response()->json(['message' => 'success']);
-                } else {
+                return response()->json(['message' => 'success']);
+            } else {
                 return response()->json(['error' => 'Article not found'], 404);
             }
-                
-            } else {
-                return response()->json(['error' => 'Wiki not found'], 404);
-            }
+
+        } else {
+            return response()->json(['error' => 'Wiki not found'], 404);
         }
+    }
+
+    private function findPage(Wiki $wiki, string $articleName, string $namespace): ?Article
+    {
+        return Article::where('wiki_id', $wiki->id)
+            ->where('url_title', $articleName)
+            ->where('namespace', $namespace)
+            ->whereNull('deleted_at')
+            ->first();
+    }
 }

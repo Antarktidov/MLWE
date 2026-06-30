@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\WikisController;
 use App\Http\Controllers\ArticleController;
+use App\Http\Controllers\BlogController;
 use App\Http\Controllers\RevisionController;
 use App\Http\Controllers\ImageController;
 use App\Http\Controllers\UserRightsController;
@@ -122,6 +123,64 @@ Route::middleware([ProtectionLevel3Middleware::class])->group(function () {
     Route::post('/wiki/{wikiName}/{articleName}/restore', [ArticleController::class,'restore'])->name('articles.restore')
         ->middleware(RestoreMiddleware::class);
 
+    //Работа с блогами на викиях
+    Route::get('/wiki/{wikiName}/all-blogs', [BlogController::class, 'index'])->name('blogs.index');
+    Route::get('/wiki/{wikiName}/blog/{author}', [BlogController::class, 'user_blog'])->name('blogs.user_blog');
+    Route::get('/wiki/{wikiName}/blog/{author}/{articleName}', [BlogController::class, 'show'])->name('blogs.show');
+    Route::get('/wiki/{wikiName}/blog/{author}/{articleName}/edit', [BlogController::class, 'edit'])->name('blogs.edit')
+        ->middleware(['auth', ProtectionLevel1Middleware::class, ProtectionLevel2Middleware::class]);
+    Route::get('/wiki/{wikiName}/create-blog', [BlogController::class, 'create'])->name('blogs.create')
+        ->middleware(['auth', ProtectionLevel1Middleware::class, ProtectionLevel2Middleware::class]);
+    Route::post('/wiki/{wikiName}/store-blog', [BlogController::class, 'store'])->name('blogs.store')
+        ->middleware(['auth', ProtectionLevel1Middleware::class]);
+    Route::post('/wiki/{wikiName}/update/{author}/{articleName}/blog/edit', [BlogController::class, 'update'])->name('blogs.update')
+        ->middleware(['auth', ProtectionLevel1Middleware::class, ProtectionLevel2Middleware::class]);
+    Route::delete('/wiki/{wikiName}/blog/{author}/{articleName}/destroy', [BlogController::class, 'destroy'])->name('blogs.destroy')
+        ->middleware('auth');
+    Route::get('/wiki/{wikiName}/blog-trash', [BlogController::class, 'trash'])->name('blogs.trash')
+        ->middleware(ViewDeletedMiddleware::class);
+    Route::get('/wiki/{wikiName}/blog-trash/{author}/{articleName}', [BlogController::class, 'show_deleted'])
+        ->name('blogs.trash.show')
+        ->middleware(ViewDeletedMiddleware::class);
+    Route::post('/wiki/{wikiName}/blog/{author}/{articleName}/restore', [BlogController::class, 'restore'])->name('blogs.restore')
+        ->middleware('auth');
+
+    //Работа с историей правок блогов
+    Route::get('/wiki/{wikiName}/blog/{author}/{articleName}/history', [RevisionController::class, 'index_blog'])
+        ->defaults('namespace', 'blog')
+        ->name('blogs.history');
+    /*Route::get('/wiki/{wikiName}/blog-trash/{author}/{articleName}/history', [RevisionController::class, 'show_deleted_hist'])
+        ->defaults('namespace', 'blog')
+        ->name('blogs.deleted.history')
+        ->middleware(ViewDeletedMiddleware::class);*/
+    /*Route::get('/wiki/{wikiName}/blog/{author}/{articleName}/deleted_history', [RevisionController::class, 'trash'])
+        ->defaults('namespace', 'blog')
+        ->name('blogs.trash.edits')
+        ->middleware(ViewDeletedRevisionsMiddleware::class);*/
+    Route::delete('/wiki/{wikiName}/blog/{author}/{articleName}/{revisionId}/destroy', [RevisionController::class, 'destroy'])
+        ->defaults('namespace', 'blog')
+        ->name('blogs.revision.delete')
+        ->middleware(DeleteRevisionMiddleware::class);
+    /*Route::post('/wiki/{wikiName}/blog/{author}/{articleName}/{revisionId}/restore', [RevisionController::class, 'restore'])
+        ->defaults('namespace', 'blog')
+        ->name('blogs.revision.restore')
+        ->middleware(RestoreRevisionMiddleware::class);*/
+    /*Route::get('/wiki/{wikiName}/blog/{articleName}/revision/{revisionId}', [RevisionController::class, 'view'])
+        ->defaults('namespace', 'blog')
+        ->name('blogs.revision.show');*/
+    Route::post('/wiki/{wikiName}/blog/{articleName}/{revisionId}/approve', [RevisionController::class, 'approve'])
+        ->defaults('namespace', 'blog')
+        ->name('blogs.revision.approve')
+        ->middleware(ApproveRevisionMiddleware::class);
+    /*Route::post('/wiki/{wikiName}/blog/{articleName}/{revisionId}/patrol', [RevisionController::class, 'patrol'])
+        ->defaults('namespace', 'blog')
+        ->name('blogs.revision.patrol')
+        ->middleware(PatrolRevisionMiddleware::class);
+    Route::post('/wiki/{wikiName}/blog/{author}/{articleName}/{revisionId}/depatrol', [RevisionController::class, 'depatrol'])
+        ->defaults('namespace', 'blog')
+        ->name('blogs.revision.depatrol')
+        ->middleware(PatrolRevisionMiddleware::class);*/
+
     //трансфер статей
     Route::post('/transfer-articles/article_id/{article}', [ArticleController::class,'transfer_articles'])
     ->name('articles.transfer.form')
@@ -174,6 +233,28 @@ Route::middleware([ProtectionLevel3Middleware::class])->group(function () {
         ->name('comments.approve');
         Route::post('/api/wiki/{wikiName}/article/{articleName}/comments/{comment}/update', [CommentsController::class,'update'])
         ->name('comments.update');
+    });
+
+    //Работа с комментариями под блогами
+    Route::middleware([CommentsEnabledMiddleware::class])->group(function () {
+        Route::get('/api/wiki/{wikiName}/blog/{articleName}/comments', [CommentsController::class, 'show_comments_under_article'])
+            ->defaults('namespace', 'blog')
+            ->name('blog_comments.show_all');
+        Route::post('/api/wiki/{wikiName}/blog/{articleName}/comments/store', [CommentsController::class, 'store'])
+            ->defaults('namespace', 'blog')
+            ->name('blog_comments.store')
+            ->middleware(ProtectionLevel2Middleware::class);
+        Route::delete('/api/wiki/{wikiName}/blog/{articleName}/comments/{comment}/delete', [CommentsController::class, 'delete'])
+            ->defaults('namespace', 'blog')
+            ->middleware(DeleteCommentsMiddleware::class)
+            ->name('blog_comments.delete');
+        Route::post('/api/wiki/{wikiName}/blog/{articleName}/comments/{comment}/approve', [CommentsController::class, 'approve'])
+            ->defaults('namespace', 'blog')
+            ->middleware(ApproveCommentMiddleware::class)
+            ->name('blog_comments.approve');
+        Route::post('/api/wiki/{wikiName}/blog/{articleName}/comments/{comment}/update', [CommentsController::class, 'update'])
+            ->defaults('namespace', 'blog')
+            ->name('blog_comments.update');
     });
 
     //Работа с разрешениями групп участников
