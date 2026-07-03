@@ -2,7 +2,7 @@
   import MarkdownIt from 'markdown-it';
   let { wikiName, articleName, pageType = 'article', userId, userName, userCanDeleteComments, userCanApproveComments } = $props();
 
-  const pageSegment = pageType === 'blog' ? 'blog' : 'article';
+  const pageSegment = pageType;
 //data-user-can-approve-comments
   let comments = $state([]);
   let new_comment = $state('');
