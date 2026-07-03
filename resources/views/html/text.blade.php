@@ -22,13 +22,14 @@
     <div class="links">
         @if ($canEditHtmlPages)
             <a href="{{ route('html.edit', [$wiki->url, $article->url_title]) }}" class="btn btn-primary">{{ __('Edit') }}</a>
-            <a href="{{ route('html.show', [$wiki->url, $article->url_title]) }}" class="btn btn-primary">{{ __('Show') }}</a>
+            <a href="{{ route('html.show', [$wiki->url, $article->url_title]) }}" class="btn btn-secondary">{{ __('Show') }}</a>
             <form action="{{ route('html.destroy', [$wiki->url, $article->url_title]) }}" method="post">
                 @csrf
                 @method('delete')
                 <button class="btn btn-danger" type="submit">{{ __('Delete') }}</button>
             </form>
         @endif
+
     </div>
     <p class="mt-3">{{$revision->content }}</p>
     <span class="categories-list">

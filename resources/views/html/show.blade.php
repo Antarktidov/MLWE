@@ -22,7 +22,7 @@
     <div class="links">
         @if ($canEditHtmlPages)
             <a href="{{ route('html.edit', [$wiki->url, $article->url_title]) }}" class="btn btn-primary">{{ __('Edit') }}</a>
-            <a href="{{ route('html.text', [$wiki->url, $article->url_title]) }}" class="btn btn-primary">{{ __('Text') }}</a>
+            <a href="{{ route('html.text', [$wiki->url, $article->url_title]) }}" class="btn btn-secondary">{{ __('Text') }}</a>
             <form action="{{ route('html.destroy', [$wiki->url, $article->url_title]) }}" method="post">
                 @csrf
                 @method('delete')
