@@ -18,12 +18,12 @@
     </script>
     <script src="{{ asset('js/utils.js') }}" defer></script>
     <script src="{{ asset('js/cat.js') }}" defer></script>
-    <h1>Блог учатника:{{ $author->name }}/{{ $revision->title }}</h1>
+    <h1>HTML:{{ $revision->title }}</h1>
     <div class="links">
-        @if ($canEditBlog)
-            <a href="{{ route('blogs.edit', [$wiki->url, $author->id, $article->url_title]) }}" class="btn btn-primary">{{ __('Edit') }}</a>
-            <a href="{{ route('blogs.history', [$wiki->url, $author->id, $article->url_title]) }}" class="btn btn-secondary">{{ __('History') }}</a>
-            <form action="{{ route('blogs.destroy', [$wiki->url, $author->id, $article->url_title]) }}" method="post">
+        @if ($canEditHtmlPages)
+            <a href="{{ route('html.edit', [$wiki->url, $author->id, $article->url_title]) }}" class="btn btn-primary">{{ __('Edit') }}</a>
+            <a href="{{ route('html.history', [$wiki->url, $author->id, $article->url_title]) }}" class="btn btn-secondary">{{ __('History') }}</a>
+            <form action="{{ route('html.destroy', [$wiki->url, $author->id, $article->url_title]) }}" method="post">
                 @csrf
                 @method('delete')
                 <button class="btn btn-danger" type="submit">{{ __('Delete') }}</button>

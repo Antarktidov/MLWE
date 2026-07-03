@@ -184,24 +184,24 @@ Route::middleware([ProtectionLevel3Middleware::class])->group(function () {
 
     //Работа с чистыми html-страницами на вики
     Route::get('/wiki/{wikiName}/all-htmls', [HtmlPagesController::class, 'index'])->name('html.index');
-    Route::get('/wiki/{wikiName}/html/{author}', [HtmlPagesController::class, 'user_html'])->name('html.user_html');
-    Route::get('/wiki/{wikiName}/html/{author}/{articleName}', [HtmlPagesController::class, 'show'])->name('html.show');
-    Route::get('/wiki/{wikiName}/html/{author}/{articleName}/edit', [HtmlPagesController::class, 'edit'])->name('html.edit')
+    Route::get('/wiki/{wikiName}/html', [HtmlPagesController::class, 'user_html'])->name('html.user_html');
+    Route::get('/wiki/{wikiName}/html/{articleName}', [HtmlPagesController::class, 'show'])->name('html.show');
+    Route::get('/wiki/{wikiName}/html/{articleName}/edit', [HtmlPagesController::class, 'edit'])->name('html.edit')
         ->middleware(['auth', ProtectionLevel1Middleware::class, ProtectionLevel2Middleware::class]);
     Route::get('/wiki/{wikiName}/create-html', [HtmlPagesController::class, 'create'])->name('html.create')
         ->middleware(['auth', ProtectionLevel1Middleware::class, ProtectionLevel2Middleware::class]);
     Route::post('/wiki/{wikiName}/store-html', [HtmlPagesController::class, 'store'])->name('html.store')
         ->middleware(['auth', ProtectionLevel1Middleware::class]);
-    Route::post('/wiki/{wikiName}/update/{author}/{articleName}/html/edit', [HtmlPagesController::class, 'update'])->name('html.update')
+    Route::post('/wiki/{wikiName}/update/{articleName}/html/edit', [HtmlPagesController::class, 'update'])->name('html.update')
         ->middleware(['auth', ProtectionLevel1Middleware::class, ProtectionLevel2Middleware::class]);
-    Route::delete('/wiki/{wikiName}/html/{author}/{articleName}/destroy', [HtmlPagesController::class, 'destroy'])->name('html.destroy')
+    Route::delete('/wiki/{wikiName}/html/{articleName}/destroy', [HtmlPagesController::class, 'destroy'])->name('html.destroy')
         ->middleware('auth');
     Route::get('/wiki/{wikiName}/html-trash', [HtmlPagesController::class, 'trash'])->name('html.trash')
         ->middleware(ViewDeletedMiddleware::class);
-    Route::get('/wiki/{wikiName}/html-trash/{author}/{articleName}', [HtmlPagesController::class, 'show_deleted'])
+    Route::get('/wiki/{wikiName}/html-trash/{articleName}', [HtmlPagesController::class, 'show_deleted'])
         ->name('html.trash.show')
         ->middleware(ViewDeletedMiddleware::class);
-    Route::post('/wiki/{wikiName}/html/{author}/{articleName}/restore', [HtmlPagesController::class, 'restore'])->name('html.restore')
+    Route::post('/wiki/{wikiName}/html/{articleName}/restore', [HtmlPagesController::class, 'restore'])->name('html.restore')
         ->middleware('auth');
 
     //трансфер статей

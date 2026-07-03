@@ -83,12 +83,11 @@ class HtmlPagesController extends Controller
         return view('html.index', compact('articles', 'wiki'));
     }
 
-    public function show(string $wikiName, User $author, string $articleName)
+    public function show(string $wikiName, string $articleName)
     {
         $wiki = Wiki::active()->byUrl($wikiName)->firstOrFail();
         $article = Article::active()->byWiki($wiki)->byUrl($articleName)
             ->byNS(self::NS)
-            ->where('author_id', $author->id)
             ->firstOrFail();
 
         $user = auth()->user();
@@ -107,15 +106,14 @@ class HtmlPagesController extends Controller
         $is_comments_enabled = $options->is_comments_enabled;
         $images = Image::approved()->latest()->limit(5)->get();
 
-        $canEditHtmlPages = $user && $this->canEditHtmlPages($user, $wiki, $article);
-        $author = $article->author_id ? User::find($article->author_id) : null;
+        $canEditHtmlPages = $user && $user->can('edit_html_pages', $wiki->url);
 
         return view('html.show', compact(
             'revision', 'wiki', 'article', 'categories',
             'poll', 'trivia', 'permissions', 'userInfo',
             'options', 'images', 'is_comments_enabled',
             'userId', 'userName', 'userCanDeleteComments',
-            'userCanApproveComments', 'canEditHtmlPages', 'author'
+            'userCanApproveComments', 'canEditHtmlPages'
         ));
     }
 
@@ -161,7 +159,7 @@ class HtmlPagesController extends Controller
             'url_title' => $data['url_title'],
             'title' => $data['title'],
             'namespace' => self::NS,
-            'author_id' => $user->id,
+            'author_id' => 0,
         ]);
 
         Revision::create([
@@ -174,7 +172,7 @@ class HtmlPagesController extends Controller
             'is_patrolled' => true,
         ]);
 
-        return redirect()->route('html.show', [$wiki->url, $user->id, $created_article->url_title]);
+        return redirect()->route('html.show', [$wiki->url, $created_article->url_title]);
     }
 
     public function edit(string $wikiName, User $author, string $articleName)
@@ -195,7 +193,6 @@ class HtmlPagesController extends Controller
             ->whereNull('deleted_at')
             ->where('url_title', $articleName)
             ->where('namespace', self::NS)
-            ->where('author_id', $author->id)
             ->first();
 
         if (!$article) {
@@ -245,7 +242,6 @@ class HtmlPagesController extends Controller
             ->whereNull('deleted_at')
             ->where('url_title', $articleName)
             ->where('namespace', self::NS)
-            ->where('author_id', $author->id)
             ->firstOrFail();
 
         if (!$this->canEditHtmlPages($user, $wiki, $article)) {
@@ -317,7 +313,6 @@ class HtmlPagesController extends Controller
             ->whereNull('deleted_at')
             ->where('url_title', $articleName)
             ->where('namespace', self::NS)
-            ->where('author_id', $author->id)
             ->first();
 
         if (!$article) {
@@ -384,7 +379,6 @@ class HtmlPagesController extends Controller
             ->where('wiki_id', $wiki->id)
             ->where('namespace', self::NS)
             ->where('url_title', $articleName)
-            ->where('author_id', $author->id)
             ->first();
 
         if (!$article) {
@@ -436,7 +430,6 @@ class HtmlPagesController extends Controller
             ->where('wiki_id', $wiki->id)
             ->where('url_title', $articleName)
             ->where('namespace', self::NS)
-            ->where('author_id', $author->id)
             ->first();
 
         if (!$article) {
