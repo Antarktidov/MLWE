@@ -291,7 +291,7 @@ class HtmlPagesController extends Controller
         return redirect()->route('html.show', [$wiki->url, $article->url_title]);
     }
 
-    public function destroy(string $wikiName, User $author, string $articleName): Response
+    public function destroy(string $wikiName, string $articleName): Response
     {
         $user = auth()->user();
         if (!$user) {
@@ -360,7 +360,7 @@ class HtmlPagesController extends Controller
         return view('html.trash', compact('articles', 'wiki'));
     }
 
-    public function show_deleted(string $wikiName, User $author, string $articleName)
+    public function show_deleted(string $wikiName, string $articleName)
     {
         $wiki = Wiki::where('url', $wikiName)->first();
         if (!$wiki) {
@@ -382,8 +382,6 @@ class HtmlPagesController extends Controller
                 ->header('Content-Type', 'text/plain');
         }
 
-        $author = User::find($article->author_id);
-
         if ($can_check_revisions) {
             $revision = Revision::where('article_id', $article->id)
                 ->whereNull('deleted_at')
@@ -402,13 +400,13 @@ class HtmlPagesController extends Controller
                 ->header('Content-Type', 'text/plain');
         }
 
-        $canEditHtmlPages = $user && $this->can('edit_html_pages');
+        $canEditHtmlPages = $user && $user->can('edit_html_pages', $wiki->url);
 
         return view('html.deleted', compact('revision', 'wiki', 'article',
-        'author', 'canEditHtmlPages'));
+        'canEditHtmlPages'));
     }
 
-    public function restore(string $wikiName, User $author, string $articleName): Response
+    public function restore(string $wikiName, string $articleName): Response
     {
         $user = auth()->user();
         if (!$user) {
