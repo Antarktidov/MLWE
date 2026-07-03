@@ -98,6 +98,7 @@ class HtmlPagesController extends Controller
 
         $permissions = $this->permissionService->getArticlePermissions($user, $wiki, $article);
         $revision = $this->revisionService->getVisibleRevision($article, $permissions);
+        $revision_dangerous = $this->revisionService->getVisibleRevision($article, $permissions, $is_dangerous_content = true);
         $poll = $this->pollService->getPollData($article, $user);
         $trivia = $this->triviaService->getTrivia($article);
         $categories = $this->categoryService->getCategories($article);
@@ -109,7 +110,7 @@ class HtmlPagesController extends Controller
         $canEditHtmlPages = $user && $user->can('edit_html_pages', $wiki->url);
 
         return view('html.show', compact(
-            'revision', 'wiki', 'article', 'categories',
+            'revision', 'revision_dangerous', 'wiki', 'article', 'categories',
             'poll', 'trivia', 'permissions', 'userInfo',
             'options', 'images', 'is_comments_enabled',
             'userId', 'userName', 'userCanDeleteComments',

@@ -1,7 +1,7 @@
 @extends('layouts.app')
 @section('content')
 @if (count($articles) !== 0)
-<h1>{{ __('All blogs') }}</h1>
+<h1>{{ __('All html pages') }}</h1>
     <table class="table">
         <thead>
           <tr>

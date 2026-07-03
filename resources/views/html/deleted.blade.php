@@ -12,7 +12,5 @@
     <!--<a href=" route('html.deleted.history', [$wiki->url, $author->id, $article->url_title]) " class="btn btn-secondary"> __('History') </a>-->
     @endcan
     </div>
-    <p class="mt-3">{!! Str::of($revision->content)->markdown([
-        'html_input' => 'strip',
-    ]) !!}</p>
+    <p class="mt-3">{{$revision->content}}</p>
 @endsection

@@ -6,13 +6,13 @@ use App\Models\Revision;
 use App\Models\Article;
 
 class RevisionService {
-    public function getVisibleRevision(Article $article, $permissions)
+    public function getVisibleRevision(Article $article, $permissions, $is_dangerous_content = false)
     {
         $q = Revision::where('article_id', $article->id)
             ->whereNull('deleted_at')
             ->orderByDesc('id');
 
-        if ($permissions->can_check_revisions) {
+        if ($permissions->can_check_revisions && !$is_dangerous_content) {
             return $q->first();
         }
 

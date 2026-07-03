@@ -29,9 +29,7 @@
             </form>
         @endif
     </div>
-    <p class="mt-3">{!! Str::of($revision->content)->markdown([
-        'html_input' => 'strip',
-    ]) !!}</p>
+    <p class="mt-3">{!! $revision_dangerous?->content !!}</p>
     <span class="categories-list">
     <!--foreach ($categories as $cat)
         <span class="border rounded p-1 category-item m-1" data-cat-id=" $cat->id ">
