@@ -22,6 +22,7 @@ A PHP Laravel 13 Wiki Engine with comments and more.
 * approve and patroll feature
 * friends system
 * user blog
+* pure html pages (edited by users with specific rights. Need approvement by users with other specific rights)
 
 ## Requirements
 * PHP 8.5
