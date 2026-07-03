@@ -1,7 +1,7 @@
 @extends('layouts.app')
 @section('content')
-<h1>{{ __('Edit blog') }}</h1>
-<form action="{{ route('blogs.update', [$wiki->url, $author->id, $article->url_title]) }}" method="post">
+<h1>{{ __('Edit html page') }}</h1>
+<form action="{{ route('html.update', [$wiki->url, $article->url_title]) }}" method="post">
     @csrf
     <div class="mb-3">
       <label for="title" class="form-label">{{ __('Title') }}</label>
@@ -14,7 +14,7 @@
       value="{{ $article->url_title }}">
     </div>
     <div class="mb-3">
-        <label class="form-label" for="content">{{ __('Blog text') }}</label>
+        <label class="form-label" for="content">{{ __('html text') }}</label>
         <textarea name="content" class="form-control" id="content">{{ $revision->content }}</textarea>
     </div>
     @can('manage_trivia', $wiki->url)

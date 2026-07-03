@@ -175,13 +175,9 @@ class HtmlPagesController extends Controller
         return redirect()->route('html.show', [$wiki->url, $created_article->url_title]);
     }
 
-    public function edit(string $wikiName, User $author, string $articleName)
+    public function edit(string $wikiName, string $articleName)
     {
         $user = auth()->user();
-        if (!$user) {
-            return response('Unauthorized', 401)
-                ->header('Content-Type', 'text/plain');
-        }
 
         $wiki = Wiki::where('url', $wikiName)->whereNull('deleted_at')->first();
         if (!$wiki) {
@@ -200,7 +196,7 @@ class HtmlPagesController extends Controller
                 ->header('Content-Type', 'text/plain');
         }
 
-        if (!$this->canEditHtmlPages($user, $wiki, $article)) {
+        if (!$user->can('edit_html_pages', $wiki->url)) {
             return response('Forbidden', 403)
                 ->header('Content-Type', 'text/plain');
         }
@@ -225,10 +221,10 @@ class HtmlPagesController extends Controller
                 ->header('Content-Type', 'text/plain');
         }
 
-        return view('html.edit', compact('article', 'revision', 'wiki', 'author'));
+        return view('html.edit', compact('article', 'revision', 'wiki'));
     }
 
-    public function update(string $wikiName, User $author, string $articleName, Request $request)
+    public function update(string $wikiName, string $articleName, Request $request)
     {
         $wiki = Wiki::where('url', $wikiName)->whereNull('deleted_at')->firstOrFail();
         $user = auth()->user();
@@ -244,7 +240,7 @@ class HtmlPagesController extends Controller
             ->where('namespace', self::NS)
             ->firstOrFail();
 
-        if (!$this->canEditHtmlPages($user, $wiki, $article)) {
+        if (!$user->can('edit_html_pages', $wiki->url)){
             return response('Forbidden', 403)
                 ->header('Content-Type', 'text/plain');
         }
@@ -292,7 +288,7 @@ class HtmlPagesController extends Controller
             'is_patrolled' => true,
         ]);
 
-        return redirect()->route('html.show', [$wiki->url, $author->id, $article->url_title]);
+        return redirect()->route('html.show', [$wiki->url, $article->url_title]);
     }
 
     public function destroy(string $wikiName, User $author, string $articleName): Response
@@ -320,7 +316,7 @@ class HtmlPagesController extends Controller
                 ->header('Content-Type', 'text/plain');
         }
 
-        if (!$this->canEditHtmlPages($user, $wiki, $article)) {
+        if (!$user->can('edit_html_pages', $wiki->url)) {
             return response('Forbidden', 403)
                 ->header('Content-Type', 'text/plain');
         }
@@ -437,7 +433,7 @@ class HtmlPagesController extends Controller
                 ->header('Content-Type', 'text/plain');
         }
 
-        if (!$this->canEditHtmlPages($user, $wiki, $article)) {
+        if (!$user->can('edit_html_pages', $wiki->url)) {
             return response('Forbidden', 403)
                 ->header('Content-Type', 'text/plain');
         }
