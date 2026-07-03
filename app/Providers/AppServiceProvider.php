@@ -138,6 +138,14 @@ public function boot(): void
     Gate::define('edit_other_users_blogs', function ($user, $wikiName) {
         return PermissionChecker::check($user, $wikiName, 'can_edit_other_users_blogs');
     });
+
+    Gate::define('edit_html_pages', function ($user, $wikiName) {
+        return PermissionChecker::check($user, $wikiName, 'can_edit_html_pages');
+    });
+
+    Gate::define('review_html_pages', function ($user, $wikiName) {
+        return PermissionChecker::check($user, $wikiName, 'can_review_html_pages');
+    });
     
     /*Gate::define('revert_edits_to_old_version', function ($user, $wikiName) {
         return PermissionChecker::check($user, $wikiName, 'can_revert_edits_to_old_version');
