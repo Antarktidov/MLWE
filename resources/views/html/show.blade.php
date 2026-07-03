@@ -46,7 +46,7 @@
     <div id="comments"
          data-wiki-name="{{ $wiki->url }}"
          data-article-name="{{ $article->url_title }}"
-         data-page-type="blog"
+         data-page-type="html"
          data-user-id="{{ $userId }}"
          data-user-name="{{ $userName }}"
          data-user-can-delete-comments="{{ $userCanDeleteComments ? 'true' : 'false' }}"

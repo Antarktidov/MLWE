@@ -61,6 +61,7 @@
          data-article-name="{{ $article->url_title }}"
          data-user-id="{{ $userId }}"
          data-user-name="{{ $userName }}"
+         data-page-type="article"
          data-user-can-delete-comments="{{ $userCanDeleteComments ? 'true' : 'false' }}"
          data-user-can-approve-comments="{{ $userCanApproveComments ? 'true' : 'false' }}"
          >
