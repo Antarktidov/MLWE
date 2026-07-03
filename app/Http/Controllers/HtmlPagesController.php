@@ -118,6 +118,41 @@ class HtmlPagesController extends Controller
         ));
     }
 
+    public function text(string $wikiName, string $articleName)
+    {
+        $wiki = Wiki::active()->byUrl($wikiName)->firstOrFail();
+        $article = Article::active()->byWiki($wiki)->byUrl($articleName)
+            ->byNS(self::NS)
+            ->firstOrFail();
+
+        $user = auth()->user();
+        $userId = $user->id ?? 0;
+        $userName = $user->name ?? 'Анонимный участник';
+        $userCanDeleteComments = $user?->can('delete_comments', $wiki->url) ?? false;
+        $userCanApproveComments = $user?->can('check_comments', $wiki->url) ?? false;
+
+        $permissions = $this->permissionService->getArticlePermissions($user, $wiki, $article);
+        $revision = $this->revisionService->getVisibleRevision($article, $permissions);
+        $revision_dangerous = $this->revisionService->getVisibleRevision($article, $permissions, $is_dangerous_content = true);
+        $poll = $this->pollService->getPollData($article, $user);
+        $trivia = $this->triviaService->getTrivia($article);
+        $categories = $this->categoryService->getCategories($article);
+        $userInfo = $this->userService->getUserInfo($user, $wiki);
+        $options = Option::getOptions();
+        $is_comments_enabled = $options->is_comments_enabled;
+        $images = Image::approved()->latest()->limit(5)->get();
+
+        $canEditHtmlPages = $user && $user->can('edit_html_pages', $wiki->url);
+
+        return view('html.text', compact(
+            'revision', 'revision_dangerous', 'wiki', 'article', 'categories',
+            'poll', 'trivia', 'permissions', 'userInfo',
+            'options', 'images', 'is_comments_enabled',
+            'userId', 'userName', 'userCanDeleteComments',
+            'userCanApproveComments', 'canEditHtmlPages'
+        ));
+    }
+
     public function create(string $wikiName)
     {
         $user = auth()->user();

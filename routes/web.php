@@ -186,6 +186,7 @@ Route::middleware([ProtectionLevel3Middleware::class])->group(function () {
     Route::get('/wiki/{wikiName}/all-htmls', [HtmlPagesController::class, 'index'])->name('html.index');
     Route::get('/wiki/{wikiName}/html', [HtmlPagesController::class, 'user_html'])->name('html.user_html');
     Route::get('/wiki/{wikiName}/html/{articleName}', [HtmlPagesController::class, 'show'])->name('html.show');
+    Route::get('/wiki/{wikiName}/html/{articleName}/text', [HtmlPagesController::class, 'text'])->name('html.text');
     Route::get('/wiki/{wikiName}/html/{articleName}/edit', [HtmlPagesController::class, 'edit'])->name('html.edit')
         ->middleware(['auth', ProtectionLevel1Middleware::class, ProtectionLevel2Middleware::class]);
     Route::get('/wiki/{wikiName}/create-html', [HtmlPagesController::class, 'create'])->name('html.create')

@@ -18,11 +18,11 @@
     </script>
     <script src="{{ asset('js/utils.js') }}" defer></script>
     <script src="{{ asset('js/cat.js') }}" defer></script>
-    <h1>HTML:{{ $revision->title }}</h1>
+    <h1>HTML/Text:{{ $revision->title }}</h1>
     <div class="links">
         @if ($canEditHtmlPages)
             <a href="{{ route('html.edit', [$wiki->url, $article->url_title]) }}" class="btn btn-primary">{{ __('Edit') }}</a>
-            <a href="{{ route('html.text', [$wiki->url, $article->url_title]) }}" class="btn btn-primary">{{ __('Text') }}</a>
+            <a href="{{ route('html.show', [$wiki->url, $article->url_title]) }}" class="btn btn-primary">{{ __('Show') }}</a>
             <form action="{{ route('html.destroy', [$wiki->url, $article->url_title]) }}" method="post">
                 @csrf
                 @method('delete')
@@ -30,7 +30,7 @@
             </form>
         @endif
     </div>
-    <p class="mt-3">{!! $revision_dangerous?->content !!}</p>
+    <p class="mt-3">{{$revision->content }}</p>
     <span class="categories-list">
     <!--foreach ($categories as $cat)
         <span class="border rounded p-1 category-item m-1" data-cat-id=" $cat->id ">
@@ -42,18 +42,6 @@
         <input name="new-category" class="border rounded m-1" type="text" placeholder="new category">
         <button class="border rounded m-1 p-1" type="submit" onclick="addCat()">Add category</button>
         -->
-    @if ($is_comments_enabled)
-    <div id="comments"
-         data-wiki-name="{{ $wiki->url }}"
-         data-article-name="{{ $article->url_title }}"
-         data-page-type="blog"
-         data-user-id="{{ $userId }}"
-         data-user-name="{{ $userName }}"
-         data-user-can-delete-comments="{{ $userCanDeleteComments ? 'true' : 'false' }}"
-         data-user-can-approve-comments="{{ $userCanApproveComments ? 'true' : 'false' }}"
-         >
-    </div>
-    @endif
 @endsection
 @section('right-column')
     @if (count($images) > 0)
