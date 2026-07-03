@@ -60,6 +60,7 @@ use App\Models\Option;//волшебный код, который может п�
 use App\Http\Middleware\ManageMedalsMiddleware;
 use App\Http\Middleware\ManageGlobalMedalsMiddleware;
 use App\Http\Middleware\TransferArticlesMiddleware;
+use App\Http\Middleware\ReviewHtmlPagesMiddleware;
 
 Route::middleware([ProtectionLevel3Middleware::class])->group(function () {
 
@@ -204,6 +205,9 @@ Route::middleware([ProtectionLevel3Middleware::class])->group(function () {
         ->middleware(ViewDeletedMiddleware::class);
     Route::post('/wiki/{wikiName}/html/{articleName}/restore', [HtmlPagesController::class, 'restore'])->name('html.restore')
         ->middleware('auth');
+        Route::post('/wiki/{wikiName}/html/{articleName}/{revisionId}/approve', [RevisionController::class,'approve'])->name('html.revision.approve')
+        ->defaults('namespace', 'html')
+        ->middleware(ReviewHtmlPagesMiddleware::class);
 
     //трансфер статей
     Route::post('/transfer-articles/article_id/{article}', [ArticleController::class,'transfer_articles'])

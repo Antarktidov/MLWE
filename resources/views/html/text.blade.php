@@ -29,6 +29,12 @@
                 <button class="btn btn-danger" type="submit">{{ __('Delete') }}</button>
             </form>
         @endif
+        @can('review_html_pages', [$wiki->url])
+            <form action="{{ route('html.revision.approve', [$wiki->url, $article->url_title, $revision->id]) }}" method="post">
+                @csrf
+                <button class="btn btn-success" type="submit">{{ __('Approve') }}</button>
+                </form>
+        @endcan
 
     </div>
     <p class="mt-3">{{$revision->content }}</p>
