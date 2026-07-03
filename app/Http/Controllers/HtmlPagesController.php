@@ -208,7 +208,7 @@ class HtmlPagesController extends Controller
             'is_patrolled' => true,
         ]);
 
-        return redirect()->route('html.show', [$wiki->url, $created_article->url_title]);
+        return redirect()->route('html.text', [$wiki->url, $created_article->url_title]);
     }
 
     public function edit(string $wikiName, string $articleName)
@@ -324,7 +324,7 @@ class HtmlPagesController extends Controller
             'is_patrolled' => true,
         ]);
 
-        return redirect()->route('html.show', [$wiki->url, $article->url_title]);
+        return redirect()->route('html.text', [$wiki->url, $article->url_title]);
     }
 
     public function destroy(string $wikiName, string $articleName): Response
