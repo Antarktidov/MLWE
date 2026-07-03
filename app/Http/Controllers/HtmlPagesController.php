@@ -1,8 +1,26 @@
 <?php
 
 namespace App\Http\Controllers;
-
 use Illuminate\Http\Request;
+use App\Models\Article;
+use App\Models\Revision;
+use App\Models\Wiki;
+use App\Models\Option;
+use App\Models\Image;
+use App\Models\Quiz;
+use App\Models\Poll;
+use App\Models\PollVote;
+use App\Models\Category;
+
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\DB;
+
+use App\Services\PermissionService;
+use App\Services\RevisionService;
+use App\Services\PollService;
+use App\Services\CategoryService;
+use App\Services\UserService;
+use App\Services\TriviaService;
 
 class HtmlPagesController extends Controller
 {
@@ -62,7 +80,7 @@ class HtmlPagesController extends Controller
                 ->get();
         }
 
-        return view('blogs.index', compact('articles', 'wiki'));
+        return view('html.index', compact('articles', 'wiki'));
     }
 
     public function show(string $wikiName, User $author, string $articleName)
@@ -92,7 +110,7 @@ class HtmlPagesController extends Controller
         $canEditHtmlPages = $user && $this->canEditHtmlPages($user, $wiki, $article);
         $author = $article->author_id ? User::find($article->author_id) : null;
 
-        return view('blogs.show', compact(
+        return view('html.show', compact(
             'revision', 'wiki', 'article', 'categories',
             'poll', 'trivia', 'permissions', 'userInfo',
             'options', 'images', 'is_comments_enabled',
@@ -115,7 +133,7 @@ class HtmlPagesController extends Controller
                 ->header('Content-Type', 'text/plain');
         }
 
-        return view('blogs.create', compact('wiki'));
+        return view('html.create', compact('wiki'));
     }
 
     public function store(string $wikiName, Request $request)
@@ -156,7 +174,7 @@ class HtmlPagesController extends Controller
             'is_patrolled' => true,
         ]);
 
-        return redirect()->route('blogs.show', [$wiki->url, $user->id, $created_article->url_title]);
+        return redirect()->route('html.show', [$wiki->url, $user->id, $created_article->url_title]);
     }
 
     public function edit(string $wikiName, User $author, string $articleName)
@@ -210,7 +228,7 @@ class HtmlPagesController extends Controller
                 ->header('Content-Type', 'text/plain');
         }
 
-        return view('blogs.edit', compact('article', 'revision', 'wiki', 'author'));
+        return view('html.edit', compact('article', 'revision', 'wiki', 'author'));
     }
 
     public function update(string $wikiName, User $author, string $articleName, Request $request)
@@ -278,7 +296,7 @@ class HtmlPagesController extends Controller
             'is_patrolled' => true,
         ]);
 
-        return redirect()->route('blogs.show', [$wiki->url, $author->id, $article->url_title]);
+        return redirect()->route('html.show', [$wiki->url, $author->id, $article->url_title]);
     }
 
     public function destroy(string $wikiName, User $author, string $articleName): Response
@@ -348,7 +366,7 @@ class HtmlPagesController extends Controller
                 ->get();
         }
 
-        return view('blogs.trash', compact('articles', 'wiki'));
+        return view('html.trash', compact('articles', 'wiki'));
     }
 
     public function show_deleted(string $wikiName, User $author, string $articleName)
@@ -396,7 +414,7 @@ class HtmlPagesController extends Controller
 
         $canEditHtmlPages = $user && $this->can('edit_html_pages');
 
-        return view('blogs.deleted', compact('revision', 'wiki', 'article',
+        return view('html.deleted', compact('revision', 'wiki', 'article',
         'author', 'canEditHtmlPages'));
     }
 

@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\WikisController;
 use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\BlogController;
+use App\Http\Controllers\HtmlPagesController;
 use App\Http\Controllers\RevisionController;
 use App\Http\Controllers\ImageController;
 use App\Http\Controllers\UserRightsController;
@@ -102,7 +103,7 @@ Route::middleware([ProtectionLevel3Middleware::class])->group(function () {
     Route::post('/commons/approve/{image}', [ImageController::class,'approve'])->name('images.approve')
     ->middleware(ApproveImageMiddleware::class);
 
-    //Работа со статьями на викиях
+    //Работа со статьями на вики
     Route::get('/wiki/{wikiName}/all-articles', [ArticleController::class,'index'])->name('index.articles');
     Route::get('/wiki/{wikiName}/article/{articleName}', [ArticleController::class,'show'])->name('articles.show');
     Route::get('/wiki/{wikiName}/article/{articleName}/edit', [ArticleController::class,'edit'])->name('articles.edit')
@@ -123,7 +124,7 @@ Route::middleware([ProtectionLevel3Middleware::class])->group(function () {
     Route::post('/wiki/{wikiName}/{articleName}/restore', [ArticleController::class,'restore'])->name('articles.restore')
         ->middleware(RestoreMiddleware::class);
 
-    //Работа с блогами на викиях
+    //Работа с блогами на вики
     Route::get('/wiki/{wikiName}/all-blogs', [BlogController::class, 'index'])->name('blogs.index');
     Route::get('/wiki/{wikiName}/blog/{author}', [BlogController::class, 'user_blog'])->name('blogs.user_blog');
     Route::get('/wiki/{wikiName}/blog/{author}/{articleName}', [BlogController::class, 'show'])->name('blogs.show');
@@ -180,6 +181,28 @@ Route::middleware([ProtectionLevel3Middleware::class])->group(function () {
         ->defaults('namespace', 'blog')
         ->name('blogs.revision.depatrol')
         ->middleware(PatrolRevisionMiddleware::class);*/
+
+    //Работа с чистыми html-страницами на вики
+    Route::get('/wiki/{wikiName}/all-htmls', [HtmlPagesController::class, 'index'])->name('html.index');
+    Route::get('/wiki/{wikiName}/html/{author}', [HtmlPagesController::class, 'user_html'])->name('html.user_html');
+    Route::get('/wiki/{wikiName}/html/{author}/{articleName}', [HtmlPagesController::class, 'show'])->name('html.show');
+    Route::get('/wiki/{wikiName}/html/{author}/{articleName}/edit', [HtmlPagesController::class, 'edit'])->name('html.edit')
+        ->middleware(['auth', ProtectionLevel1Middleware::class, ProtectionLevel2Middleware::class]);
+    Route::get('/wiki/{wikiName}/create-html', [HtmlPagesController::class, 'create'])->name('html.create')
+        ->middleware(['auth', ProtectionLevel1Middleware::class, ProtectionLevel2Middleware::class]);
+    Route::post('/wiki/{wikiName}/store-html', [HtmlPagesController::class, 'store'])->name('html.store')
+        ->middleware(['auth', ProtectionLevel1Middleware::class]);
+    Route::post('/wiki/{wikiName}/update/{author}/{articleName}/html/edit', [HtmlPagesController::class, 'update'])->name('html.update')
+        ->middleware(['auth', ProtectionLevel1Middleware::class, ProtectionLevel2Middleware::class]);
+    Route::delete('/wiki/{wikiName}/html/{author}/{articleName}/destroy', [HtmlPagesController::class, 'destroy'])->name('html.destroy')
+        ->middleware('auth');
+    Route::get('/wiki/{wikiName}/html-trash', [HtmlPagesController::class, 'trash'])->name('html.trash')
+        ->middleware(ViewDeletedMiddleware::class);
+    Route::get('/wiki/{wikiName}/html-trash/{author}/{articleName}', [HtmlPagesController::class, 'show_deleted'])
+        ->name('html.trash.show')
+        ->middleware(ViewDeletedMiddleware::class);
+    Route::post('/wiki/{wikiName}/html/{author}/{articleName}/restore', [HtmlPagesController::class, 'restore'])->name('html.restore')
+        ->middleware('auth');
 
     //трансфер статей
     Route::post('/transfer-articles/article_id/{article}', [ArticleController::class,'transfer_articles'])
