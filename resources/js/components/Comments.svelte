@@ -74,6 +74,7 @@
       'content': md.render(new_comment),
       'markdown_content': new_comment,
       'created_at': __('Just now'),
+      'avatar': avatar,
     });
     console.log('Обновлённые комменты: ', comments);
     new_comment = '';
