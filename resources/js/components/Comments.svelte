@@ -171,6 +171,14 @@
   {#if comments.length > 0}
     <div>
       {#each comments as comment, index (comment.id + '-' + index)}
+      <div class="comment-and-avatar">
+        {#if comment.avatar != null}
+             <div title="{comment.user_name}" class="comment-avatar mt-4" style="background: {comment.avatar}">
+             </div>
+          {:else}
+              <div title="{comment.user_name}" class="comment-avatar mt-4" style="background: gray;"> ?
+              </div>
+          {/if}
         <div class="card mt-4 p-2">
           <div class="d-flex">
             <span class="fw-bold">{comment.user_name}</span><span class="ms-auto fst-italic text-secondary">{comment.created_at}</span>
@@ -210,6 +218,7 @@
           </div>
           {/if}
         </div>
+        </div>
       {/each}
     </div>
   <div class="pagination mt-4">
@@ -225,3 +234,20 @@
     <p>{__('No comments yet.')}</p>
   {/if}
 </div>
+<style>
+  .comment-and-avatar {
+    display: grid;
+    grid-template-columns: 40px 1fr;
+    gap: 10px;
+}
+.comment-avatar {
+    height: 40px;
+    width: 40px;
+    border-radius: 12px;
+    
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-size: cover !important;
+}
+</style>
