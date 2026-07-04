@@ -8,6 +8,8 @@ use App\Models\Wiki;
 use App\Models\Article;
 use App\Models\Comment;
 use App\Models\CommentRevision;
+use App\Models\UserProfileRevision;
+use Illuminate\Support\Facades\DB;
 
 use Illuminate\Support\Str;
 
@@ -42,9 +44,24 @@ class CommentsController extends Controller
         $commentIds = $comments->pluck('id');
         $userIds = $comments->pluck('user_id')->filter()->unique()->values();
 
+        $latestProfileRevisions = UserProfileRevision::whereIn('user_id', $userIds)
+            ->whereNull('deleted_at')
+            ->where('is_approved', true)
+            ->select(['user_id', 'avatar'])
+            ->orderBy('id', 'desc')
+            ->get()
+            ->unique('user_id')
+            ->keyBy('user_id');
+
         $usersById = User::whereIn('id', $userIds)
             ->select(['id', 'name'])
             ->get()
+            ->map(function (User $user) use ($latestProfileRevisions) {
+                $profileRevision = $latestProfileRevisions->get($user->id);
+                $user->setAttribute('avatar', $profileRevision?->avatar);
+
+                return $user;
+            })
             ->keyBy('id');
 
         $revisionsQuery = CommentRevision::whereIn('comment_id', $commentIds)
@@ -75,6 +92,7 @@ class CommentsController extends Controller
                 'id' => $comment->id,
                 'user_id' => $comment->user_id,
                 'user_name' => $user_name,
+                'avatar' => $author?->getAttribute('avatar'),
                 'created_at' => $comment->created_at ? $comment->created_at->format('Y-m-d H:i:s') : null,
                 'content' => Str::of($content)->markdown([
                     'html_input' => 'strip',
