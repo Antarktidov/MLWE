@@ -133,6 +133,14 @@ class UserProfileController extends Controller
         ]);
     }
 
+    public function get_avatar(User $user) {
+        $wiki = Wiki::withTrashed()->first();
+        $viewer = auth()->user();
+        $permissions = $this->permissionService->profilePermissions($viewer, $user, $wiki);
+        $profiles = $this->profileService->getProfiles($user->id, 0, $permissions);
+        return ["avatar" => $profiles["global"]->avatar];
+    }
+
 
     public function approve(UserProfileRevision $up_rev) {
         $up_rev->update([
