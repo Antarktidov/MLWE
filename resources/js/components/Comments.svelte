@@ -11,6 +11,8 @@
   let currentPage = $state(1);
   let meta = $state({});
 
+  let avatar = $state("");
+
   //Код локализации интерфейса
   import ru from '../../../lang/ru.json';
   import en from '../../../lang/en.json';
@@ -41,6 +43,14 @@
   }
   loadComments();
 
+  async function fetch_avatar() {
+    const res = await fetch(`/api/avatar/${userId}`);
+    const json = await res.json();
+    avatar = json.avatar;
+    console.log(avatar);
+  }
+  fetch_avatar();
+
   async function postComment() {
     let comment = {
       'content': new_comment
@@ -64,6 +74,7 @@
       'content': md.render(new_comment),
       'markdown_content': new_comment,
       'created_at': __('Just now'),
+      'avatar': avatar,
     });
     console.log('Обновлённые комменты: ', comments);
     new_comment = '';
@@ -164,13 +175,30 @@
 <div class="comments">
   <h2>{__('Comments')}</h2>
   <h3>{__('New comment')}</h3>
+  <div class="comment-and-avatar">
+  {#if avatar != null}
+             <div class="comment-avatar" style="background: {avatar}">
+             </div>
+          {:else}
+              <div class="comment-avatar" style="background: gray;"> ?
+              </div>
+          {/if}
   <div class="d-flex">
     <textarea bind:value={new_comment} class="form-control" placeholder={__('Enter new comment')}></textarea>
     <button onclick={() => postComment()} class="btn btn-primary ms-4">{__('Send')}</button>
   </div>
+  </div>
   {#if comments.length > 0}
     <div>
       {#each comments as comment, index (comment.id + '-' + index)}
+      <div class="comment-and-avatar">
+        {#if comment.avatar != null}
+             <div title="{comment.user_name}" class="comment-avatar mt-4" style="background: {comment.avatar}">
+             </div>
+          {:else}
+              <div title="{comment.user_name}" class="comment-avatar mt-4" style="background: gray;"> ?
+              </div>
+          {/if}
         <div class="card mt-4 p-2">
           <div class="d-flex">
             <span class="fw-bold">{comment.user_name}</span><span class="ms-auto fst-italic text-secondary">{comment.created_at}</span>
@@ -210,6 +238,7 @@
           </div>
           {/if}
         </div>
+        </div>
       {/each}
     </div>
   <div class="pagination mt-4">
@@ -225,3 +254,20 @@
     <p>{__('No comments yet.')}</p>
   {/if}
 </div>
+<style>
+  .comment-and-avatar {
+    display: grid;
+    grid-template-columns: 40px 1fr;
+    gap: 10px;
+}
+.comment-avatar {
+    height: 40px;
+    width: 40px;
+    border-radius: 12px;
+    
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-size: cover !important;
+}
+</style>
