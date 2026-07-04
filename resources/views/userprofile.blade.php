@@ -23,11 +23,11 @@
 <link rel="stylesheet" href="{{asset('css/profile.css')}}">
 <style>
   .profile-banner {
-    background: @if($user_profile && $user_profile->banner) {{ $user_profile->banner }} @else linear-gradient(135deg, var(--bs-secondary) 0%, var(--bs-dark) 100%)@endif;
+    background: @if($user_profile_local && $user_profile_local->banner) {{ $user_profile_local->banner }} @elseif($user_profile && $user_profile->banner) {{ $user_profile->banner }} @else linear-gradient(135deg, var(--bs-secondary) 0%, var(--bs-dark) 100%)@endif;
   }
   /* Placeholder для аватара/баннера — загрузка будет на бэкенде */
   .profile-avatar {
-    background: @if($user_profile && $user_profile->avatar) {{ $user_profile->avatar }} @else var(--bs-secondary) @endif;
+    background: @if($user_profile_local && $user_profile_local->avatar) {{ $user_profile_local->avatar }} @elseif($user_profile && $user_profile->avatar) {{ $user_profile->avatar }} @else var(--bs-secondary) @endif;
   }
 </style>
 <div class="border rounded overflow-hidden">
