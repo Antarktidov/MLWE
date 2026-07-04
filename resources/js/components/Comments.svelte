@@ -11,6 +11,8 @@
   let currentPage = $state(1);
   let meta = $state({});
 
+  let avatar = $state("");
+
   //Код локализации интерфейса
   import ru from '../../../lang/ru.json';
   import en from '../../../lang/en.json';
@@ -40,6 +42,14 @@
     console.log('userCanApproveComments', userCanApproveComments);
   }
   loadComments();
+
+  async function fetch_avatar() {
+    const res = await fetch(`/api/avatar/${userId}`);
+    const json = await res.json();
+    avatar = json.avatar;
+    console.log(avatar);
+  }
+  fetch_avatar();
 
   async function postComment() {
     let comment = {
@@ -164,9 +174,18 @@
 <div class="comments">
   <h2>{__('Comments')}</h2>
   <h3>{__('New comment')}</h3>
+  <div class="comment-and-avatar">
+  {#if avatar != null}
+             <div class="comment-avatar" style="background: {avatar}">
+             </div>
+          {:else}
+              <div class="comment-avatar" style="background: gray;"> ?
+              </div>
+          {/if}
   <div class="d-flex">
     <textarea bind:value={new_comment} class="form-control" placeholder={__('Enter new comment')}></textarea>
     <button onclick={() => postComment()} class="btn btn-primary ms-4">{__('Send')}</button>
+  </div>
   </div>
   {#if comments.length > 0}
     <div>
