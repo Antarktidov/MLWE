@@ -239,6 +239,60 @@
           {/if}
         </div>
         </div>
+        {#if comment.children.length > 0}
+    <div class="replies">
+      {#each comment.children as rep, index (rep.id + '-' + index)}
+      <div class="comment-and-avatar">
+        {#if rep.avatar != null}
+             <div title="{rep.user_name}" class="comment-avatar mt-4" style="background: {rep.avatar}">
+             </div>
+          {:else}
+              <div title="{rep.user_name}" class="comment-avatar mt-4" style="background: gray;"> ?
+              </div>
+          {/if}
+        <div class="card mt-4 p-2">
+          <div class="d-flex">
+            <span class="fw-bold">{rep.user_name}</span><span class="ms-auto fst-italic text-secondary">{rep.created_at}</span>
+          </div>
+          <div class="p2 mt-2">
+            {#if rep.is_editor_open == undefined || rep.is_editor_open == null || rep.is_editor_open === false}
+              {@html rep.content}
+            {/if}
+          </div>
+          {#if rep.is_editor_open == undefined || rep.is_editor_open == null || rep.is_editor_open === false}
+          <div class="ms-auto">
+            {#if userId !== 0 && rep.user_id !== 0 && +userId === +rep.user_id}
+              <span>
+                <button onclick={() => openCommentEditor(rep.id)} class="btn btn-primary">{__('Edit')}</button>
+              </span>  
+            {/if}
+            <span>
+              {#if userCanDeleteComments}
+               <span>
+                <button onclick={() => deleteComment(rep.id)} class="btn btn-danger">{__('Delete')}</button>
+              </span>
+              {/if}
+            </span>
+            <span>
+              {#if userCanApproveComments && !rep.is_approved}
+               <span>
+                <button onclick={() => approveComment(rep.id)} class="btn btn-success">{__('Approve')}</button>
+              </span>
+              {/if}
+            </span>
+          </div>
+          {:else}
+          <div class="d-flex">
+            <textarea bind:value={edited_comment} class="form-control" ></textarea>
+            <button onclick={() => closeEditedComment(rep.id)} class="btn btn-danger ms-2">{__('Close')}</button>
+            <button onclick={() => saveEditedComment(rep.id)} class="btn btn-primary ms-2">{__('Save')}</button>
+          </div>
+          {/if}
+        </div>
+        </div>
+      {/each}
+    </div>
+    {/if}
       {/each}
     </div>
   <div class="pagination mt-4">
@@ -269,5 +323,8 @@
     align-items: center;
     justify-content: center;
     background-size: cover !important;
+}
+.replies {
+    margin-left: 50px;
 }
 </style>
