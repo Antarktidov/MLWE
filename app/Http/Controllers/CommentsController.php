@@ -39,7 +39,7 @@ class CommentsController extends Controller
 
         $allComments = Comment::whereNull('deleted_at')
             ->where('article_id', $article->id)
-            ->orderBy('created_at', 'desc')
+            ->orderBy('created_at')
             ->select(['id', 'user_id', 'created_at', 'parent_id'])
             ->get();
 
