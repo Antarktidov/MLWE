@@ -242,8 +242,9 @@
   </div>
   </div>
   {#if comments.length > 0}
-    <div>
+    <div class="mt-4">
       {#each comments as comment, index (comment.id)}
+      <div class="mb-4">
       <div class="comment-and-avatar">
         {#if comment.avatar != null}
              <div title="{comment.user_name}" class="comment-avatar mt-4" style="background: {comment.avatar}">
@@ -360,6 +361,7 @@
     </div>
     </div>
     {/if}
+    </div>
       {/each}
     </div>
   <div class="pagination mt-4">
