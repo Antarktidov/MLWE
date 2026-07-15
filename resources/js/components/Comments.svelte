@@ -292,17 +292,6 @@
           {/if}
           
         </div>
-        {#if avatar != null}
-             <div class="comment-avatar" style="background: {avatar}">
-             </div>
-          {:else}
-              <div class="comment-avatar" style="background: gray;"> ?
-              </div>
-          {/if}
-          <div class="replies d-flex">
-            <textarea bind:value={comment.new_reply} class="form-control" placeholder={__('Enter new reply')}></textarea>
-            <button onclick={(parent_id = comment.id) => postComment(parent_id = comment.id)} class="btn btn-primary ms-4">{__('Send')}</button>
-          </div>
         </div>
         {#if comment.children.length > 0}
     <div class="replies">
@@ -356,6 +345,19 @@
         </div>
         </div>
       {/each}
+      <div class="comment-and-avatar mt-4">
+      {#if avatar != null}
+             <div class="comment-avatar" style="background: {avatar}">
+             </div>
+          {:else}
+              <div class="comment-avatar" style="background: gray;"> ?
+              </div>
+          {/if}
+          <div class="d-flex">
+            <textarea bind:value={comment.new_reply} class="form-control" placeholder={__('Enter new reply')}></textarea>
+            <button onclick={(parent_id = comment.id) => postComment(parent_id = comment.id)} class="btn btn-primary ms-4">{__('Send')}</button>
+          </div>
+    </div>
     </div>
     {/if}
       {/each}
