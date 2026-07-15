@@ -52,6 +52,7 @@
     const res = await fetch(`/api/wiki/${wikiName}/${pageSegment}/${articleName}/comments?page=${page}`);
     const json = await res.json();
     comments = json.data;
+    comments.new_reply = '';
     meta = json.meta;
     currentPage = meta.current_page;
     console.log(comments);
@@ -67,10 +68,21 @@
   }
   fetch_avatar();
 
-  async function postComment() {
-    let comment = {
-      'content': new_comment
-    };
+  async function postComment(parent_id = null) {
+    if (parent_id === null) {
+      var comment = {
+      'content': new_comment,
+      };
+    } else {
+      //comments = comments.filter(comment => comment.id !== commentId);
+      var main_comment = comments.find(comment => comment.id === parent_id);
+      var comment = {
+      'content': main_comment.new_reply,
+      'parent_id': parent_id,
+      };
+    }
+
+    console.log('Новый коммент или ответ:', comment);
 
     let response = await fetch(`/api/wiki/${wikiName}/${pageSegment}/${articleName}/comments/store`, {
     method: 'POST',
@@ -92,6 +104,7 @@
       'created_at': __('Just now'),
       'avatar': avatar,
       'children': [],
+      'new_reply': '',
     });
     console.log('Обновлённые комменты: ', comments);
     new_comment = '';
@@ -214,7 +227,7 @@
   </div>
   {#if comments.length > 0}
     <div>
-      {#each comments as comment, index (comment.id + '-' + index)}
+      {#each comments as comment, index (comment.id)}
       <div class="comment-and-avatar">
         {#if comment.avatar != null}
              <div title="{comment.user_name}" class="comment-avatar mt-4" style="background: {comment.avatar}">
@@ -261,7 +274,19 @@
             <button onclick={() => saveEditedComment(comment.id)} class="btn btn-primary ms-2">{__('Save')}</button>
           </div>
           {/if}
+          
         </div>
+        {#if avatar != null}
+             <div class="comment-avatar" style="background: {avatar}">
+             </div>
+          {:else}
+              <div class="comment-avatar" style="background: gray;"> ?
+              </div>
+          {/if}
+          <div class="replies d-flex">
+            <textarea bind:value={comment.new_reply} class="form-control" placeholder={__('Enter new reply')}></textarea>
+            <button onclick={(parent_id = comment.id) => postComment(parent_id = comment.id)} class="btn btn-primary ms-4">{__('Send')}</button>
+          </div>
         </div>
         {#if comment.children.length > 0}
     <div class="replies">
