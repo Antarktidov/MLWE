@@ -114,6 +114,7 @@ class CommentsController extends Controller
     {
         $data = request()->validate([
             'content' => 'string',
+            'parent_id' => 'nullable|integer'
         ]);
         $wiki = Wiki::where('url', $wikiName)->whereNull('deleted_at')->first();
 
@@ -132,6 +133,7 @@ class CommentsController extends Controller
                     'user_id' => $userId,
                     'user_ip' => $request->ip(),
                     'article_id' => $article->id,
+                    'parent_id' => $data['parent_id'] ?? null,
                 ];
 
                 $created_comment = Comment::create($comment);
