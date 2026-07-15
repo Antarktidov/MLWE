@@ -91,6 +91,7 @@
       'markdown_content': new_comment,
       'created_at': __('Just now'),
       'avatar': avatar,
+      'children': [],
     });
     console.log('Обновлённые комменты: ', comments);
     new_comment = '';
