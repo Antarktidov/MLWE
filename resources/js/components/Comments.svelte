@@ -95,7 +95,7 @@
     const resJson = await response.json();
     const commentId = resJson.id;
 
-    if (parent_id !== null) {
+    if (parent_id === null) {
         comments.unshift({
         'id': commentId,
         'user_id': userId,
@@ -106,17 +106,20 @@
         'avatar': avatar,
         'children': [],
         'new_reply': '',
+        
       });
+      new_comment = '';
     } else {
       main_comment.children.push({
         'id': commentId,
         'user_id': userId,
         'user_name': userName,
-        'content': md.render(new_comment),
-        'markdown_content': new_comment,
+        'content': md.render(main_comment.new_reply),
+        'markdown_content': main_comment.new_reply,
         'created_at': __('Just now'),
         'avatar': avatar,
     });
+    main_comment.new_reply = '';
     }
     
     console.log('Обновлённые комменты: ', comments);
