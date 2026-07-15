@@ -32,17 +32,24 @@ class CommentsController extends Controller
 
         $comments = Comment::whereNull('deleted_at')
             ->where('article_id', $article->id)
+            ->whereNull('parent_id')
             ->orderBy('created_at', 'desc')
-            ->select(['id', 'user_id', 'created_at'])
+            ->select(['id', 'user_id', 'created_at', 'parent_id'])
             ->paginate(10);
+
+        $allComments = Comment::whereNull('deleted_at')
+            ->where('article_id', $article->id)
+            ->orderBy('created_at', 'desc')
+            ->select(['id', 'user_id', 'created_at', 'parent_id'])
+            ->get();
 
         $output_comments = [];
 
         $user = auth()->user();
         $check_comments = $user != null && $user->can('check_comments', $wiki->url);
 
-        $commentIds = $comments->pluck('id');
-        $userIds = $comments->pluck('user_id')->filter()->unique()->values();
+        $commentIds = $allComments->pluck('id');
+        $userIds = $allComments->pluck('user_id')->filter()->unique()->values();
 
         $latestProfileRevisions = UserProfileRevision::whereIn('user_id', $userIds)
             ->whereNull('deleted_at')
@@ -77,29 +84,19 @@ class CommentsController extends Controller
             ->unique('comment_id')
             ->keyBy('comment_id');
 
+        $commentsById = $allComments->keyBy('id');
+
         foreach ($comments as $comment) {
-            $comment_revision = $revisionsByCommentId->get($comment->id);
-            $content = $comment_revision ? $comment_revision->content : null;
+            $formattedComment = $this->formatCommentWithChildren(
+                $comment,
+                $commentsById,
+                $usersById,
+                $revisionsByCommentId,
+            );
 
-            if ($content == null) {
-                continue;
+            if ($formattedComment !== null) {
+                $output_comments[] = $formattedComment;
             }
-
-            $author = $usersById->get($comment->user_id);
-            $user_name = $author ? $author->name : __('Anonymous user');
-
-            $output_comments[] = [
-                'id' => $comment->id,
-                'user_id' => $comment->user_id,
-                'user_name' => $user_name,
-                'avatar' => $author?->getAttribute('avatar'),
-                'created_at' => $comment->created_at ? $comment->created_at->format('Y-m-d H:i:s') : null,
-                'content' => Str::of($content)->markdown([
-                    'html_input' => 'strip',
-                ]),
-                'markdown_content' => $content,
-                'is_approved' => $comment_revision->is_approved,
-            ];
         }
 
         return response()->json([
@@ -224,6 +221,60 @@ class CommentsController extends Controller
         } else {
             return response()->json(['error' => 'Wiki not found'], 404);
         }
+    }
+
+    private function formatCommentWithChildren(
+        Comment $comment,
+        $commentsById,
+        $usersById,
+        $revisionsByCommentId,
+    ): ?array {
+        $commentRevision = $revisionsByCommentId->get($comment->id);
+        $content = $commentRevision ? $commentRevision->content : null;
+
+        if ($content === null) {
+            return null;
+        }
+
+        $author = $usersById->get($comment->user_id);
+        $userName = $author ? $author->name : __('Anonymous user');
+
+        $children = $commentsById
+            ->filter(function (Comment $childComment) use ($comment) {
+                return $childComment->parent_id === $comment->id;
+            })
+            //->sortByDesc('created_at')
+            ->values();
+
+        $formattedChildren = [];
+
+        foreach ($children as $childComment) {
+            $formattedChild = $this->formatCommentWithChildren(
+                $childComment,
+                $commentsById,
+                $usersById,
+                $revisionsByCommentId,
+            );
+
+            if ($formattedChild !== null) {
+                $formattedChildren[] = $formattedChild;
+            }
+        }
+
+        return [
+            'id' => $comment->id,
+            'user_id' => $comment->user_id,
+            'parent_id' => $comment->parent_id,
+            'user_name' => $userName,
+            'avatar' => $author?->getAttribute('avatar'),
+            'created_at' => $comment->created_at ? $comment->created_at->format('Y-m-d H:i:s') : null,
+            'content' => Str::of($content)->markdown([
+                'html_input' => 'strip',
+            ]),
+            'markdown_content' => $content,
+            'is_approved' => $commentRevision?->is_approved,
+            'children' => $formattedChildren,
+        ];
     }
 
     private function findPage(Wiki $wiki, string $articleName, string $namespace): ?Article
