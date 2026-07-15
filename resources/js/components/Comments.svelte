@@ -94,18 +94,31 @@
     });
     const resJson = await response.json();
     const commentId = resJson.id;
-    
-    comments.unshift({
-      'id': commentId,
-      'user_id': userId,
-      'user_name': userName,
-      'content': md.render(new_comment),
-      'markdown_content': new_comment,
-      'created_at': __('Just now'),
-      'avatar': avatar,
-      'children': [],
-      'new_reply': '',
+
+    if (parent_id !== null) {
+        comments.unshift({
+        'id': commentId,
+        'user_id': userId,
+        'user_name': userName,
+        'content': md.render(new_comment),
+        'markdown_content': new_comment,
+        'created_at': __('Just now'),
+        'avatar': avatar,
+        'children': [],
+        'new_reply': '',
+      });
+    } else {
+      main_comment.children.push({
+        'id': commentId,
+        'user_id': userId,
+        'user_name': userName,
+        'content': md.render(new_comment),
+        'markdown_content': new_comment,
+        'created_at': __('Just now'),
+        'avatar': avatar,
     });
+    }
+    
     console.log('Обновлённые комменты: ', comments);
     new_comment = '';
   }
