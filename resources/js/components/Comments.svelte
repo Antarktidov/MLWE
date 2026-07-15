@@ -297,6 +297,14 @@
     <div class="replies">
       {#if comment.children.length > 0}
         {#each comment.children as rep, index (rep.id)}
+        <div class="comment-and-avatar">
+        {#if rep.avatar != null}
+             <div title="{rep.user_name}" class="comment-avatar mt-4" style="background: {rep.avatar}">
+             </div>
+          {:else}
+              <div title="{rep.user_name}" class="comment-avatar mt-4" style="background: gray;"> ?
+              </div>
+          {/if}
           <div class="card mt-4 p-2">
             <div class="d-flex">
               <span class="fw-bold">{rep.user_name}</span><span class="ms-auto fst-italic text-secondary">{rep.created_at}</span>
@@ -335,6 +343,7 @@
                 <button onclick={() => saveEditedComment(rep.id)} class="btn btn-primary ms-2">{__('Save')}</button>
               </div>
             {/if}
+          </div>
           </div>
         {/each}
       {/if}
