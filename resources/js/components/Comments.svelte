@@ -29,6 +29,22 @@
 
   const md = new MarkdownIt();
 
+  function findCommentById(items, commentId) {
+    for (const item of items || []) {
+      if (item.id === commentId) {
+        return item;
+      }
+
+      if (Array.isArray(item.children) && item.children.length > 0) {
+        const nestedComment = findCommentById(item.children, commentId);
+        if (nestedComment) {
+          return nestedComment;
+        }
+      }
+    }
+
+    return null;
+  }
 
   console.log('Пропсы:', wikiName, articleName, userId, userName, userCanDeleteComments, userCanApproveComments);
 
@@ -109,10 +125,13 @@
     closeEditedComment(edited_comment_id)
     edited_comment_id = commentId;
     console.log('Edit btn pressed');
-    let comment = comments.find(comment => comment.id === commentId);
+    let comment = findCommentById(comments, commentId);
     console.log('Комент, выбранный для редактирования:', comment);
-    comment.is_editor_open = true;
-    edited_comment = comment.markdown_content;
+
+    if (comment) {
+      comment.is_editor_open = true;
+      edited_comment = comment.markdown_content ?? '';
+    }
   }
 
   async function saveEditedComment(commentId) {
@@ -133,7 +152,7 @@
       const result = await response.json();
       
       if (response.ok) {
-        let comment = comments.find(comment => comment.id === commentId);
+        let comment = findCommentById(comments, commentId);
         if (comment) {
           comment.content = md.render(edited_comment);
           comment.markdown_content = edited_comment;
@@ -158,8 +177,12 @@
     }
 
     console.log('Close btn pressed');
-    let comment = comments.find(comment => comment.id === commentId);
-    comment.is_editor_open = false;
+    let comment = findCommentById(comments, commentId);
+
+    if (comment) {
+      comment.is_editor_open = false;
+    }
+
     edited_comment = '';
 
   }
