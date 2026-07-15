@@ -303,7 +303,7 @@
         </div>
         {#if comment.children.length > 0}
     <div class="replies">
-      {#each comment.children as rep, index (rep.id + '-' + index)}
+      {#each comment.children as rep, index (rep.id)}
       <div class="comment-and-avatar">
         {#if rep.avatar != null}
              <div title="{rep.user_name}" class="comment-avatar mt-4" style="background: {rep.avatar}">
