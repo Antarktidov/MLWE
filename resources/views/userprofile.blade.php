@@ -202,8 +202,8 @@
          data-user-id="{{ $viewer->id }}"
          data-user-name="{{ $viewer->name }}"
          data-page-type="message_wall"
-         data-user-can-delete-comments="{{ true ? 'true' : 'false' }}"
-         data-user-can-approve-comments="{{ true ? 'true' : 'false' }}"
+         data-user-can-delete-comments="{{ $userCanDeleteComments ? 'true' : 'false' }}"
+         data-user-can-approve-comments="{{ $userCanApproveComments ? 'true' : 'false' }}"
          >
     </div>
   </div>

@@ -117,6 +117,9 @@ class UserProfileController extends Controller
         $medals = $this->medalService->getUserMedalsWithMeta($user->id, $wiki->id);
         $allMedals = $this->medalService->getAllMedals($wiki->id);
 
+        $userCanDeleteComments  = $user?->can('delete_comments',  $wiki->url) ?? false;
+        $userCanApproveComments  = $user?->can('check_comments',  $wiki->url) ?? false;
+
         return view('userprofile', [
             'user' => $user,
             'viewer' => $viewer,
@@ -131,6 +134,8 @@ class UserProfileController extends Controller
             'medals' => $medals,
             'all_medals_global' => $allMedals['global'],
             'all_medals_local' => $allMedals['local'],
+            'userCanApproveComments' => $userCanApproveComments,
+            'userCanDeleteComments' => $userCanDeleteComments,
         ]);
     }
 
