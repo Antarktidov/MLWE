@@ -201,7 +201,7 @@
          data-article-name="{{ $user->id }}"
          data-user-id="{{ $viewer->id }}"
          data-user-name="{{ $viewer->name }}"
-         data-page-type="article"
+         data-page-type="message_wall"
          data-user-can-delete-comments="{{ true ? 'true' : 'false' }}"
          data-user-can-approve-comments="{{ true ? 'true' : 'false' }}"
          >
