@@ -226,8 +226,8 @@
 </script>
 
 <div class="comments">
-  <h2>{__('Comments')}</h2>
-  <h3>{__('New comment')}</h3>
+  <h2>{pageSegment === "message_wall" ? __('Message wall') : __('Comments')}</h2>
+  <h3>{pageSegment === "message_wall" ? __('New message') : __('New comment')}</h3>
   <div class="comment-and-avatar">
   {#if avatar != null}
              <div class="comment-avatar" style="background: {avatar}">
@@ -237,7 +237,7 @@
               </div>
           {/if}
   <div class="d-flex">
-    <textarea bind:value={new_comment} class="form-control" placeholder={__('Enter new comment')}></textarea>
+    <textarea bind:value={new_comment} class="form-control" placeholder={pageSegment === "message_wall" ? __('Enter new message') : __('Enter new comment')}></textarea>
     <button onclick={() => postComment()} class="btn btn-primary ms-4">{__('Send')}</button>
   </div>
   </div>
