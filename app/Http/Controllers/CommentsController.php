@@ -33,6 +33,7 @@ class CommentsController extends Controller
         if ($namespace === "message_wall") {
             $comments = Comment::whereNull('deleted_at')
                 ->where('article_id', $article->id)
+                ->where('type', 'mw-message')
                 ->whereNull('parent_id')
                 ->orderBy('created_at', 'desc')
                 ->select(['id', 'user_id', 'created_at', 'parent_id'])
@@ -40,6 +41,7 @@ class CommentsController extends Controller
 
             $allComments = Comment::whereNull('deleted_at')
                 ->where('article_id', $article->id)
+                ->where('type', 'mw-message')
                 ->orderBy('created_at')
                 ->select(['id', 'user_id', 'created_at', 'parent_id'])
                 ->get();
