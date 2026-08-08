@@ -119,6 +119,7 @@ class UserProfileController extends Controller
 
         return view('userprofile', [
             'user' => $user,
+            'viewer' => $viewer,
             'wiki' => $wiki,
             'user_group_names' => $groups,
             'user_profile' => $profiles['global'],
