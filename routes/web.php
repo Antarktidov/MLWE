@@ -307,6 +307,28 @@ Route::middleware([ProtectionLevel3Middleware::class])->group(function () {
             ->name('blog_comments.update');
     });
 
+    //Работа с со стенами обсуждений
+    Route::middleware([CommentsEnabledMiddleware::class])->group(function () {
+        Route::get('/api/wiki/{wikiName}/message_wall/{articleName}/comments', [CommentsController::class, 'show_comments_under_article'])
+            ->defaults('namespace', 'message_wall')
+            ->name('blog_comments.show_all');
+        Route::post('/api/wiki/{wikiName}/message_wall/{articleName}/comments/store', [CommentsController::class, 'store'])
+            ->defaults('namespace', 'message_wall')
+            ->name('blog_comments.store')
+            ->middleware(ProtectionLevel2Middleware::class);
+        Route::delete('/api/wiki/{wikiName}/message_wall/{articleName}/comments/{comment}/delete', [CommentsController::class, 'delete'])
+            ->defaults('namespace', 'message_wall')
+            ->middleware(DeleteCommentsMiddleware::class)
+            ->name('blog_comments.delete');
+        Route::post('/api/wiki/{wikiName}/message_wall/{articleName}/comments/{comment}/approve', [CommentsController::class, 'approve'])
+            ->defaults('namespace', 'message_wall')
+            ->middleware(ApproveCommentMiddleware::class)
+            ->name('blog_comments.approve');
+        Route::post('/api/wiki/{wikiName}/message_wall/{articleName}/comments/{comment}/update', [CommentsController::class, 'update'])
+            ->defaults('namespace', 'message_wall')
+            ->name('blog_comments.update');
+    });
+
     //Работа с разрешениями групп участников
     Route::get('/permissions_manager', [PermissionsManagerController::class,'index'])->name('permissions_manager.index')
     ->middleware(PermissionManagerMiddleware::class);

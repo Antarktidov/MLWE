@@ -30,18 +30,34 @@ class CommentsController extends Controller
                 ->header('Content-Type', 'text/plain');
         }
 
-        $comments = Comment::whereNull('deleted_at')
-            ->where('article_id', $article->id)
-            ->whereNull('parent_id')
-            ->orderBy('created_at', 'desc')
-            ->select(['id', 'user_id', 'created_at', 'parent_id'])
-            ->paginate(10);
+        if ($namespace === "message_wall") {
+            $comments = Comment::whereNull('deleted_at')
+                ->where('article_id', $article->id)
+                ->whereNull('parent_id')
+                ->orderBy('created_at', 'desc')
+                ->select(['id', 'user_id', 'created_at', 'parent_id'])
+                ->paginate(10);
 
-        $allComments = Comment::whereNull('deleted_at')
-            ->where('article_id', $article->id)
-            ->orderBy('created_at')
-            ->select(['id', 'user_id', 'created_at', 'parent_id'])
-            ->get();
+            $allComments = Comment::whereNull('deleted_at')
+                ->where('article_id', $article->id)
+                ->orderBy('created_at')
+                ->select(['id', 'user_id', 'created_at', 'parent_id'])
+                ->get();
+        } else {
+
+            $comments = Comment::whereNull('deleted_at')
+                ->where('article_id', $article->id)
+                ->whereNull('parent_id')
+                ->orderBy('created_at', 'desc')
+                ->select(['id', 'user_id', 'created_at', 'parent_id'])
+                ->paginate(10);
+
+            $allComments = Comment::whereNull('deleted_at')
+                ->where('article_id', $article->id)
+                ->orderBy('created_at')
+                ->select(['id', 'user_id', 'created_at', 'parent_id'])
+                ->get();
+        }
 
         $output_comments = [];
 
