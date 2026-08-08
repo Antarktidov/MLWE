@@ -30,18 +30,36 @@ class CommentsController extends Controller
                 ->header('Content-Type', 'text/plain');
         }
 
-        $comments = Comment::whereNull('deleted_at')
-            ->where('article_id', $article->id)
-            ->whereNull('parent_id')
-            ->orderBy('created_at', 'desc')
-            ->select(['id', 'user_id', 'created_at', 'parent_id'])
-            ->paginate(10);
+        if ($namespace === "message_wall") {
+            $comments = Comment::whereNull('deleted_at')
+                ->where('article_id', $article->id)
+                ->where('type', 'mw-message')
+                ->whereNull('parent_id')
+                ->orderBy('created_at', 'desc')
+                ->select(['id', 'user_id', 'created_at', 'parent_id'])
+                ->paginate(10);
 
-        $allComments = Comment::whereNull('deleted_at')
-            ->where('article_id', $article->id)
-            ->orderBy('created_at')
-            ->select(['id', 'user_id', 'created_at', 'parent_id'])
-            ->get();
+            $allComments = Comment::whereNull('deleted_at')
+                ->where('article_id', $article->id)
+                ->where('type', 'mw-message')
+                ->orderBy('created_at')
+                ->select(['id', 'user_id', 'created_at', 'parent_id'])
+                ->get();
+        } else {
+
+            $comments = Comment::whereNull('deleted_at')
+                ->where('article_id', $article->id)
+                ->whereNull('parent_id')
+                ->orderBy('created_at', 'desc')
+                ->select(['id', 'user_id', 'created_at', 'parent_id'])
+                ->paginate(10);
+
+            $allComments = Comment::whereNull('deleted_at')
+                ->where('article_id', $article->id)
+                ->orderBy('created_at')
+                ->select(['id', 'user_id', 'created_at', 'parent_id'])
+                ->get();
+        }
 
         $output_comments = [];
 
@@ -129,12 +147,23 @@ class CommentsController extends Controller
                     $userId = $user->id;
                 }
 
-                $comment = [
+                if ($namespace === "message_wall") {
+                    $comment = [
                     'user_id' => $userId,
                     'user_ip' => $request->ip(),
                     'article_id' => $article->id,
                     'parent_id' => $data['parent_id'] ?? null,
-                ];
+                    'type' => 'mw-message',
+                    ];
+                } else {
+
+                    $comment = [
+                        'user_id' => $userId,
+                        'user_ip' => $request->ip(),
+                        'article_id' => $article->id,
+                        'parent_id' => $data['parent_id'] ?? null,
+                    ];
+                }
 
                 $created_comment = Comment::create($comment);
 
@@ -279,8 +308,22 @@ class CommentsController extends Controller
         ];
     }
 
-    private function findPage(Wiki $wiki, string $articleName, string $namespace): ?Article
+    /*private function findMessageWall(Wiki $wiki, User $user) {
+
+    }*/
+
+    private function findPage(Wiki $wiki, string $articleName, string $namespace)
     {
+        if ($namespace === "message_wall") {
+            if (ctype_digit($articleName)) {
+
+                return User::findOrFail((int)$articleName);
+
+            } else {
+                abort(400);
+            }
+        }
+
         return Article::where('wiki_id', $wiki->id)
             ->where('url_title', $articleName)
             ->where('namespace', $namespace)

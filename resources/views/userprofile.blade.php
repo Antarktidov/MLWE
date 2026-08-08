@@ -195,6 +195,17 @@
             @endif
         </section>
       @endif
+
+      <div id="comments"
+         data-wiki-name="{{ $wiki->url }}"
+         data-article-name="{{ $user->id }}"
+         data-user-id="{{ $viewer->id }}"
+         data-user-name="{{ $viewer->name }}"
+         data-page-type="message_wall"
+         data-user-can-delete-comments="{{ $userCanDeleteComments ? 'true' : 'false' }}"
+         data-user-can-approve-comments="{{ $userCanApproveComments ? 'true' : 'false' }}"
+         >
+    </div>
   </div>
 </div>
 @endsection
