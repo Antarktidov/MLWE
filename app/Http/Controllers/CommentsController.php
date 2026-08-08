@@ -147,12 +147,23 @@ class CommentsController extends Controller
                     $userId = $user->id;
                 }
 
-                $comment = [
+                if ($namespace === "message_wall") {
+                    $comment = [
                     'user_id' => $userId,
                     'user_ip' => $request->ip(),
                     'article_id' => $article->id,
                     'parent_id' => $data['parent_id'] ?? null,
-                ];
+                    'type' => 'mw-message',
+                    ];
+                } else {
+
+                    $comment = [
+                        'user_id' => $userId,
+                        'user_ip' => $request->ip(),
+                        'article_id' => $article->id,
+                        'parent_id' => $data['parent_id'] ?? null,
+                    ];
+                }
 
                 $created_comment = Comment::create($comment);
 
