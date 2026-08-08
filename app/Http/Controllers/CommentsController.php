@@ -279,8 +279,22 @@ class CommentsController extends Controller
         ];
     }
 
-    private function findPage(Wiki $wiki, string $articleName, string $namespace): ?Article
+    /*private function findMessageWall(Wiki $wiki, User $user) {
+
+    }*/
+
+    private function findPage(Wiki $wiki, string $articleName, string $namespace)
     {
+        if ($namespace === "message_wall") {
+            if (ctype_digit($articleName)) {
+
+                return User::findOrFail((int)$articleName);
+
+            } else {
+                abort(400);
+            }
+        }
+
         return Article::where('wiki_id', $wiki->id)
             ->where('url_title', $articleName)
             ->where('namespace', $namespace)
