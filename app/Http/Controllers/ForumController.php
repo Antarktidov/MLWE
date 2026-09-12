@@ -25,7 +25,7 @@ class ForumController extends Controller
         private TriviaService $triviaService,
     ) {}
 
-    //Форма создания темы форума
+    //Форма создания категории форума
     public function create(string $wikiName) {
         $wiki = Wiki::where('url', $wikiName)->whereNull('deleted_at')->first();
         if ($wiki) {
@@ -83,7 +83,21 @@ class ForumController extends Controller
         $userInfo = $this->userService->getUserInfo($user, $wiki);
 
         return view('forum-topic', compact(
-            'article'
+            'wiki', 'article'
         ));
+    }
+
+    //Форма создания темы форума
+    public function create_thread(string $wikiName, string $articleName) {
+        $wiki = Wiki::where('url', $wikiName)->whereNull('deleted_at')->first();
+        $article = Article::active()->byWiki($wiki)->byUrl($articleName)
+        ->byNS('forum')
+        ->firstOrFail();
+        if ($wiki) {
+            return view('create-thread', compact('wiki', 'article'));
+        } else {
+            return response(__('Wiki does not exist'), 404)
+                ->header('Content-Type', 'text/plain');
+        }
     }
 }

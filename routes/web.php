@@ -407,7 +407,8 @@ Route::middleware([ProtectionLevel3Middleware::class])->group(function () {
     Route::get('/wiki/{wikiName}/forum/moderate/create_topic', [ForumController::class, 'create'])->name('forum.topic.create');
     Route::post('/wiki/{wikiName}/forum/moderate/create_topic', [ForumController::class, 'store'])->name('forum.topic.store');
     Route::get('/wiki/{wikiName}/forum/topic/view/{articleName}', [ForumController::class, 'show'])->name('forum.topic.show');
-//Логин, регистрация
+Route::get('/wiki/{wikiName}/forum/topic/{articleName}/create_thread', [ForumController::class, 'create_thread'])->name('forum.topic.create_thread');
+    //Логин, регистрация
 $options = Option::getOptions();//волшебный код, который может положить всё приложение
 Auth::routes([
     'verify' => true,
