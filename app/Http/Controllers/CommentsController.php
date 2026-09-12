@@ -319,9 +319,6 @@ class CommentsController extends Controller
         ];
     }
 
-    /*private function findMessageWall(Wiki $wiki, User $user) {
-
-    }*/
 
     private function findPage(Wiki $wiki, string $articleName, string $namespace)
     {
