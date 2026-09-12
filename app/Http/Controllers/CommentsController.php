@@ -132,7 +132,8 @@ class CommentsController extends Controller
     {
         $data = request()->validate([
             'content' => 'string',
-            'parent_id' => 'nullable|integer'
+            'parent_id' => 'nullable|integer',
+            'title' => 'nullable|string'
         ]);
         $wiki = Wiki::where('url', $wikiName)->whereNull('deleted_at')->first();
 
@@ -155,7 +156,17 @@ class CommentsController extends Controller
                     'parent_id' => $data['parent_id'] ?? null,
                     'type' => 'mw-message',
                     ];
-                } else {
+                } if ($namespace === "forum") {
+                    $comment = [
+                        'user_id' => $userId,
+                        'user_ip' => $request->ip(),
+                        'article_id' => $article->id,
+                        'parent_id' => $data['parent_id'] ?? null,
+                        'type' => 'forum-message',
+                        'title' => $data['title'] ?? null,
+                    ];
+                }
+                 else {
 
                     $comment = [
                         'user_id' => $userId,

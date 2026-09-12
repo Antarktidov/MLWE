@@ -1,7 +1,7 @@
 @extends('layouts.app')
 @section('content')
 <h1>Новое сообщение в категории форума: {{$article->title}}</h1>
-<form action="#">
+<form action="{{ route('forum_messages.store', [$wiki->url, $article->url_title]) }}" method="post">
     @csrf
     <div class="mb-3">
       <label for="title" class="form-label">{{__('Title')}}</label>
