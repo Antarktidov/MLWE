@@ -17,6 +17,7 @@ use App\Http\Controllers\QuizController;
 use App\Http\Controllers\PollsController;
 use App\Http\Controllers\FriendsController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\ForumController;
 
 use App\Http\Middleware\DeleteMiddleware;
 use App\Http\Middleware\DeleteRevisionMiddleware;
@@ -401,6 +402,11 @@ Route::middleware([ProtectionLevel3Middleware::class])->group(function () {
     ->middleware('auth');
     Route::delete('/api/friends/delete/{friend}', [FriendsController::class, 'delete'])->name('user.friends.delete')
     ->middleware('auth');
+
+    //Forum
+    // Route::get('/wiki/{wikiName}/article/{articleName}', [ArticleController::class,'show'])->name('articles.show');
+    Route::get('/wiki/{wikiName}/forum/moderate/create_topic', [ForumController::class, 'create'])->name('forum.topic.create');
+    Route::post('/wiki/{wikiName}/forum/moderate/create_topic', [ForumController::class, 'store'])->name('forum.topic.store');
 
 //Логин, регистрация
 $options = Option::getOptions();//волшебный код, который может положить всё приложение
